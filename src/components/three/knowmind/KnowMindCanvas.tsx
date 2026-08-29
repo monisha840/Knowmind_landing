@@ -5,15 +5,14 @@ import { type RefObject, useEffect, useRef } from "react";
 import * as THREE from "three";
 
 import type { Pointer } from "@/lib/hooks";
-import { CAMERA, type Tier, TIERS } from "./constants";
-import { Character } from "./Character";
+import { CAMERA, MOTION, type Tier, TIERS } from "./constants";
+import { HeadScene } from "./HeadScene";
 
 /**
  * The renderer.
  *
- * Transparent, three lights, no post-processing, no environment map, no shadow
- * maps. The page owns the background; this only draws the character on top of
- * it.
+ * Transparent, three lights, no post-processing, no environment map. The page
+ * owns the background; this only draws the heads on top of it.
  */
 
 type KnowMindCanvasProps = {
@@ -36,18 +35,36 @@ type KnowMindCanvasProps = {
  * Three lights, chosen to describe form rather than to dazzle.
  *
  * The key is pure white and the sky fill all but neutral, on purpose: a warm
- * key eats the blue channel of every purple in the scene, and wine violet with
- * its blue eaten is just red. All the warmth in this picture comes from the
- * honey the character turns, none of it from the lamps.
+ * key eats the blue channel of every purple in the scene, and deep purple with
+ * its blue eaten is just brown. All the warmth in this picture comes from the
+ * honey the thread turns, none of it from the lamps.
  *
- * The ground half of the hemisphere is deep purple rather than black, so the
- * shadow side stays a colour — the page behind it is nearly black already.
+ * The rim sits behind and to the face's side, which is the one light a profile
+ * cannot do without: the heads are a deep purple only a shade off the page
+ * behind them, and without an edge along the brow and the nose they would read
+ * as holes rather than as sculpture. The ground half of the hemisphere is deep
+ * purple rather than black, so the shadow side stays a colour.
  */
-function Lighting() {
+function Lighting({ shadows }: { shadows: boolean }) {
   return (
     <>
-      <hemisphereLight color="#fdfaf6" groundColor="#2b1442" intensity={1.75} />
-      <directionalLight position={[3.4, 4.6, 5.2]} intensity={2.15} color="#ffffff" />
+      <hemisphereLight color="#fdfaf6" groundColor="#2b1442" intensity={1.0} />
+      <directionalLight
+        position={[5.2, 3.4, 4.2]}
+        intensity={3.1}
+        color="#ffffff"
+        castShadow={shadows}
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-camera-left={-9}
+        shadow-camera-right={9}
+        shadow-camera-top={5}
+        shadow-camera-bottom={-5}
+        shadow-camera-near={0.5}
+        shadow-camera-far={22}
+        shadow-normalBias={0.02}
+        shadow-radius={3}
+      />
       <directionalLight position={[4.8, 0.4, -4.2]} intensity={2.6} color="#a8709a" />
     </>
   );
@@ -131,8 +148,9 @@ export function KnowMindCanvas({
     <Canvas
       frameloop={active ? "always" : "never"}
       dpr={[1, settings.dprMax]}
+      shadows={settings.shadows ? "soft" : false}
       camera={{
-        position: [0, 0.22, 6.9],
+        position: [0, 0, MOTION.cameraNear],
         fov: CAMERA.fov,
         near: CAMERA.near,
         far: CAMERA.far,
@@ -157,10 +175,10 @@ export function KnowMindCanvas({
         onReady();
       }}
     >
-      <Lighting />
+      <Lighting shadows={settings.shadows} />
       <ContextGuard onLost={onFail} />
       <AdaptiveResolution dprMax={settings.dprMax} />
-      <Character
+      <HeadScene
         progressRef={progressRef}
         pointer={pointer}
         tier={tier}

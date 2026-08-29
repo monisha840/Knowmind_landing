@@ -20,13 +20,13 @@ import { useScrollProgress } from "./useScrollProgress";
 import { useWebGL2Support } from "./useWebGL2";
 
 /**
- * KnowMind3D — the scroll-driven psychological growth character.
+ * KnowMind3D — the scroll-driven psychological triptych.
  *
  * A drop-in visual: give it a box and something to measure scroll against, and
- * it draws one character with a single thread around it, evolving from a tangle
- * through loosening loops into a clean halo. It owns its own geometry,
- * animation, lighting, quality tier and failure handling. The page owns its
- * position, its size and its background.
+ * it draws three identical sculptural profile heads whose internal thread
+ * reorganises from a tangle, through an unravelling, into a clear spiral. It
+ * owns its own geometry, animation, lighting, quality tier and failure
+ * handling. The page owns its position, its size and its background.
  *
  * It is an *enhancement*. Text renders first, the flat fallback holds the
  * space next, and three.js only arrives once the section is close enough to
@@ -56,10 +56,13 @@ export type KnowMind3DProps = {
    * value is read once per frame inside the render loop. Preferred.
    */
   progressRef?: RefObject<number>;
-  /** Position inside a full-bleed canvas. `right` is ignored below 1024px. */
-  align?: "center" | "right";
   /** Force a quality tier instead of measuring the device. */
   quality?: Tier | "auto";
+  /**
+   * Where the head sits in a full-bleed canvas. `right` stands it beside a
+   * column of copy and is ignored below 1024px, where there is no room to.
+   */
+  align?: "center" | "right";
   /**
    * Fade the whole visual out across this progress range, e.g. `[0.88, 1]`.
    *
@@ -70,8 +73,7 @@ export type KnowMind3DProps = {
   fade?: readonly [number, number];
   /**
    * An extra element to fade alongside the visual — the state rail beside the
-   * character, typically, which has nothing to name once the character has
-   * gone.
+   * head, typically, which has nothing to name once the sculpture has gone.
    */
   fadeRef?: RefObject<HTMLElement | null>;
   className?: string;
@@ -113,8 +115,8 @@ export function KnowMind3D({
   trackRef,
   progress,
   progressRef,
-  align = "center",
   quality = "auto",
+  align = "center",
   fade,
   fadeRef,
   className = "",
@@ -240,6 +242,7 @@ export function KnowMind3D({
       >
         <KnowMindFallback
           state={state}
+          align={align}
           variant={supported ? "loading" : "static"}
         />
       </div>

@@ -273,7 +273,7 @@ one without approval is a scope violation.
     │   ├── three/             # persistent background scene
     │   │   ├── BackgroundMount.tsx · Background3D.tsx · Fallback2D.tsx
     │   │   ├── GrowthObject.tsx · OrbitalField.tsx · CoreGlow.tsx
-    │   │   └── knowmind/      # the scroll-driven character (self-contained module)
+    │   │   └── knowmind/      # the scroll-driven sculptural head (self-contained module)
     │   └── ui/                # Accordion · CTAButton · Marquee · MethodIcons
     │                          # Metric · Reveal · SectionHeading · TestimonialCard
     └── lib/
@@ -697,33 +697,50 @@ the scroll. Two independent systems exist — know which one you are touching.
   disabled.
 - Reduced motion: `frameloop="demand"` — the object is shown, held still.
 
-### 10.2 System B — the KnowMind character
+### 10.2 System B — the KnowMind head
 
 `src/components/three/knowmind/` is a self-contained module with a public
 surface in `index.ts` and its own `README.md`. It is mounted by
 `MindEvolution.tsx`.
 
-Narrative: **TANGLED → UNRAVELING → CLEAR**. One character — a round body with a
-quiet face and thin limbs — and one continuous thread around it. A dense tangle
-loosens into flowing loops, then settles into a clean ring, and the character
-warms from near-black plum through wine violet to honey as it does; the eyes
-surface partway and the smile arrives only once the thread has settled.
+Narrative: **TANGLED → UNRAVELING → CLEAR**. One faceless sculptural profile
+head, held still, with a shallow recess pressed into the near side of its
+cranial vault and a thread inside that recess. The head never changes — not its
+geometry, not its material, not its pose. Only the thread does. That is the
+argument the visual makes, and nothing about the head may be allowed to vary
+between states. There is exactly **one** head on screen at all times, in the
+canvas and in the flat fallback alike.
 
-**The character itself never changes.** Same body, same limbs, same proportions
-in every state. The transformation is carried by the thread, the colour and the
-face. That is the argument the visual makes, and it is why there is exactly
-**one** character on screen at all times — never a row of them, and never a
-second one for comparison. The flat fallback takes the current state as a prop
-for the same reason.
+The head is built as a **stack of horizontal cross-sections**
+(`headGeometry.ts`), not as a swept profile. Sweeping an outline sideways gives
+every slice its own nose, converges on a line rather than a point — leaving a
+crease down the centre of the face — and produces no interior. All three are
+visible in a render. Sections are how a head is actually shaped: front and back
+read off the profile, a width curve that is widest at the parietal bone and
+narrows through jaw and neck, a superellipse section narrowed toward the face, a
+domed crown and a flat-capped base.
+
+The opening is a **pressed bowl, never a Boolean hole** — the loft has no
+interior surface, so cutting it exposes the nested rings of the sweep as a shelf
+hanging inside the head. `WINDOW` and `CAVITY` must stay aligned: the recess
+band is what decides where the skull is deep enough for the thread to sit proud
+of the floor, and moving one without the other buries half the thread.
 
 All three thread states come out of one parametric family at three degrees of
-disorder (`states.ts`), generated from the same parameter `t` with the same
-control-point count, so morphing is a per-point interpolation along the strand's
-own length rather than a dissolve between two shapes. Scroll maps to a
-continuous stage in 0..2 through two overlapping smoothsteps (`CHAOS_TO_FLOW
-[0.22, 0.42]`, `FLOW_TO_CLARITY [0.54, 0.8]`), then damps — so nothing ever
-cuts, nothing latches, and **scrolling back up runs the whole thing in
-reverse**. Keep it a pure function of progress.
+disorder (`states.ts`): an Archimedean spiral progressively buried under a
+random walk. Morphing is therefore a per-point interpolation along the strand's
+own length. Scroll maps to a continuous 0..2 through two overlapping smoothsteps
+(`threadStage`, windows `[0.22, 0.42]` and `[0.54, 0.8]`), then damps — so
+nothing cuts, nothing latches, and **scrolling back up runs it in reverse**.
+
+Two properties of the CLEAR state are load-bearing and easy to break:
+
+- it is wound in a **circular** metric, not the cavity's ellipse, because a coil
+  squashed to the vault's aspect stops reading as concentric; and
+- the mass-recentring and per-axis RMS fill are **weighted by disorder**, so they
+  vanish at the ordered end. Those corrections exist to tame a random walk. A
+  spiral is already centred and already sized, and applying them to one pulls it
+  off centre and out of round.
 
 Its defence-in-depth chain is the standard every 3D addition must meet:
 
@@ -735,9 +752,9 @@ Its defence-in-depth chain is the standard every 3D addition must meet:
    memory, pointer type, viewport, and a software-rasteriser check
    (SwiftShader / llvmpipe). The probe context is explicitly released.
 3. `KnowMindFallback` is **always rendered underneath** — the page never has a
-   hole in it. It traces the same generators and the same limb curves, in
-   whichever state the scroll has reached, so the crossfade to the canvas has
-   nothing to jump.
+   hole in it. It traces the same profile and the same three states, follows the
+   scroll, and matches the canvas's height and side-by-side offset so the
+   crossfade has nothing to jump.
 4. The canvas is `dynamic(..., { ssr: false })` and only mounts when the section
    is near (`rootMargin: "80% 0px"`), and only renders while on screen.
 5. `CanvasBoundary` (an error boundary) catches a crash and hands the section
@@ -747,16 +764,20 @@ Its defence-in-depth chain is the standard every 3D addition must meet:
    cannot hold ~34 fps. It never climbs back — a visitor feels a drop far more
    than they notice sharper edges.
 
-Quality tiers (`constants.ts` → `TIERS`) scale thread control points, tube
-resolution and sides, mote count, body and limb segments, DPR cap, antialias and
+Quality tiers (`constants.ts` → `TIERS`) scale head sections and section
+resolution, thread control points, tube resolution, DPR cap, antialias and
 thread update rate. **Tune these constants; do not scatter new magic numbers
 through the scene.**
+
+Shadow maps are off in every tier, measured rather than assumed: enabling them
+changed the frame by 0.17 of a possible 765 per pixel, because the key strikes
+the thread at too shallow an angle for its shadow to clear it. The plumbing
+stays in place behind `TIERS[...].shadows`.
 
 `KnowMind3D` sets **no `position`** of its own; it stacks its layers with an
 explicit `grid-cols-1 grid-rows-1`. Give it a box with a definite height. A grid
 area with no definite height collapses every percentage height beneath it, and
 r3f then measures its canvas square instead of matching the box.
-
 
 ### 10.3 Non-negotiables for any 3D work
 

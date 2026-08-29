@@ -1,5 +1,4 @@
-import Image from "next/image";
-
+import { TumblingMark } from "@/components/ui/TumblingMark";
 import { navLinks } from "@/lib/content";
 import { programDetails, siteConfig } from "@/lib/config";
 
@@ -11,13 +10,9 @@ export function Footer() {
           {/* ---- Identity ---- */}
           <div className="lg:col-span-5">
             <div className="flex items-center gap-3">
-              <Image
-                src="/brand/logo.png"
-                alt=""
-                width={703}
-                height={380}
-                className="h-8 w-auto"
-              />
+              {/* Slower than the header's: down here it is a sign-off, not a
+                  masthead. Aria-hidden — the wordmark beside it names the brand. */}
+              <TumblingMark className="h-8 w-16" seconds={20} />
               <span className="text-sm font-semibold tracking-[0.2em] text-cream uppercase">
                 {siteConfig.name}
               </span>

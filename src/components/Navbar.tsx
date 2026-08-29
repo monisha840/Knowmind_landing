@@ -1,10 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion, useScroll, useSpring } from "motion/react";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import { CTAButton } from "@/components/ui/CTAButton";
+import { TumblingMark } from "@/components/ui/TumblingMark";
 import { navLinks } from "@/lib/content";
 import { siteConfig } from "@/lib/config";
 
@@ -56,13 +56,14 @@ export function Navbar() {
             className="group flex items-center gap-3"
             aria-label={`${siteConfig.name} — home`}
           >
-            <Image
-              src="/brand/logo.png"
-              alt=""
-              width={703}
-              height={380}
-              priority
-              className={`w-auto transition-all duration-500 ${scrolled ? "h-6" : "h-7 sm:h-8"}`}
+            {/* Sized by utilities, not the `height` prop, so the shrink-on-
+                scroll keeps its `sm:` step. Width stays 2× height — the mark's
+                viewBox ratio. Left aria-hidden: the wordmark beside it and the
+                link's own label already name the brand. */}
+            <TumblingMark
+              className={`transition-all duration-500 ${
+                scrolled ? "h-6 w-12" : "h-7 w-14 sm:h-8 sm:w-16"
+              }`}
             />
             <span className="hidden text-[0.7rem] font-semibold tracking-[0.2em] text-cream uppercase transition-colors group-hover:text-honey sm:block">
               KnowMind Universe

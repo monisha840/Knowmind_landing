@@ -214,6 +214,69 @@
   .link-underline:hover {
     background-size: 100% 1px;
   }
+
+  /* ------------------------------------------------------------------------
+     The tumbling mark (see `ui/TumblingMark.tsx`)
+
+     A flat SVG rotated on Y vanishes to a hairline every half turn, which at
+     logo size reads as a glitch rather than a rotation. The component stacks
+     thirteen copies half a pixel apart; these rules give that stack its 3D
+     parent and turn it.
+     ------------------------------------------------------------------------ */
+
+  .km-mark {
+    display: inline-block;
+    /* Tuned for a ~30px mark. Scaling far past that wants a larger value. */
+    perspective: 340px;
+  }
+
+  /*
+   * Default size at zero specificity, so a Tailwind height/width utility on the
+   * consumer wins without a fight. 2:1 is the viewBox ratio — set the height and
+   * the width has to follow.
+   */
+  :where(.km-mark) {
+    height: 30px;
+    width: 60px;
+  }
+
+  .km-mark-inner {
+    position: relative;
+    display: block;
+    height: 100%;
+    width: 100%;
+    transform-style: preserve-3d;
+    animation: km-tumble 12s linear infinite;
+  }
+
+  .km-mark svg {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+  }
+
+  /* The defs carrier draws nothing; it only holds the gradient and the filter. */
+  .km-defs {
+    position: absolute;
+    height: 0;
+    width: 0;
+  }
+
+  /* A hover speeds it up without moving anything on the page. */
+  a:hover > .km-mark > .km-mark-inner,
+  .km-mark:hover > .km-mark-inner {
+    animation-duration: 3.2s;
+  }
+}
+
+@keyframes km-tumble {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
 }
 
 /* ==========================================================================
@@ -223,6 +286,12 @@
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  /* Explicit rather than relying on the blanket rule below: the mark holds
+     flat and face-on, instead of racing one 0.001ms turn on load. */
+  .km-mark-inner {
+    animation: none !important;
   }
 
   *,
