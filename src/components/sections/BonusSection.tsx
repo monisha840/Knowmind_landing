@@ -34,6 +34,14 @@ import { useMediaQuery, usePrefersReducedMotion } from "@/lib/hooks";
 const EASE = "ease-[cubic-bezier(0.22,1,0.36,1)]";
 
 /**
+ * The card tag. Says "Free" rather than "Bonus deal": the label sits directly
+ * beside "Bonus 01", so repeating the word there would be redundant, and this
+ * section is art-directed as a gift rather than a discount. It restates the
+ * section's own eyebrow — "Included at no extra cost" — in one word.
+ */
+const TAG_LABEL = "Free";
+
+/**
  * The thread, resolving — chaos → flow → clarity, the same idea the 3D
  * character carries, at a whisper. Painted as a repeating gradient so the
  * "dashes" cost nothing. Rule 01 is sparse and broken, 02 closes up, 03 runs
@@ -188,9 +196,23 @@ export function BonusSection() {
                   />
 
                   {/* ---- Always legible: which bonus, and what it is ---- */}
-                  <p className="text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase">
-                    Bonus <span className="text-amber-ink">{bonus.index}</span>
-                  </p>
+                  <div className="flex items-center gap-3">
+                    <p className="text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase">
+                      Bonus <span className="text-amber-ink">{bonus.index}</span>
+                    </p>
+
+                    {/* The tag: the one dark object on a light card, so the eye
+                        lands on it first. Wine rather than black and honey
+                        rather than white — the reference's lit-badge treatment,
+                        rendered in the brand's own two colours. The halo tightens
+                        as the card opens, so the tag belongs to the interaction
+                        instead of sitting on top of it as a sticker. */}
+                    <span
+                      className={`inline-flex shrink-0 items-center rounded-full bg-wine-950 px-2.5 py-1 text-[0.625rem] font-semibold tracking-[0.16em] text-honey uppercase [text-shadow:0_0_10px_rgba(254,183,55,0.45)] shadow-[0_2px_10px_-3px_rgba(29,10,24,0.6)] transition-shadow duration-500 group-data-[open=true]:shadow-[0_0_0_1px_rgba(254,183,55,0.3),0_4px_16px_-4px_rgba(254,183,55,0.5)] ${EASE}`}
+                    >
+                      {TAG_LABEL}
+                    </span>
+                  </div>
 
                   <h3 className="mt-5 pr-12 text-h3 font-semibold tracking-[0.005em] hyphens-auto text-ink uppercase">
                     {bonus.title}

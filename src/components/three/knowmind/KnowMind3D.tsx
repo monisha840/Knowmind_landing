@@ -20,13 +20,13 @@ import { useScrollProgress } from "./useScrollProgress";
 import { useWebGL2Support } from "./useWebGL2";
 
 /**
- * KnowMind3D — the scroll-driven psychological triptych.
+ * KnowMind3D — the scroll-driven psychological growth character.
  *
  * A drop-in visual: give it a box and something to measure scroll against, and
- * it draws three identical sculptural profile heads whose internal thread
- * reorganises from a tangle, through an unravelling, into a clear spiral. It
- * owns its own geometry, animation, lighting, quality tier and failure
- * handling. The page owns its position, its size and its background.
+ * it draws one character with a single thread around it, evolving from a tangle
+ * through loosening loops into a clean halo. It owns its own geometry,
+ * animation, lighting, quality tier and failure handling. The page owns its
+ * position, its size and its background.
  *
  * It is an *enhancement*. Text renders first, the flat fallback holds the
  * space next, and three.js only arrives once the section is close enough to
@@ -56,6 +56,8 @@ export type KnowMind3DProps = {
    * value is read once per frame inside the render loop. Preferred.
    */
   progressRef?: RefObject<number>;
+  /** Position inside a full-bleed canvas. `right` is ignored below 1024px. */
+  align?: "center" | "right";
   /** Force a quality tier instead of measuring the device. */
   quality?: Tier | "auto";
   /**
@@ -67,8 +69,8 @@ export type KnowMind3DProps = {
    */
   fade?: readonly [number, number];
   /**
-   * An extra element to fade alongside the visual — the captions under the
-   * heads, typically, which have nothing to caption once the sculpture has
+   * An extra element to fade alongside the visual — the state rail beside the
+   * character, typically, which has nothing to name once the character has
    * gone.
    */
   fadeRef?: RefObject<HTMLElement | null>;
@@ -111,6 +113,7 @@ export function KnowMind3D({
   trackRef,
   progress,
   progressRef,
+  align = "center",
   quality = "auto",
   fade,
   fadeRef,
@@ -252,6 +255,7 @@ export function KnowMind3D({
               progressRef={live}
               pointer={pointer}
               reduced={reduced}
+              align={align}
               active={onScreen}
               onReady={() => setReady(true)}
               onFail={() => setFailed(true)}

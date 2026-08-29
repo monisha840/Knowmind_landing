@@ -9,10 +9,14 @@ import { tamil } from "@/lib/content";
 /**
  * One mind, three states.
  *
- * A single sculptural profile head, held still, with its cranium opened. The
- * head never changes — not its form, not its material, not its pose. What
- * changes is the thread inside it, which reorganises from a tangle, through an
- * unravelling, into a clear spiral as the visitor scrolls.
+ * A single character stands beside the copy, and a single continuous thread
+ * runs around it. As the visitor scrolls, that thread reorganises: a dense
+ * tangle loosens into flowing loops, and the loops settle into one clean ring.
+ * The character itself never changes — same body, same limbs, same quiet face.
+ * The transformation is carried entirely by the thread.
+ *
+ * Scrolling back up runs the whole thing in reverse, because the state is a
+ * pure function of scroll progress with nothing latched anywhere.
  *
  * Everything a visitor needs to understand is in the HTML. The canvas is
  * decorative and marked as such; remove it entirely and this section still
@@ -56,15 +60,15 @@ const states: State[] = [
 export function MindEvolution() {
   const track = useRef<HTMLElement>(null);
   const copy = useRef<(HTMLDivElement | null)[]>([]);
-  const captions = useRef<HTMLOListElement>(null);
+  const rail = useRef<HTMLOListElement>(null);
   const [active, setActive] = useState(0);
 
   /**
    * The copy scrolls past a pinned visual, which means each block has to travel
-   * up through the heads on its way out. So each one is shown only while it is
-   * actually inside the lower band: the observer's root is narrowed to that
+   * up through the character on its way out. So each one is shown only while it
+   * is actually inside the lower band: the observer's root is narrowed to that
    * band with a negative rootMargin, and a block that leaves it fades rather
-   * than sliding across the sculpture.
+   * than sliding across the visual.
    *
    * The attribute is written straight to the DOM — no React state, no
    * re-render — and until it exists the copy is simply visible, so this stays a
@@ -78,7 +82,7 @@ export function MindEvolution() {
           (entry.target as HTMLElement).dataset.inband = String(entry.isIntersecting);
         }
       },
-      { rootMargin: "-64% 0px -2% 0px" },
+      { rootMargin: "-54% 0px -2% 0px" },
     );
     const blocks = copy.current.filter(Boolean) as HTMLDivElement[];
     blocks.forEach((el) => observer.observe(el));
@@ -96,81 +100,92 @@ export function MindEvolution() {
         One mind in three states: tangled, unravelling, clear
       </h2>
 
-      {/* ---- The pinned sculpture ---------------------------------------- */}
+      {/* ---- The pinned visual ---------------------------------------- */}
       <div className="sticky top-0 h-[100svh] w-full">
-        {/* Keeps the copy legible where it passes under the heads. */}
+        {/* Legibility washes: sideways on desktop where the copy sits beside
+            the character, upward on mobile where it sits beneath it. */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0"
+          className="pointer-events-none absolute inset-0 lg:hidden"
           style={{
             background:
-              "linear-gradient(180deg, rgba(12,4,16,0) 42%, rgba(12,4,16,0.72) 62%, rgba(12,4,16,0.94) 78%)",
+              "linear-gradient(180deg, rgba(12,4,16,0) 34%, rgba(12,4,16,0.82) 58%, rgba(12,4,16,0.96) 74%)",
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 hidden lg:block"
+          style={{
+            background:
+              "radial-gradient(75% 90% at 4% 50%, rgba(12,4,16,0.94) 0%, rgba(12,4,16,0.72) 44%, rgba(12,4,16,0) 76%)",
           }}
         />
 
-        <div className="absolute inset-x-0 top-[6svh] h-[44svh] lg:top-[7svh] lg:h-[48svh]">
+        {/* Phones get the character in the upper half with the copy beneath it;
+            from lg it takes the whole frame and stands beside the copy. */}
+        <div className="absolute inset-x-0 top-[6svh] h-[52svh] lg:inset-0 lg:h-full">
           <KnowMind3D
             trackRef={track}
+            align="right"
             onChapterChange={setActive}
             fade={[0.93, 1]}
-            fadeRef={captions}
+            fadeRef={rail}
             className="h-full w-full"
           />
         </div>
 
-        {/* The three states, named. A rail rather than three captions: there is
-            one head, and this says where it has got to. */}
-        <ol
-          ref={captions}
-          className="absolute inset-x-0 top-[52svh] hidden justify-center gap-7 lg:top-[57svh] lg:flex"
-        >
-          {states.map((state, i) => (
-            <li key={state.key} className="flex items-center gap-3">
-              <span
-                aria-hidden
-                className="h-px bg-honey transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                style={{ width: active === i ? "2.25rem" : "0.75rem" }}
-              />
-              <span
-                className="text-eyebrow font-semibold tracking-[0.18em] uppercase transition-opacity duration-700"
-                style={{ opacity: active === i ? 1 : 0.34 }}
-              >
-                <span className="text-honey">{state.index}</span>{" "}
-                <span className="text-cream">{state.label}</span>
-              </span>
-            </li>
-          ))}
-        </ol>
+        {/* The three states, named. */}
+        <div className="pointer-events-none absolute inset-0 hidden lg:block">
+          <div className="container-page flex h-full items-center">
+            <ol ref={rail} className="flex flex-col gap-11">
+              {states.map((state, i) => (
+                <li key={state.key} className="flex items-center gap-4">
+                  <span
+                    aria-hidden
+                    className="h-px bg-honey transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                    style={{
+                      width: active === i ? "2.25rem" : "0.75rem",
+                      opacity: active === i ? 1 : 0.4,
+                    }}
+                  />
+                  <span
+                    className="text-eyebrow font-semibold tracking-[0.18em] text-cream uppercase transition-opacity duration-700"
+                    style={{ opacity: active === i ? 1 : 0.38 }}
+                  >
+                    {state.label}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
       </div>
 
-      {/* ---- Three screens of copy, pulled up over the pinned visual ------ */}
+      {/* ---- Three screens of copy, pulled up over the pinned visual --- */}
       <div className="relative -mt-[100svh]">
         {states.map((state, i) => (
           <article
             key={state.key}
             aria-label={`State ${state.index}: ${state.label}`}
             /* pb clears the phone-only sticky registration bar. */
-            className="flex h-[100svh] items-end pb-[13svh] lg:pb-[7svh]"
+            className="flex h-[100svh] items-end pb-[13svh] lg:items-center lg:pb-0"
           >
             <div className="container-page w-full">
               <div
                 ref={(el) => {
                   copy.current[i] = el;
                 }}
-                className="mx-auto max-w-xl transition-opacity duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] data-[inband=false]:opacity-0 lg:text-center"
+                className="max-w-xl transition-opacity duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] data-[inband=false]:opacity-0 lg:max-w-[30rem] lg:pl-[8.5rem]"
               >
-                {/* Phones only: from lg the caption under the head already
-                    names the state, and repeating it here puts the same two
-                    words twice on screen as the copy scrolls past. */}
                 <Reveal>
-                  <p className="flex items-baseline gap-3 text-eyebrow font-semibold tracking-[0.18em] uppercase lg:hidden">
+                  <p className="flex items-baseline gap-3 text-eyebrow font-semibold tracking-[0.18em] uppercase">
                     <span className="text-honey">{state.index}</span>
                     <span className="text-cream-dim">{state.label}</span>
                   </p>
                 </Reveal>
 
                 <Reveal delay={0.07}>
-                  <p className="mt-5 text-h3 font-semibold text-balance text-cream lg:mt-0">
+                  <p className="mt-5 text-h3 font-semibold text-balance text-cream">
                     {state.heading}
                   </p>
                 </Reveal>
@@ -192,7 +207,7 @@ export function MindEvolution() {
         ))}
 
         {/* A tail after the last state. It gives the third screen room to be
-            read while the sculpture holds its final arrangement, and it means
+            read while the character holds its final arrangement, and it means
             the visual has faded out by the time the pin releases — so it never
             overlaps whatever the next section puts on screen. */}
         <div aria-hidden className="h-[30svh]" />
