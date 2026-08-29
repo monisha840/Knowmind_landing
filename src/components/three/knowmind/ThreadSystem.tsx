@@ -55,7 +55,7 @@ export function ThreadSystem({ handleRef, tier, castShadow = false }: ThreadSyst
   const material = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: new THREE.Color(PALETTE.wineLift),
+        color: new THREE.Color(PALETTE.wineViolet),
         roughness: 0.52,
         metalness: 0.05,
       }),
@@ -64,7 +64,7 @@ export function ThreadSystem({ handleRef, tier, castShadow = false }: ThreadSyst
 
   const local = useMemo(
     () => ({
-      from: new THREE.Color(PALETTE.wineLift),
+      from: new THREE.Color(PALETTE.wineViolet),
       to: new THREE.Color(PALETTE.honey),
       accum: 0,
     }),

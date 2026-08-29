@@ -1,29 +1,32 @@
 import * as THREE from "three";
 
-import { HEAD, HEAD_PROFILE } from "./constants";
-import { clamp01, smootherstep } from "./math";
+import { HEAD, HEAD_PROFILE, WINDOW } from "./constants";
+import { clamp01, lerp, smootherstep } from "./math";
 
 /**
- * How many smoothing passes erase the face. Enough that the diffusion length
- * comfortably exceeds the width of the nose in samples.
- */
-const FEATURE_PASSES = 300;
-
-/**
- * The head, lofted from its profile.
+ * The head, built as a stack of horizontal cross-sections.
  *
- * A closed Catmull-Rom curve is drawn through the profile landmarks, then that
- * outline is swept across the head's width, shrinking toward the head's own
- * axis as it goes. The shrink follows a superellipse rather than a circle, so
- * the form stays full out to about three-quarters of its width and only then
- * rounds off — which is the cross-section a skull actually has, and the
- * difference between a sculpted head and a flat cut-out.
+ * The obvious way to build a head from a profile is to sweep the outline across
+ * the width, shrinking it as it goes. It does not work: every slice keeps its
+ * own nose, and the sweep converges on a line rather than a point, which leaves
+ * a crease running down the centre of the face and no interior at all. This
+ * builds the head the way a head is actually shaped instead — one closed
+ * section per height, each an oval spanning that height's front and back.
  *
- * Built once and shared by all three heads. They are the same mind, so they are
- * quite literally the same geometry object.
+ *   · the profile gives the front and the back of every section;
+ *   · a width curve gives its half-width — widest across the parietal bone,
+ *     narrower through the jaw, narrower again into the neck;
+ *   · the section is a superellipse, narrowed toward the face, because a skull
+ *     is fuller at the back than at the front;
+ *   · the crown closes as a dome, and the base is capped flat — a deliberate
+ *     sculptural cut rather than a head sitting on a cylinder;
+ *   · and the near side of the vault is pressed inward into a shallow bowl, so
+ *     the thread has somewhere to be that is genuinely inside the head.
+ *
+ * Built once and reused. The head is the constant in this piece.
  */
-export function buildHeadGeometry(samples: number, slices: number): THREE.BufferGeometry {
-  /* -- the outline ------------------------------------------------------- */
+export function buildHeadGeometry(sections: number, around: number): THREE.BufferGeometry {
+  /* -- the profile, split into its front and back chains ------------------ */
   const curve = new THREE.CatmullRomCurve3(
     HEAD_PROFILE.map(([x, y]) => new THREE.Vector3(x, y, 0)),
     true,
@@ -31,104 +34,135 @@ export function buildHeadGeometry(samples: number, slices: number): THREE.Buffer
     0.5,
   );
 
-  const outline = new Float32Array(samples * 2);
-  // How wide the form is at each point of the outline. A head is far wider than
-  // the neck under it; a single width for both gives a slab with a face on it.
-  const width = new Float32Array(samples);
+  // Dense samples of the outline, so front and back can be read off at any
+  // height without the control points' uneven spacing showing through.
+  const dense = 1400;
+  const ox = new Float32Array(dense);
+  const oy = new Float32Array(dense);
   const scratch = new THREE.Vector3();
-  for (let i = 0; i < samples; i += 1) {
-    curve.getPoint(i / samples, scratch);
-    outline[i * 2] = scratch.x;
-    outline[i * 2 + 1] = scratch.y;
-    const t = clamp01(
-      (scratch.y - HEAD.neckTaperTo) / (HEAD.neckTaperFrom - HEAD.neckTaperTo),
-    );
-    width[i] = HEAD.neckWidth + (1 - HEAD.neckWidth) * (t * t * (3 - 2 * t));
+  for (let i = 0; i < dense; i += 1) {
+    curve.getPoint(i / dense, scratch);
+    ox[i] = scratch.x;
+    oy[i] = scratch.y;
   }
 
-  /* -- the same outline with its features smoothed away ------------------ */
-  //
-  // A head has a nose in the middle and none at all at the sides. Sweeping one
-  // outline across the whole width gives every slice its own nose, and those
-  // stack into a ridge fanning back from the face — which is what a naive loft
-  // of a profile always looks like, and it does not look like a head.
-  //
-  // So a second outline is derived by repeatedly averaging each point with its
-  // neighbours. Diffusion erases anything narrower than it runs long, which
-  // takes out the nose, the lips and the chin notch and leaves the skull, the
-  // jaw and the neck. Because it is the *same* points, moved, the two outlines
-  // stay in register and one can be blended into the other per slice.
-  const side = Float32Array.from(outline);
-  const scratchPass = new Float32Array(side.length);
-  for (let pass = 0; pass < FEATURE_PASSES; pass += 1) {
-    for (let i = 0; i < samples; i += 1) {
-      const prev = ((i - 1 + samples) % samples) * 2;
-      const next = ((i + 1) % samples) * 2;
-      scratchPass[i * 2] = 0.25 * side[prev] + 0.5 * side[i * 2] + 0.25 * side[next];
-      scratchPass[i * 2 + 1] = 0.25 * side[prev + 1] + 0.5 * side[i * 2 + 1] + 0.25 * side[next + 1];
+  const yTop = HEAD_PROFILE[0][1];
+  const yBase = Math.min(...HEAD_PROFILE.map((p) => p[1]));
+
+  /** Front-most and back-most x of the outline at a given height. */
+  const spanAt = (y: number): [number, number] => {
+    let front = -Infinity;
+    let back = Infinity;
+    for (let i = 0; i < dense; i += 1) {
+      const j = (i + 1) % dense;
+      const a = oy[i];
+      const b = oy[j];
+      if ((a - y) * (b - y) > 0) continue; // the segment does not cross this height
+      const t = Math.abs(b - a) < 1e-9 ? 0 : (y - a) / (b - a);
+      const x = ox[i] + (ox[j] - ox[i]) * t;
+      if (x > front) front = x;
+      if (x < back) back = x;
     }
-    side.set(scratchPass);
-  }
+    return [back, front];
+  };
 
-  /* -- the loft ---------------------------------------------------------- */
-  const rings = slices + 1;
-  const positions = new Float32Array(samples * rings * 3);
-  const n = HEAD.sectionExponent;
+  /* -- the stack --------------------------------------------------------- */
+  const rings = sections + 1;
+  const positions = new Float32Array(rings * around * 3);
 
-  for (let j = 0; j < rings; j += 1) {
-    // Slices are distributed by sine rather than evenly, so they bunch up where
-    // the form curves hardest — at the sides — instead of being wasted across
-    // the flat middle.
-    const s = (j / slices) * 2 - 1;
-    const v = Math.sin((s * Math.PI) / 2);
-    const av = Math.abs(v);
-    const k = av >= 1 ? 0 : Math.pow(1 - Math.pow(av, n), 1 / n);
-    const drop = (1 - k) * HEAD.verticalShrink;
-    const z = HEAD.halfWidth * v;
+  for (let s = 0; s < rings; s += 1) {
+    // Sections bunch toward the crown and the jaw, where the form turns hardest.
+    const t = s / sections;
+    const y = lerp(yTop, yBase, t * t * (3 - 2 * t) * 0.5 + t * 0.5);
 
-    // Features are full strength on the centre plane and gone by not quite half
-    // way out — which is where a nose actually stops. Fading them across the
-    // whole width instead builds a long smooth ramp from the nose back to the
-    // ear, and that ramp catches the light and reads as a face turned toward
-    // you rather than a profile.
-    const flat = smootherstep(0, 0.5, av);
+    const [back, front] = spanAt(y);
+    const centre = (front + back) / 2;
+    const half = Math.max((front - back) / 2, 1e-4);
 
-    for (let i = 0; i < samples; i += 1) {
-      const o = (j * samples + i) * 3;
-      const px = outline[i * 2] + (side[i * 2] - outline[i * 2]) * flat;
-      const py = outline[i * 2 + 1] + (side[i * 2 + 1] - outline[i * 2 + 1]) * flat;
-      positions[o] = HEAD.axisX + (px - HEAD.axisX) * k;
-      positions[o + 1] = py + (HEAD.axisY - py) * drop;
-      positions[o + 2] = z * width[i];
+    // Width: parietal, jaw and neck are three different measurements, and the
+    // crown closes over the top as a dome rather than stopping flat.
+    const jaw = smootherstep(HEAD.jawFrom, HEAD.jawTo, y);
+    const neck = smootherstep(HEAD.neckFrom, HEAD.neckTo, y);
+    const taper =
+      HEAD.neckWidth + (HEAD.jawWidth - HEAD.neckWidth) * neck + (1 - HEAD.jawWidth) * jaw;
+    const dome = clamp01((yTop - y) / HEAD.domeRange);
+    const width = HEAD.halfWidth * taper * Math.sqrt(Math.max(dome * (2 - dome), 0));
+
+    // The vault's near side is pressed inward for the thread to sit in — but
+    // eased off again as the dome closes, where there is no longer enough width
+    // to press into without breaking the silhouette at the crown.
+    const vault =
+      smootherstep(WINDOW.fromHeight, WINDOW.toHeight, y) *
+      (1 - smootherstep(WINDOW.crownFrom, WINDOW.crownTo, y));
+
+    for (let a = 0; a < around; a += 1) {
+      const angle = (a / around) * Math.PI * 2;
+      const c = Math.cos(angle);
+      const sn = Math.sin(angle);
+
+      // A superellipse, not a circle: a skull is squarer in section than an
+      // ellipse and rounder than a box.
+      const e = 2 / HEAD.sectionExponent;
+      const fx = Math.sign(c) * Math.pow(Math.abs(c), e);
+      const fz = Math.sign(sn) * Math.pow(Math.abs(sn), e);
+
+      // Narrower toward the face than toward the back of the skull.
+      const facing = Math.max(0, fx);
+      const w = width * (1 - HEAD.faceNarrow * facing);
+
+      const o = (s * around + a) * 3;
+      positions[o] = centre + half * fx;
+      positions[o + 1] = y;
+      // Depth is a fraction of the local half-width rather than an absolute, so
+      // the bowl can never be deeper than there is head to press it into.
+      positions[o + 2] =
+        w * fz -
+        width * WINDOW.depth * vault * smootherstep(WINDOW.fromDepth, WINDOW.toDepth, fz);
     }
   }
 
-  /* -- the grid, wrapped around the profile and open across the width ----- */
-  const indices = new Uint16Array(samples * slices * 6);
+  /* -- indices, plus a flat cap closing the base ------------------------- */
+  const baseCentre = rings * around;
+  const vertexCount = baseCentre + 1;
+  const triangles = sections * around * 2 + around;
+  const indices =
+    vertexCount > 65535 ? new Uint32Array(triangles * 3) : new Uint16Array(triangles * 3);
+
   let w = 0;
-  for (let j = 0; j < slices; j += 1) {
-    for (let i = 0; i < samples; i += 1) {
-      const i2 = (i + 1) % samples;
-      const a = j * samples + i;
-      const b = j * samples + i2;
-      const c = (j + 1) * samples + i2;
-      const d = (j + 1) * samples + i;
-      // Wound so the normals face out of the head. The profile is authored
-      // clockwise in the xy plane, which reverses the usual order here.
-      indices[w++] = a;
-      indices[w++] = d;
-      indices[w++] = b;
-      indices[w++] = b;
-      indices[w++] = d;
-      indices[w++] = c;
+  for (let s = 0; s < sections; s += 1) {
+    for (let a = 0; a < around; a += 1) {
+      const a2 = (a + 1) % around;
+      const p0 = s * around + a;
+      const p1 = s * around + a2;
+      const p2 = (s + 1) * around + a2;
+      const p3 = (s + 1) * around + a;
+      indices[w++] = p0;
+      indices[w++] = p1;
+      indices[w++] = p3;
+      indices[w++] = p1;
+      indices[w++] = p2;
+      indices[w++] = p3;
     }
+  }
+
+  const all = new Float32Array((vertexCount) * 3);
+  all.set(positions);
+  const [bBack, bFront] = spanAt(yBase + 1e-4);
+  all[baseCentre * 3] = (bBack + bFront) / 2;
+  all[baseCentre * 3 + 1] = yBase;
+  all[baseCentre * 3 + 2] = 0;
+  for (let a = 0; a < around; a += 1) {
+    const a2 = (a + 1) % around;
+    indices[w++] = sections * around + a2;
+    indices[w++] = sections * around + a;
+    indices[w++] = baseCentre;
   }
 
   const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute("position", new THREE.BufferAttribute(all, 3));
   geometry.setIndex(new THREE.BufferAttribute(indices, 1));
   geometry.computeVertexNormals();
-  // Centre the form on its own origin so it leans about its middle, not its feet.
+  // Centre the form on its own origin so it leans about its middle, not its base.
   geometry.translate(-HEAD.pivotX, -HEAD.pivotY, 0);
   geometry.computeBoundingSphere();
 

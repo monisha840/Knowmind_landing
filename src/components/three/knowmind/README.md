@@ -1,16 +1,15 @@
 # KnowMind3D
 
-Three sculptural profile heads. Identical form, identical material, identical
-orientation — the same geometry object rendered three times. The only thing
-that differs is the thread inside each skull.
+One sculptural profile head, held still, with a shallow recess pressed into the
+near side of its cranial vault. Inside that recess is a thread.
 
     01 TANGLED ────────▶ 02 UNRAVELING ────────▶ 03 CLEAR
     mental clutter       awareness, reflection   clarity · 1% better
 
-They start as three copies of the same tangle and come apart as the visitor
-scrolls: the left head holds, the middle reorganises, the right resolves into a
-spiral. The last thing on screen is the whole story at once. That is the
-argument the visual makes — one mind in three states, not three people.
+The head never changes — not its form, not its material, not its pose. What
+changes is the thread, which reorganises as the visitor scrolls. That is the
+whole idea: your mind does not need to become a different mind, it needs to
+become clearer.
 
 Everything is procedural. There is no model file to download.
 
@@ -29,9 +28,7 @@ const track = useRef<HTMLElement>(null);
 </section>
 ```
 
-`MindEvolution.tsx` is the full worked example — a pinned triptych, captions on
-the same three columns as the heads, and mobile handled as its own layout
-rather than as a shrunken desktop.
+`MindEvolution.tsx` is the full worked example.
 
 ### Props
 
@@ -41,9 +38,8 @@ rather than as a shrunken desktop.
 | `progressRef` | `RefObject<number>` | Drive it yourself from a ref you write at frame rate. Nothing re-renders. Preferred over `progress`. |
 | `progress` | `number` | Drive it from React state. Re-renders on change, so use it for coarse control, never per frame. |
 | `fade` | `[number, number]` | Fade the visual out across this progress range, e.g. `[0.93, 1]`. |
-| `fadeRef` | `RefObject<HTMLElement \| null>` | An extra element to fade with it — the captions, typically. |
+| `fadeRef` | `RefObject<HTMLElement \| null>` | An extra element to fade with it — the state rail, typically. |
 | `quality` | `"auto" \| "low" \| "medium" \| "high"` | Force a tier instead of measuring the device. |
-| `fallback` | `"sequence" \| "single"` | Flat stand-in when WebGL is unavailable. |
 | `label` | `string` | Sets `role="img"` + `aria-label`. Omit and the canvas is decorative, which is correct whenever the surrounding HTML already says what it says. |
 | `onChapterChange` | `(0 \| 1 \| 2) => void` | Fires on crossing into a new state. At most twice per pass — safe to drive React state with. |
 
@@ -62,55 +58,63 @@ measures its canvas square instead of matching the box.
 
 ## How the head is built
 
-`headGeometry.ts` lofts one closed profile — crown, brow, nasion, nose,
-philtrum, lips, chin, jaw, throat, nape, occiput — across the head's width.
-Three details do the work:
+`headGeometry.ts` builds the head as **a stack of horizontal cross-sections**,
+one per height.
 
-- **A superellipse cross-section**, not a circle. The form stays full out to
-  about three-quarters of its width and only then rounds off, which is the
-  section a skull actually has and the difference between a sculpted head and a
-  flat cut-out.
-- **The features fade toward the sides.** A head has a nose in the middle and
-  none at all at the ear. Sweeping one outline across the whole width gives
-  every slice its own nose, and those stack into a ridge fanning back from the
-  face. So a second outline is derived by repeatedly averaging each point with
-  its neighbours — diffusion erases anything narrower than it runs long, taking
-  out the nose, lips and chin notch and leaving the skull, jaw and neck — and
-  the two are blended per slice. Because it is the *same* points, moved, they
-  stay in register.
-- **The neck is narrower than the skull.** Without that the form is a slab with
-  a face on it.
+The obvious alternative — sweeping the profile outline sideways and shrinking it
+— was tried first and does not work. Every slice keeps its own nose, so the face
+stacks into a ridge fanning back toward the ear; the sweep converges on a *line*
+rather than a point, which leaves a crease running down the centre of the face;
+and it produces no interior at all, so cutting a window into it exposes the
+nested rings of the sweep as a flat shelf hanging inside the skull. All three of
+those are visible in a render and none are fixable by tuning.
 
-Built once and shared by all three heads. They are the same mind, so they are
-the same geometry object and the same material instance.
+Sections work because a head is a stack of ovals:
+
+- the profile gives the **front and back** of every section, read off a densely
+  sampled outline so the control points' uneven spacing never shows through;
+- a width curve gives its **half-width** — widest across the parietal bone,
+  narrower through the jaw, narrower again into the neck;
+- the section is a **superellipse narrowed toward the face**, because a skull is
+  fuller at the back than the front;
+- the crown closes as a **dome** and the base is **capped flat** — a deliberate
+  sculptural cut, not a head sitting on a cylinder;
+- and the near side of the vault is **pressed inward into a bowl** for the
+  thread, at a depth measured as a fraction of the local half-width and eased
+  off as the dome closes. An absolute depth punches through the crown and takes
+  a bite out of the silhouette.
+
+The profile itself is laid out on the standard artistic canon rather than by
+eye: crown to chin is exactly 1.0, the brow line sits on the midpoint of that,
+the base of the nose halfway again from brow to chin, the mouth a third of the
+way from nose to chin, and greatest cranial depth 0.83 of the height. The nose
+projects 0.10 beyond the brow plane and no more; the chin sits a shade behind
+the lower lip, which is what stops a profile reading as either weak or
+pugnacious.
+
+The mouth is four points and a few thousandths of relief, plus a light diffusion
+pass over the whole sampled outline. A Catmull-Rom passes exactly through every
+control point, so a mouth modelled properly at this scale comes out as a visible
+staircase; two samples' worth of smoothing rounds those corners while leaving
+the nose and chin, twenty samples wide, where they were.
 
 ## How the thread morphs
 
-`states.ts` generates all three states from one family, at three degrees of
+`states.ts` generates all three states from one family at three degrees of
 disorder, from the same parameter `t`. Point `t` in the tangle and point `t` in
 the spiral are the same point at different degrees of disorder, so interpolating
 between them combs the knot out along its own length rather than dissolving one
-shape into another. There are no hard cuts anywhere; scroll progress becomes a
-continuous stage in 0..2 per head, damped so a flick of the wheel still reads as
-a transformation.
+shape into another. Scroll progress becomes a continuous stage in 0..2, damped,
+so a flick of the wheel still reads as a transformation. No hard cuts anywhere.
 
 The ordered mode is an Archimedean spiral. The chaotic mode is **a smooth random
-walk** — a few octaves of noise driving x and y directly. That last choice
-matters: anything written in polar coordinates winds its angle one way and
-therefore lays down loop inside loop, and noise on such a spiral gives wobbly
-rings, never a knot. A walk changes direction, so it has to cross what it
-already laid down.
+walk** — a few octaves of noise driving x and y directly. That choice matters:
+anything written in polar coordinates winds its angle one way and so lays down
+loop inside loop, and noise on such a spiral gives wobbly rings, never a knot. A
+walk changes direction, so it crosses what it already laid down.
 
 Each state is then centred on its own mass, fitted per axis to the cranial
-cavity by root-mean-square, and softly compressed back inside it. Noise is not
-zero-mean over any finite sample, so an untouched walk drifts off to one side of
-the skull and sits further forward than intended; fitting on spread rather than
-on the furthest point stops one stray end deciding the scale for everything
-else.
-
-`tube.ts` sweeps a tube along the result into buffers allocated once, using
-rotation-minimising frames so it never twists where the thread doubles back.
-One draw call per strand, zero per-frame allocation.
+cavity by root-mean-square, and softly compressed inside it.
 
 ## Two colour traps, both fixed here
 
@@ -118,65 +122,54 @@ One draw call per strand, zero per-frame allocation.
   honey (≈27°) therefore runs the long way round and puts a bright cyan thread
   on the page mid-transition. `color.ts` takes the short path instead, easing
   saturation down at the midpoint so the moment it passes through red reads as
-  warm clay rather than an alarm. The warmth is also back-loaded: at UNRAVELING
-  the strand carries only a hint of gold, which is what `threadWarmth` encodes.
+  warm clay rather than an alarm. The warmth is back-loaded, so at UNRAVELING
+  the strand carries only a hint of gold.
 - A warm key light eats the blue channel of every purple in a scene, and deep
   purple without its blue is just brown. The key is pure white and the sky fill
-  near-neutral on purpose. All the warmth comes from the honey the thread turns.
+  near-neutral on purpose.
 
 ---
 
 ## What it does on its own
 
-**Loading.** Text renders first. A flat SVG of three tangled heads holds the
-space — which is exactly what the canvas shows first, so the crossfade has
+**Loading.** Text renders first. A flat SVG of the same head holds the space,
+with the thread in whatever state the scroll has reached — so the crossfade has
 nothing to jump. three.js is only fetched once the section is within 80% of a
-viewport, then fades in over 900ms. three.js is not in the initial page bundle.
+viewport. It is not in the initial page bundle.
 
 **Failure.** The probe asks for `webgl2` specifically, because three.js dropped
 WebGL 1 in r163 and a WebGL-1-only browser otherwise throws *inside* the
 renderer constructor, asynchronously, where no error boundary can catch it. If
 WebGL 2 is missing, the context is lost, or anything in the canvas subtree
-throws, the flat version stays and the canvas is unmounted so its context is
-released. The page is never left with a black rectangle.
+throws, the flat head stays and the canvas is unmounted so its context is
+released.
 
 **Quality tiers.** Cores, memory, pointer type, viewport, plus one check for a
 software rasteriser (SwiftShader / llvmpipe → always `low`).
 
-| | control pts | tube segs | sides | profile × slices | max DPR | AA |
+| | sections × around | control pts | tube segs | sides | max DPR | AA |
 |---|---|---|---|---|---|---|
-| high | 240 | 560 | 6 | 200 × 64 | 1.8 | yes |
-| medium | 170 | 380 | 5 | 150 × 40 | 1.5 | yes |
-| low | 110 | 240 | 4 | 104 × 24 | 1.25 | no |
+| high | 168 × 72 | 240 | 560 | 6 | 1.8 | yes |
+| medium | 120 × 52 | 170 | 380 | 5 | 1.5 | yes |
+| low | 84 × 36 | 110 | 240 | 4 | 1.25 | no |
 
-Handhelds are capped at `medium`. On `low` the strand's own micro-movement
-rebuilds at 30Hz while the scene keeps rendering at full rate. If the first 2.5
-seconds cannot hold ~34fps, resolution drops once and stays down.
+Handhelds are capped at `medium`. On `low` the strand rebuilds at 30Hz while the
+scene keeps rendering at full rate. If the first 2.5 seconds cannot hold ~34fps,
+resolution drops once and stays down.
 
-**No shadow maps**, and measured rather than assumed: rendering the scene twice
-so the strand could cast onto the skull changed the frame by 0.17 of a possible
-765 per pixel. The key strikes the thread at a shallow enough angle that its
-shadow falls behind the thread itself, and the only way to expose one would be a
-raking light that also drops the heads into near-darkness. The depth cue that
-works here is free — strands really do pass behind the skull, and the skull
-really does hide them. The plumbing is in place behind `TIERS[...].shadows`.
+**No shadow maps**, measured rather than assumed: rendering the scene twice so
+the strand could cast onto the skull changed the frame by 0.17 of a possible 765
+per pixel. The key strikes the thread at too shallow an angle for its shadow to
+clear it. The plumbing is in place behind `TIERS[...].shadows`.
 
-**Layout.** Wide viewports get three equal columns, so the heads land on the
-sixths and the HTML captions line up with them. Narrow viewports spread the row
-out and pan the camera along it instead, with the active head centred and its
-neighbours held at the edges — three heads at a sixth of a phone's width are
-unreadable, and the page must never scroll sideways.
+**Pose.** The head stands a few degrees off dead profile. A head lit from the
+front and seen at exactly ninety degrees loses all of its cheekbone, and a
+sculpture with no cheek reads as a cut-out. The cursor adds ±4.6° of yaw and
+±2.9° of pitch on top — a lean, never a spin.
 
-Each head is turned to face the camera. A wide canvas puts the outer two more
-than thirty degrees off axis, and left alone they would read as three-quarter
-views of two different people. Their size needs no correction: all three sit in
-the same plane, so the perspective divide scales them identically. Perspective
-still does its work *within* each head, which is what makes them sculptural
-rather than flat.
-
-**Reduced motion.** Float, breath, sway and cursor lean all stop; the
-scroll-driven transformation stays, damped harder so it tracks the wheel
-directly. All three states are still shown.
+**Reduced motion.** Float, breath and cursor lean all stop; the scroll-driven
+transformation stays, damped harder so it tracks the wheel directly. All three
+states are still shown.
 
 **Memory.** Every geometry and material is created by hand rather than by r3f,
 so every one is disposed by hand on unmount. Listeners and observers are torn
@@ -188,13 +181,13 @@ down with their effects.
 
     KnowMind3D.tsx        public component: probes, gating, fallback, crossfade
     KnowMindCanvas.tsx    the r3f Canvas, lighting, adaptive DPR, context guard
-    HeadRow.tsx           three heads, framing, camera, and the one per-frame update
-    Head.tsx              one head: shared form, its own thread, its own breath
-    headGeometry.ts       the lofted profile
+    HeadScene.tsx         framing, camera, pose, and the one per-frame update
+    Head.tsx              the head and the thread inside it
+    headGeometry.ts       the section stack
     ThreadSystem.tsx      the morphing strand
     tube.ts               tube kernel: build once, sweep in place
     states.ts             the three states and everything that differs between them
-    constants.ts          the profile, proportions, cavity, palette, tiers, timings
+    constants.ts          the profile, proportions, recess, palette, tiers, timings
     color.ts / math.ts    interpolation
     KnowMindFallback.tsx  the flat SVG, traced from the same profile and states
     useScrollProgress.ts  scroll → ref, no re-renders

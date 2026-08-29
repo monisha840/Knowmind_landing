@@ -58,8 +58,6 @@ export type KnowMind3DProps = {
   progressRef?: RefObject<number>;
   /** Force a quality tier instead of measuring the device. */
   quality?: Tier | "auto";
-  /** Flat stand-in used when WebGL is unavailable. */
-  fallback?: "sequence" | "single";
   /**
    * Fade the whole visual out across this progress range, e.g. `[0.88, 1]`.
    *
@@ -114,7 +112,6 @@ export function KnowMind3D({
   progress,
   progressRef,
   quality = "auto",
-  fallback = "sequence",
   fade,
   fadeRef,
   className = "",
@@ -134,6 +131,9 @@ export function KnowMind3D({
   const [onScreen, setOnScreen] = useState(false);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  // Only so the flat stand-in can follow the scroll as well. Changes at most
+  // twice per pass, which is cheap enough to be React state.
+  const [state, setState] = useState<0 | 1 | 2>(0);
 
   /* -- progress ---------------------------------------------------------- */
 
@@ -160,6 +160,7 @@ export function KnowMind3D({
       const next = chapterAt(value);
       if (next === chapter.current) return;
       chapter.current = next;
+      setState(next);
       notify.current?.(next);
     },
     [fadeFrom, fadeTo],
@@ -235,7 +236,8 @@ export function KnowMind3D({
         style={{ opacity: showCanvas ? 0 : 1 }}
       >
         <KnowMindFallback
-          variant={supported ? "loading" : fallback === "single" ? "loading" : "static"}
+          state={state}
+          variant={supported ? "loading" : "static"}
         />
       </div>
 

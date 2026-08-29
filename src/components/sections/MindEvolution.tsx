@@ -9,12 +9,10 @@ import { tamil } from "@/lib/content";
 /**
  * One mind, three states.
  *
- * Three identical sculptural profile heads stand in a row. Nothing about them
- * differs — same form, same material, same orientation — except the thread
- * inside each skull. They begin as three copies of the same tangle and come
- * apart as the visitor scrolls: the left one holds, the middle reorganises,
- * the right resolves into a spiral. The last thing on screen is the whole
- * story at once.
+ * A single sculptural profile head, held still, with its cranium opened. The
+ * head never changes — not its form, not its material, not its pose. What
+ * changes is the thread inside it, which reorganises from a tangle, through an
+ * unravelling, into a clear spiral as the visitor scrolls.
  *
  * Everything a visitor needs to understand is in the HTML. The canvas is
  * decorative and marked as such; remove it entirely and this section still
@@ -80,7 +78,7 @@ export function MindEvolution() {
           (entry.target as HTMLElement).dataset.inband = String(entry.isIntersecting);
         }
       },
-      { rootMargin: "-62% 0px -2% 0px" },
+      { rootMargin: "-64% 0px -2% 0px" },
     );
     const blocks = copy.current.filter(Boolean) as HTMLDivElement[];
     blocks.forEach((el) => observer.observe(el));
@@ -110,7 +108,7 @@ export function MindEvolution() {
           }}
         />
 
-        <div className="absolute inset-x-0 top-[8svh] h-[40svh] lg:h-[42svh]">
+        <div className="absolute inset-x-0 top-[6svh] h-[44svh] lg:top-[7svh] lg:h-[48svh]">
           <KnowMind3D
             trackRef={track}
             onChapterChange={setActive}
@@ -120,29 +118,25 @@ export function MindEvolution() {
           />
         </div>
 
-        {/* State captions, on the same three columns as the heads. Hidden on
-            phones, where the camera tracks along the row instead of showing all
-            three at once — there, each block of copy carries its own label. */}
+        {/* The three states, named. A rail rather than three captions: there is
+            one head, and this says where it has got to. */}
         <ol
           ref={captions}
-          className="absolute inset-x-0 top-[52svh] hidden grid-cols-3 lg:grid"
+          className="absolute inset-x-0 top-[52svh] hidden justify-center gap-7 lg:top-[57svh] lg:flex"
         >
           {states.map((state, i) => (
-            <li
-              key={state.key}
-              className="flex flex-col items-center gap-2 transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-              style={{ opacity: active === i ? 1 : 0.34 }}
-            >
+            <li key={state.key} className="flex items-center gap-3">
               <span
                 aria-hidden
                 className="h-px bg-honey transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                style={{ width: active === i ? "2.5rem" : "1rem" }}
+                style={{ width: active === i ? "2.25rem" : "0.75rem" }}
               />
-              <span className="text-eyebrow font-semibold tracking-[0.18em] text-honey uppercase">
-                {state.index}
-              </span>
-              <span className="text-eyebrow font-semibold tracking-[0.18em] text-cream uppercase">
-                {state.label}
+              <span
+                className="text-eyebrow font-semibold tracking-[0.18em] uppercase transition-opacity duration-700"
+                style={{ opacity: active === i ? 1 : 0.34 }}
+              >
+                <span className="text-honey">{state.index}</span>{" "}
+                <span className="text-cream">{state.label}</span>
               </span>
             </li>
           ))}

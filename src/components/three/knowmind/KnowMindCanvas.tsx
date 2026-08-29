@@ -6,7 +6,7 @@ import * as THREE from "three";
 
 import type { Pointer } from "@/lib/hooks";
 import { CAMERA, MOTION, type Tier, TIERS } from "./constants";
-import { HeadRow } from "./HeadRow";
+import { HeadScene } from "./HeadScene";
 
 /**
  * The renderer.
@@ -176,7 +176,7 @@ export function KnowMindCanvas({
       <Lighting shadows={settings.shadows} />
       <ContextGuard onLost={onFail} />
       <AdaptiveResolution dprMax={settings.dprMax} />
-      <HeadRow progressRef={progressRef} pointer={pointer} tier={tier} reduced={reduced} />
+      <HeadScene progressRef={progressRef} pointer={pointer} tier={tier} reduced={reduced} />
     </Canvas>
   );
 }

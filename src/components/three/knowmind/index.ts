@@ -1,5 +1,5 @@
 /**
- * KnowMind3D — the scroll-driven psychological triptych.
+ * KnowMind3D — one sculptural head, and the mind inside it.
  *
  *   <section ref={track} className="relative">
  *     <div className="sticky top-0 h-[100svh]">
@@ -8,9 +8,10 @@
  *     … three screens of copy, one per state …
  *   </section>
  *
- * Three identical sculptural heads; only the thread inside each skull differs.
- * See `MindEvolution.tsx` for the full integration, and README.md for the
- * component contract, the quality tiers and the performance notes.
+ * The head never changes. The thread in its cranium reorganises from a tangle,
+ * through an unravelling, into a clear spiral as the visitor scrolls. See
+ * `MindEvolution.tsx` for the full integration, and README.md for the component
+ * contract, the quality tiers and the performance notes.
  */
 
 export { KnowMind3D, type KnowMind3DProps } from "./KnowMind3D";
@@ -20,7 +21,7 @@ export { usePerformanceTier } from "./usePerformanceTier";
 export { useWebGL2Support } from "./useWebGL2";
 export {
   chapterAt,
-  headStage,
+  threadStage,
   TANGLED,
   UNRAVELING,
   CLEAR,

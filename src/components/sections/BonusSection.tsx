@@ -1,99 +1,133 @@
 "use client";
 
-import { motion, type Variants } from "motion/react";
+import { motion } from "motion/react";
+import { useId, useState } from "react";
 
+import { RevealGroup, revealChild, Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { bonuses, totalBonusValue } from "@/lib/content";
 import { inr } from "@/lib/config";
-import { usePrefersReducedMotion } from "@/lib/hooks";
+import { useMediaQuery, usePrefersReducedMotion } from "@/lib/hooks";
 
 /* -------------------------------------------------------------------------- */
-/*  The bonus reveal                                                          */
+/*  The bonus discovery                                                        */
 /*                                                                            */
-/*  Three discoveries rather than three product cards. Each stage arrives in   */
-/*  six beats — number, title, thread, description, value, "included" — so the */
-/*  bonus reads as being opened rather than displayed.                         */
+/*  Three closed objects rather than three information cards. The title is     */
+/*  always legible; what the bonus actually contains opens on hover, on focus  */
+/*  or on tap.                                                                */
 /*                                                                            */
-/*  Motion note: §11 names `Reveal` as the page's single scroll-reveal         */
-/*  language. A six-beat sequence cannot be expressed with it, so this section */
-/*  runs its own variant tree — but on the same library, the same easing and   */
-/*  the same duration band, and still `viewport={{ once: true }}`. The         */
-/*  exception is deliberate and scoped to this section.                        */
+/*  Two decisions worth knowing before editing:                               */
+/*                                                                            */
+/*  1. Nothing is ever removed from the DOM or hidden from assistive tech.     */
+/*     The concealed layer is clipped and faded, never `hidden` and never      */
+/*     `aria-hidden`, so screen readers and crawlers get the full offer while  */
+/*     sighted visitors get the discovery (§13.3, §16). `aria-expanded`        */
+/*     therefore describes the *visual* state of a widget whose content is     */
+/*     always readable — deliberate, and the reason it is not a plain          */
+/*     `Accordion`.                                                            */
+/*                                                                            */
+/*  2. The concealed layer stays in normal flow at all times, so a card is the */
+/*     same height open and closed. That is what makes the reveal impossible   */
+/*     to shift the page — there is no height animation anywhere here.         */
 /* -------------------------------------------------------------------------- */
 
-const EASE = [0.22, 1, 0.36, 1] as const;
-
-/** Parent: paces the six beats of one bonus. */
-const stageVariants = (reduced: boolean): Variants => ({
-  hidden: {},
-  visible: {
-    transition: {
-      delayChildren: reduced ? 0 : 0.14,
-      staggerChildren: reduced ? 0 : 0.16,
-    },
-  },
-});
-
-/** The default beat — opacity plus a short rise. */
-const beat = (reduced: boolean): Variants => ({
-  hidden: reduced ? { opacity: 0 } : { opacity: 0, y: 18 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: reduced ? 0.25 : 0.65, ease: EASE },
-  },
-});
-
-/** The title travels further, behind a mask, so it reads as a lift not a fade. */
-const titleBeat = (reduced: boolean): Variants => ({
-  hidden: reduced ? { opacity: 0 } : { opacity: 0, y: "42%" },
-  visible: {
-    opacity: 1,
-    y: "0%",
-    transition: { duration: reduced ? 0.25 : 0.85, ease: EASE },
-  },
-});
-
-/** The thread draws downward. Transform only — no height animation. */
-const threadBeat = (reduced: boolean): Variants => ({
-  hidden: reduced ? { opacity: 0 } : { opacity: 0, scaleY: 0 },
-  visible: {
-    opacity: 1,
-    scaleY: 1,
-    transition: { duration: reduced ? 0.25 : 0.9, ease: EASE },
-  },
-});
-
-const nodeBeat = (reduced: boolean): Variants => ({
-  hidden: reduced ? { opacity: 0 } : { opacity: 0, scale: 0.3 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: reduced ? 0.25 : 0.5, ease: EASE },
-  },
-});
+const EASE = "ease-[cubic-bezier(0.22,1,0.36,1)]";
 
 /**
- * The thread, resolving.
- *
- * Bonus 01 is sparse and broken, 02 closes up, 03 runs solid — the same
- * chaos → flow → clarity idea the 3D character carries, at a whisper. Painted
- * with a repeating gradient so the "dashes" cost nothing to animate.
+ * The thread, resolving — chaos → flow → clarity, the same idea the 3D
+ * character carries, at a whisper. Painted as a repeating gradient so the
+ * "dashes" cost nothing. Rule 01 is sparse and broken, 02 closes up, 03 runs
+ * solid.
  */
 const THREAD_PAINT = [
-  "repeating-linear-gradient(to bottom, rgba(90,35,72,0.55) 0 4px, transparent 4px 13px)",
-  "repeating-linear-gradient(to bottom, rgba(154,101,49,0.6) 0 9px, transparent 9px 14px)",
-  "linear-gradient(to bottom, rgba(230,180,76,0.9), rgba(254,183,55,0.3))",
+  "repeating-linear-gradient(to right, rgba(90,35,72,0.5) 0 4px, transparent 4px 13px)",
+  "repeating-linear-gradient(to right, rgba(154,101,49,0.55) 0 9px, transparent 9px 14px)",
+  "linear-gradient(to right, rgba(230,180,76,0.95), rgba(254,183,55,0.35))",
 ];
+
+/* -------------------------------------------------------------------------- */
+
+/**
+ * A quiet signature per bonus — a reflection, a repeating pattern, fourteen
+ * marks. Drawn rather than imported: the page carries no icon dependency.
+ */
+function BonusMark({ index, className = "" }: { index: number; className?: string }) {
+  const common = { viewBox: "0 0 48 48", fill: "none", "aria-hidden": true, className } as const;
+
+  if (index === 0) {
+    return (
+      <svg {...common}>
+        <circle cx="24" cy="24" r="15" stroke="currentColor" strokeWidth="1" />
+        <circle cx="24" cy="24" r="8" stroke="currentColor" strokeWidth="1" />
+        <circle cx="24" cy="24" r="1.75" fill="currentColor" />
+      </svg>
+    );
+  }
+
+  if (index === 1) {
+    return (
+      <svg {...common}>
+        {[12, 19, 26, 33].map((y, i) => (
+          <line
+            key={y}
+            x1="9"
+            y1={y}
+            x2={i % 2 === 0 ? 39 : 30}
+            y2={y}
+            stroke="currentColor"
+            strokeWidth="1"
+          />
+        ))}
+      </svg>
+    );
+  }
+
+  return (
+    <svg {...common}>
+      {Array.from({ length: 14 }, (_, i) => (
+        <circle
+          key={i}
+          cx={10 + (i % 7) * 4.7}
+          cy={i < 7 ? 20 : 28}
+          r="1.4"
+          fill="currentColor"
+        />
+      ))}
+    </svg>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 
 export function BonusSection() {
   const reduced = usePrefersReducedMotion();
+  // Hover only drives the reveal where hovering is real. On touch the same
+  // state is driven by tap, so the interaction is identical in spirit.
+  const canHover = useMediaQuery("(hover: hover) and (pointer: fine)");
 
-  const stage = stageVariants(reduced);
-  const item = beat(reduced);
-  const title = titleBeat(reduced);
-  const thread = threadBeat(reduced);
-  const node = nodeBeat(reduced);
+  const [active, setActive] = useState<number | null>(null);
+  const [found, setFound] = useState<readonly number[]>([]);
+  const baseId = useId();
+
+  const open = (i: number) => {
+    setActive(i);
+    setFound((prev) => (prev.includes(i) ? prev : [...prev, i]));
+  };
+
+  const foundRatio = found.length / bonuses.length;
+  const allFound = found.length === bonuses.length;
+
+  /* -- the concealed layer, and the two ways it can behave ---------------- */
+
+  const conceal = reduced
+    ? // Reduced motion: it still opens, it just does not travel.
+      "opacity-0 group-data-[open=true]:opacity-100 transition-opacity duration-200"
+    : `opacity-0 translate-y-2 blur-[2px] [clip-path:inset(0_0_100%_0)] ` +
+      `group-data-[open=true]:opacity-100 group-data-[open=true]:translate-y-0 ` +
+      // `blur-[0px]`, not `blur-0` — the latter is not a utility in Tailwind v4,
+      // so it compiles to nothing and the text stays blurred once opened.
+      `group-data-[open=true]:blur-[0px] group-data-[open=true]:[clip-path:inset(0_0_0%_0)] ` +
+      `transition-[opacity,transform,filter,clip-path] duration-500 ${EASE}`;
 
   return (
     <section
@@ -120,143 +154,169 @@ export function BonusSection() {
           lead="Small tools that make the first day easier and the last day clearer."
         />
 
-        {/* ---------------- The three discoveries ---------------- */}
-        <ol className="mt-16 lg:mt-20">
-          {bonuses.map((bonus, i) => (
-            <motion.li
-              key={bonus.index}
-              variants={stage}
-              initial="hidden"
-              whileInView="visible"
-              // Each stage waits its turn simply by being further down the page.
-              // `once` means a revealed bonus never dims or re-animates.
-              viewport={{ once: true, amount: 0.4 }}
-              className="relative"
-            >
-              {/* The thread runs the full height of the stage, so consecutive
-                  stages join into one continuous line down the section. */}
-              <motion.span
-                aria-hidden
-                variants={thread}
-                style={{ backgroundImage: THREAD_PAINT[i] ?? THREAD_PAINT[2] }}
-                className="absolute top-0 left-0 h-full w-px origin-top"
-              />
-              <motion.span
-                aria-hidden
-                variants={node}
-                className="absolute top-12 -left-[3px] h-[7px] w-[7px] rounded-full bg-honey lg:top-16"
-              />
+        {/* ---------------- Three closed objects ---------------- */}
+        <RevealGroup
+          as="ul"
+          className="mt-14 grid gap-4 lg:mt-16 lg:grid-cols-3 lg:gap-5"
+          stagger={0.09}
+        >
+          {bonuses.map((bonus, i) => {
+            const isOpen = active === i;
+            const dimmed = active !== null && !isOpen;
+            const panelId = `${baseId}-bonus-${i}`;
 
-              <article className="grid gap-y-6 py-12 pl-8 sm:pl-12 lg:grid-cols-12 lg:gap-x-10 lg:py-16 lg:pl-16">
-                {/* ---- Beat 1: the number ---- */}
-                <motion.div variants={item} className="min-w-0 lg:col-span-2">
-                  <p className="text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase">
-                    Bonus
-                  </p>
-                  <p className="mt-2 flex items-baseline gap-2">
-                    <span className="text-h1 leading-none font-semibold tabular-nums text-ink">
-                      {bonus.index}
-                    </span>
-                    <span className="text-sm tabular-nums text-ink-muted">
-                      / {String(bonuses.length).padStart(2, "0")}
-                    </span>
-                  </p>
-                </motion.div>
-
-                {/* ---- Beats 2-4: title, rule, description ---- */}
-                <div className="min-w-0 lg:col-span-7">
-                  {/* Mask: the title lifts into place rather than fading in. */}
-                  <div className="overflow-hidden pb-1">
-                    <motion.h3
-                      variants={title}
-                      className="text-h2 font-semibold tracking-[0.005em] break-words hyphens-auto text-ink uppercase"
-                    >
-                      {bonus.title}
-                    </motion.h3>
-                  </div>
-
-                  <motion.div
+            return (
+              <motion.li key={bonus.index} variants={revealChild} className="min-w-0">
+                <article
+                  data-open={isOpen}
+                  onMouseEnter={canHover ? () => open(i) : undefined}
+                  onMouseLeave={canHover ? () => setActive(null) : undefined}
+                  className={`group relative flex h-full flex-col border border-ink/10 bg-paper/40 px-6 pt-8 pb-7 transition-[background-color,border-color,transform,opacity] duration-500 sm:px-7 ${EASE} data-[open=true]:border-amber-ink/25 data-[open=true]:bg-paper ${
+                    dimmed ? "opacity-90" : "opacity-100"
+                  } ${reduced ? "" : "data-[open=true]:-translate-y-1.5"}`}
+                >
+                  {/* The thread, running across the head of each card. */}
+                  <span
                     aria-hidden
-                    variants={item}
-                    className="mt-6 h-px w-16 origin-left bg-amber-ink/45"
+                    style={{ backgroundImage: THREAD_PAINT[i] ?? THREAD_PAINT[2] }}
+                    className={`absolute inset-x-0 top-0 h-[2px] opacity-60 transition-opacity duration-500 group-data-[open=true]:opacity-100 ${EASE}`}
                   />
 
-                  <motion.p variants={item} className="mt-6 max-w-md text-lead text-ink-muted">
-                    {bonus.description}
-                  </motion.p>
+                  <BonusMark
+                    index={i}
+                    className={`absolute top-7 right-6 h-9 w-9 text-ink/15 transition-colors duration-500 group-data-[open=true]:text-amber-ink/40 sm:right-7 ${EASE}`}
+                  />
 
-                  {bonus.detail && (
-                    <motion.p variants={item} className="mt-4 max-w-md text-sm text-ink-muted">
-                      {bonus.detail}
-                    </motion.p>
-                  )}
-                </div>
+                  {/* ---- Always legible: which bonus, and what it is ---- */}
+                  <p className="text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase">
+                    Bonus <span className="text-amber-ink">{bonus.index}</span>
+                  </p>
 
-                {/* ---- Beats 5-6: value, then "included" ---- */}
-                <div className="min-w-0 lg:col-span-3 lg:text-right">
-                  <motion.p
-                    variants={item}
-                    className="text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase"
+                  <h3 className="mt-5 pr-12 text-h3 font-semibold tracking-[0.005em] hyphens-auto text-ink uppercase">
+                    {bonus.title}
+                  </h3>
+
+                  {/* The accent line that opens with the card. */}
+                  <span
+                    aria-hidden
+                    className={`mt-5 h-px w-16 origin-left scale-x-50 bg-amber-ink/35 transition-transform duration-500 group-data-[open=true]:scale-x-100 ${EASE}`}
+                  />
+
+                  {/* ---- Concealed until opened, but never hidden ---- */}
+                  {/* Beat two of three: the rule opens, the description follows,
+                      the value settles last. ~650ms end to end. */}
+                  <div
+                    id={panelId}
+                    className={`mt-5 ${conceal} ${
+                      reduced ? "" : "group-data-[open=true]:delay-75"
+                    }`}
                   >
-                    Value
-                  </motion.p>
-                  <motion.p
-                    variants={item}
-                    className="mt-2 text-h3 font-semibold tabular-nums text-amber-ink"
+                    <p className="text-body text-ink-muted">{bonus.description}</p>
+                    {bonus.detail && (
+                      <p className="mt-3 text-sm text-ink-muted/85">{bonus.detail}</p>
+                    )}
+                  </div>
+
+                  {/* ---- The swap: a cue becomes a value ----
+                      Both states share one grid cell, so the row is exactly as
+                      tall as the taller of the two and nothing moves. */}
+                  <div className="mt-auto grid pt-8">
+                    <span
+                      className={`col-start-1 row-start-1 flex items-center gap-2 self-end text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase transition-opacity duration-300 group-data-[open=true]:opacity-0 ${EASE}`}
+                    >
+                      Discover
+                      <svg
+                        aria-hidden
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        className="h-3.5 w-3.5"
+                      >
+                        <path
+                          d="M4 12h15m0 0-5.5-5.5M19 12l-5.5 5.5"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+
+                    <p
+                      // The delay is open-only, so the value settles last on the
+                      // way in but leaves immediately on the way out.
+                      className={`col-start-1 row-start-1 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 self-end ${conceal} ${
+                        reduced ? "" : "group-data-[open=true]:delay-150"
+                      }`}
+                    >
+                      <span className="text-h3 font-semibold tabular-nums text-amber-ink">
+                        {inr(bonus.value)}
+                      </span>
+                      <span className="text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase">
+                        Included
+                      </span>
+                    </p>
+                  </div>
+
+                  {/* The whole card is the control: tappable, focusable, and
+                      the only thing that carries the interaction semantics.
+
+                      Every handler here *opens* — none of them toggles closed.
+                      That is deliberate: on touch, `focus` fires before `click`,
+                      so a toggling click would close the card in the same tap
+                      that opened it. Closing is handled by moving away instead —
+                      blur, mouseleave, or opening a different card — which also
+                      gives the section its one-open-at-a-time behaviour for
+                      free, on every input type. */}
+                  <button
+                    type="button"
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                    onFocus={() => open(i)}
+                    onBlur={() => setActive(null)}
+                    onClick={() => open(i)}
+                    className="absolute inset-0 cursor-pointer"
                   >
-                    {inr(bonus.value)}
-                  </motion.p>
-                  <motion.p
-                    variants={item}
-                    className="mt-2 text-xs font-semibold tracking-[0.14em] text-ink-muted uppercase"
-                  >
-                    Included
-                  </motion.p>
-                </div>
-              </article>
-            </motion.li>
-          ))}
-        </ol>
+                    <span className="sr-only">{bonus.title} — bonus details</span>
+                  </button>
+                </article>
+              </motion.li>
+            );
+          })}
+        </RevealGroup>
 
         {/* ---------------- The payoff ---------------- */}
-        <motion.div
-          variants={stage}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.6 }}
-          className="relative pl-8 sm:pl-12 lg:pl-16"
-        >
-          {/* The thread finishes here, then hands over to the page. */}
-          <motion.span
-            aria-hidden
-            variants={thread}
-            className="absolute top-0 left-0 h-10 w-px origin-top"
-            style={{ backgroundImage: THREAD_PAINT[2] }}
-          />
+        <Reveal>
+          <div className="mt-14 lg:mt-16">
+            <div className="rule-gold" />
 
-          <div className="rule-gold mt-10" />
+            <div className="flex flex-col gap-x-10 gap-y-5 pt-10 sm:flex-row sm:items-end sm:justify-between">
+              <div className="min-w-0">
+                <p
+                  className={`text-eyebrow font-semibold tracking-[0.18em] uppercase transition-colors duration-700 ${EASE} ${
+                    allFound ? "text-amber-ink" : "text-ink-muted"
+                  }`}
+                >
+                  Total bonus value
+                </p>
+                <p className="mt-3 text-h1 leading-none font-semibold tabular-nums text-ink">
+                  {inr(totalBonusValue)}
+                </p>
 
-          <div className="flex flex-col gap-x-10 gap-y-4 pt-10 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <motion.p
-                variants={item}
-                className="text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase"
-              >
-                Total bonus value
-              </motion.p>
-              <motion.p
-                variants={item}
-                className="mt-3 text-h1 leading-none font-semibold tabular-nums text-ink"
-              >
-                {inr(totalBonusValue)}
-              </motion.p>
+                {/* Fills as each bonus is opened — the discovery adding up to
+                    the number, rather than the number being asserted. */}
+                <span
+                  aria-hidden
+                  style={{ transform: `scaleX(${foundRatio})` }}
+                  className={`mt-4 block h-px w-full max-w-56 origin-left bg-honey transition-transform duration-700 ${EASE}`}
+                />
+              </div>
+
+              <p className="text-lead text-ink-muted sm:text-right">
+                Included with your registration.
+              </p>
             </div>
-
-            <motion.p variants={item} className="text-lead text-ink-muted sm:text-right">
-              Included with your registration.
-            </motion.p>
           </div>
-        </motion.div>
+        </Reveal>
       </div>
     </section>
   );
