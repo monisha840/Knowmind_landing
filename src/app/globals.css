@@ -1,0 +1,236 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   KnowMind Universe — design tokens
+   --------------------------------------------------------------------------
+   Brand:   Wine Violet #5A2348 (dominant) · Deep Purple #3B1C5A (depth)
+            Honey #FEB737 (accent) · Golden Yellow #E6B44C (subtle)
+
+   The page is art-directed as one continuous movement from night, through
+   dawn, into daylight — mirroring the 5:30 AM premise of the programme.
+   ========================================================================== */
+
+@theme {
+  /* ---- Night / dark side (wine-violet dominant) ---- */
+  --color-night: #0c0410;
+  --color-night-2: #140718;
+  --color-wine-950: #1d0a18;
+  --color-wine-900: #2a0f22;
+  --color-wine-800: #3d1730;
+  --color-wine-700: #4c1c3c;
+  --color-wine: #5a2348;
+  --color-wine-500: #6d2f58;
+  --color-wine-400: #8a4a72;
+  --color-wine-300: #a8709a;
+
+  --color-purple-950: #150a20;
+  --color-purple-900: #1e0e2e;
+  --color-purple-800: #2b1442;
+  --color-purple: #3b1c5a;
+  --color-purple-500: #4e2874;
+  --color-purple-400: #6b4193;
+
+  /* ---- Accents ---- */
+  --color-honey: #feb737;
+  --color-honey-400: #ffc75f;
+  --color-honey-600: #e09a15;
+  --color-gold: #e6b44c;
+  /* Accent that stays legible as text on light backgrounds (honey does not). */
+  --color-amber-ink: #8a5a0a;
+
+  /* ---- Light / day side ---- */
+  --color-paper: #fbf7f2;
+  --color-paper-2: #f4ece3;
+  --color-sand: #e9ddd0;
+  --color-sand-2: #dbcab7;
+
+  /* ---- Text ---- */
+  --color-ink: #240d1e;
+  --color-ink-muted: #6c5461;
+  --color-cream: #f8f0e9;
+  --color-cream-muted: #c6b1bf;
+  --color-cream-dim: #9b8494;
+
+  /* ---- Typography ---- */
+  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, "Times New Roman", serif;
+  --font-tamil: var(--font-noto-tamil), var(--font-instrument-sans), ui-sans-serif, sans-serif;
+
+  /* Fluid type scale — every size interpolates between mobile and desktop. */
+  --text-display: clamp(3rem, 1.1rem + 8.4vw, 6rem);
+  --text-display--line-height: 0.94;
+  --text-display--letter-spacing: -0.035em;
+
+  --text-h1: clamp(2.5rem, 1.3rem + 5.4vw, 4.5rem);
+  --text-h1--line-height: 0.98;
+  --text-h1--letter-spacing: -0.03em;
+
+  --text-h2: clamp(2rem, 1.15rem + 3.8vw, 3.5rem);
+  --text-h2--line-height: 1.02;
+  --text-h2--letter-spacing: -0.025em;
+
+  --text-h3: clamp(1.375rem, 1.05rem + 1.5vw, 2rem);
+  --text-h3--line-height: 1.15;
+  --text-h3--letter-spacing: -0.015em;
+
+  --text-lead: clamp(1.125rem, 1rem + 0.7vw, 1.5rem);
+  --text-lead--line-height: 1.5;
+
+  --text-body: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --text-body--line-height: 1.65;
+
+  --text-eyebrow: 0.75rem;
+  --text-eyebrow--line-height: 1;
+  --text-eyebrow--letter-spacing: 0.18em;
+
+  /* ---- Rhythm ---- */
+  --spacing-section: clamp(5rem, 2.5rem + 9vw, 9.5rem);
+  --spacing-gutter: clamp(1.25rem, 0.5rem + 2.4vw, 2.5rem);
+
+  --radius-card: 1.25rem;
+  --radius-pill: 999px;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Nav is fixed — keep anchor targets clear of it. */
+    scroll-padding-top: 6rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-night);
+    color: var(--color-cream);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* Nothing should ever cause a sideways scroll. */
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 600;
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background-color: var(--color-honey);
+    color: var(--color-wine-950);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-honey);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* Tamil needs a touch more leading than the Latin scale allows. */
+  :lang(ta),
+  .font-tamil {
+    font-family: var(--font-tamil);
+    line-height: 1.7;
+  }
+
+  img,
+  svg,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* ==========================================================================
+   Components / utilities
+   ========================================================================== */
+
+@layer components {
+  .container-page {
+    width: 100%;
+    max-width: 78rem;
+    margin-inline: auto;
+    padding-inline: var(--spacing-gutter);
+  }
+
+  .container-narrow {
+    width: 100%;
+    max-width: 46rem;
+    margin-inline: auto;
+    padding-inline: var(--spacing-gutter);
+  }
+
+  .section-y {
+    padding-block: var(--spacing-section);
+  }
+
+  /* Fine film grain — gives the flat brand colours a tactile, printed quality. */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Hairline dividers in golden yellow, used sparingly between movements. */
+  .rule-gold {
+    height: 1px;
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklab, var(--color-gold) 55%, transparent),
+      transparent
+    );
+  }
+
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.4s var(--ease-out-soft);
+  }
+  .link-underline:hover {
+    background-size: 100% 1px;
+  }
+}
+
+/* ==========================================================================
+   Motion preferences
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
