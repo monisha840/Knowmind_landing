@@ -24,7 +24,7 @@ export const siteConfig = {
    * agreement with the primary domain configured at the host — a canonical tag
    * pointing at a URL that redirects is worse than none.
    */
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://knowminduniverse.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.knowminduniverse.com",
 
   contact: {
     website: "www.kaleeswaran.com",

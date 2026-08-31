@@ -16,3 +16,6 @@ next-env.d.ts
 # never belong in history.
 rzp-*.csv
 *key*.csv
+
+.vercel
+.env*
