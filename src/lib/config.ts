@@ -12,7 +12,19 @@ export const siteConfig = {
   programSubtitle: "14-Day Live Psychological Growth Journey",
   batch: "Batch 2",
 
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.kaleeswaran.com",
+  /**
+   * The canonical origin of this landing page.
+   *
+   * Distinct from `contact.website` below: that is Kaleeswaran's practice site,
+   * shown in the footer and marked up as his `Person.url`. This is where the
+   * programme itself lives, and it is what every canonical tag, Open Graph URL,
+   * sitemap entry and JSON-LD `@id` is built from.
+   *
+   * Keep the default and NEXT_PUBLIC_SITE_URL in agreement, and both in
+   * agreement with the primary domain configured at the host — a canonical tag
+   * pointing at a URL that redirects is worse than none.
+   */
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://knowminduniverse.com",
 
   contact: {
     website: "www.kaleeswaran.com",

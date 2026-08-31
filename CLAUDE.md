@@ -1156,9 +1156,12 @@ dates and price), `favicon.ico`, `icon.png`, `apple-icon.png`, `manifest.ts`,
 - Regenerate icons with `npm run icons`, never by hand-editing a PNG.
 - `sitemap.ts` carries a hardcoded `lastModified` date. Update it when the page
   materially changes.
-- If the production origin is ever not `www.kaleeswaran.com`, set
-  `NEXT_PUBLIC_SITE_URL` — canonical, OG, JSON-LD, robots and sitemap all derive
-  from it. Never hardcode an origin in any of those files.
+- The production origin is **`knowminduniverse.com`** — set as the default in
+  `siteConfig.url` and confirmed by `NEXT_PUBLIC_SITE_URL` in the deployment.
+  Canonical, OG, JSON-LD, robots and sitemap all derive from it, so never
+  hardcode an origin in any of those files. Note this is **not**
+  `siteConfig.contact.website` (`www.kaleeswaran.com`), which is Kaleeswaran's
+  own practice site and a contact detail (§1.1), not the programme's domain.
 
 Keep marketing content crawlable in HTML. Never move copy into a canvas, an
 image, or client-only rendering.
@@ -1216,7 +1219,7 @@ image, or client-only rendering.
 | `RAZORPAY_WEBHOOK_SECRET` | **server** | Signing secret for webhook deliveries — **a different value** from the key secret; you choose it in the dashboard. Empty → the webhook rejects every delivery. | for production |
 | `KV_REST_API_URL` | **server** | Optional Redis mirror (Vercel KV / Upstash). Absent → the mirror is skipped and nothing else changes. | no |
 | `KV_REST_API_TOKEN` | **server** | Token for the above. | no |
-| `NEXT_PUBLIC_SITE_URL` | public | Canonical origin for canonical tags, OG URLs and JSON-LD. Defaults to `https://www.kaleeswaran.com`. | recommended |
+| `NEXT_PUBLIC_SITE_URL` | public | Canonical origin for canonical tags, OG URLs and JSON-LD. Defaults to `https://knowminduniverse.com`. | recommended |
 
 `NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK` is **gone**. It configured a hosted payment
 link that bypassed the registration questions entirely; do not reintroduce it.
