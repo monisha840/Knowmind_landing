@@ -73,7 +73,8 @@ This repository already does that correctly in three places — copy the pattern
 
 | Missing thing | Honest boundary already in place |
 | --- | --- |
-| Razorpay checkout URL | `RAZORPAY_PAYMENT_LINK` empty → every CTA falls back to `#register` (`src/lib/config.ts`) |
+| Razorpay credentials | `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` unset → `/api/register` answers 503 with a plain sentence and the phone number, instead of opening a checkout that cannot work (`src/app/api/register/route.ts`) |
+| Webhook secret | `RAZORPAY_WEBHOOK_SECRET` unset → the webhook rejects every delivery rather than trusting an unsigned one (`src/app/api/razorpay/webhook/route.ts`) |
 | Video testimonials | `src: null` → a dashed "Coming soon" placeholder, not a stock clip (`content.ts`, `Testimonials.tsx`) |
 | Client / media logo files | Typographic wordmarks, because fabricating brand logos would misrepresent them (`MediaSection.tsx`) |
 
@@ -178,12 +179,14 @@ manipulation is off-brand as well as unethical.
 | Fonts | `next/font/google` — Instrument Sans, Instrument Serif, Noto Sans Tamil |
 | Asset pipeline | `sharp` (devDependency) via `scripts/optimize-assets.mjs` |
 | Package manager | **npm** (`package-lock.json`) |
-| Version control | **None — not a git repository** |
+| Version control | **git** — branch `master`, remote-less as of this writing |
 | ESLint | **Not configured** (no config file anywhere) |
 | Prettier | **Not configured** |
 | Tests | **None** — no runner, no test files |
 | Analytics | **None** |
-| Backend / API routes / DB / auth | **None** |
+| Backend | **Next.js Route Handlers** — three, all payment (`src/app/api/`). No auth, no long-running process. |
+| Database | **None.** A registration's durable record is the Razorpay order's `notes`; an optional Redis mirror activates from `KV_REST_API_URL` (see `src/lib/payments/registrations.ts`) |
+| Payments | **Razorpay Standard Checkout**, over the REST API. **No `razorpay` npm package** — HTTP Basic + `node:crypto` HMAC, so nothing was added to the bundle |
 
 There is **no `tailwind.config.js`**. Tailwind v4 is configured entirely in CSS.
 Do not create one — extend `@theme` in `globals.css` instead.
@@ -256,31 +259,47 @@ one without approval is a scope violation.
 │   ├── brand/logo.png · logo-white.png
 │   ├── icons/icon-192.png · icon-512.png      # referenced by manifest.ts
 │   ├── kalee/kaleeswaran.webp
+│   ├── kalee/hero-growth.webp · hero-growth-rim.png   # the hero portrait and
+│   │                          # the gold rim matte DERIVED from it — both are
+│   │                          # written by optimize-assets.mjs, never by hand
 │   ├── photos/experiential-circle.webp · leadership-program.webp · experiential-activity.webp
 │   ├── knowmind_logo.png      # SOURCE for generate-icons.mjs — not for page use
 │   └── kaleeswaran_image.png  # SOURCE original — not for page use
 └── src/
     ├── app/
+    │   ├── api/                # the only server code — all of it payment
+    │   │   ├── register/route.ts          # POST → validate, PENDING, ₹999 order
+    │   │   └── razorpay/
+    │   │       ├── verify/route.ts        # POST → signature + read-back → PAID
+    │   │       └── webhook/route.ts       # POST → Razorpay's own confirmation
     │   ├── layout.tsx          # fonts, metadata, viewport, skip-link, JSON-LD
-    │   ├── page.tsx            # the ONLY route — composes every section in order
+    │   ├── page.tsx            # the ONLY page route — composes every section
     │   ├── globals.css         # design tokens (@theme), base layer, component utilities
     │   ├── opengraph-image.tsx # build-time 1200×630 share card via next/og
     │   ├── manifest.ts · robots.ts · sitemap.ts
     │   └── favicon.ico · icon.png · apple-icon.png   # generated — see `npm run icons`
     ├── components/
     │   ├── Navbar.tsx · Footer.tsx · StickyMobileCTA.tsx
+    │   ├── hero/              # the hero portrait's depth treatment
+    │   │   └── LivingPortrait.tsx   # layered 2.5D parallax + the two added lights
     │   ├── sections/          # one file per page section (19 files)
     │   ├── three/             # persistent background scene
     │   │   ├── BackgroundMount.tsx · Background3D.tsx · Fallback2D.tsx
     │   │   ├── GrowthObject.tsx · OrbitalField.tsx · CoreGlow.tsx
-    │   │   └── knowmind/      # the scroll-driven sculptural head (self-contained module)
+    │   │   └── knowmind/      # the scroll-driven character (self-contained module)
     │   └── ui/                # Accordion · CTAButton · Marquee · MethodIcons
     │                          # Metric · Reveal · SectionHeading · TestimonialCard
     └── lib/
-        ├── config.ts          # program facts, payment link, money helpers
+        ├── config.ts          # program facts, anchors, money helpers
         ├── content.ts         # ALL repeatable copy as structured data
         ├── hooks.ts           # media queries, WebGL probe, count-up, pointer, scroll
-        └── schema.ts          # JSON-LD graph
+        ├── schema.ts          # JSON-LD graph
+        ├── validation.ts      # the six answers' rules — runs on BOTH sides
+        └── payments/
+            ├── types.ts           # the browser↔server contract (client-safe)
+            ├── razorpay.ts        # REST client + HMAC.  SERVER ONLY — throws in a browser
+            ├── registrations.ts   # the record, the amount, idempotency.  SERVER ONLY
+            └── useCheckout.ts     # "use client" — the checkout state machine
 ```
 
 **Source assets vs. served assets.** `kaleeswaran_image.png` (1.7 MB) and
@@ -324,7 +343,8 @@ updating every reference.**
 | `#whats-included` | OfferSection | — |
 | `#bonuses` | BonusSection | — |
 | `#session-flow` | SessionFlow | — |
-| `#register` | PricingSection | **footer, every CTA fallback** |
+| `#register` | PricingSection | the pricing card (`PRICING_ANCHOR`) |
+| `#begin-journey` | BeginJourneySection | **every CTA on the page** (`REGISTER_ANCHOR`) — and therefore the single most load-bearing id in the file. Renaming it silently breaks registration. |
 | `#why-live` | LiveOnlySection | — |
 | `#guarantee` | GuaranteeSection | — |
 | `#faq` | FAQSection | **navLinks** |
@@ -517,17 +537,24 @@ component as a prop.
 `CTAButton` resolves its destination in `src/lib/config.ts`:
 
 ```
-href prop  →  else if NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK is set  →  that URL (new tab)
-           →  else                                              →  #register
+href prop  →  else  →  REGISTER_ANCHOR (#begin-journey)
 ```
 
-External destinations automatically get `target="_blank"` +
-`rel="noopener noreferrer"`. The button also emits
-`data-payment-configured` for testing and analytics hooks.
+Every call to action on the page goes to the registration questions. **Nothing
+on the page links to a checkout.** Payment is reached only from the end of those
+questions, where the answers already exist — see §8.
 
-**Never hardcode a payment URL anywhere.** Never invent a Razorpay link. The
-link comes from the environment, and until it is set the graceful in-page
-fallback is the correct, intentional behaviour — not a bug to "fix".
+External destinations still get `target="_blank"` + `rel="noopener noreferrer"`.
+
+`data-payment-configured` was removed from `CTAButton`. Whether payment is
+available is now a server-side fact this component cannot see, and rendering a
+guess at it would differ between the server render and the browser — a
+hydration mismatch (§20.4). The equivalent analytics hook lives where the state
+is genuinely known: **`data-payment-phase`** on the pay button at the end of the
+questions (`JourneyForm`), whose values are the `CheckoutPhase` kinds —
+`idle` · `preparing` · `open` · `confirming` · `paid` · `error` · `unconfirmed`.
+
+**Never hardcode a payment URL or a key anywhere.**
 
 ### 7.2 Current CTA inventory
 
@@ -540,6 +567,12 @@ fallback is the correct, intentional behaviour — not a bug to "fix".
 | PricingSection | Yes, I want to begin | `lg` |
 | FinalCTA | Register now — ₹999 (from `inr()`) | `lg` |
 | StickyMobileCTA | Begin | `md` |
+| JourneyForm (review step) | Pay and begin — ₹999 (from `inr()`) | — |
+
+The last one is **not** a `CTAButton`: it spends money and can be disabled,
+so it is a real `<button>` with `disabled` and `aria-busy`, wearing
+CTAButton's honey pill. A CTA that charges has to say the price — that is why
+it steps outside the "begin" vocabulary far enough to carry the amount.
 
 The primary CTA concept is **"BEGIN YOUR 1% JOURNEY"**, with **"I WANT TO
 BEGIN"** as the sanctioned alternative. Keep CTA language inside this family.
@@ -582,31 +615,70 @@ CTA → clear action → checkout or form → loading → success or failure
 
 ## 8 · Payment flow
 
-Current state — document it, do not extend it silently:
+Razorpay Standard Checkout, with server-side verification. Document it; do not
+extend it silently.
 
 ```
-CTA click
-  → NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK set?
-      YES → Razorpay hosted Payment Link, new tab   (Razorpay owns the flow)
-      NO  → smooth-scroll to #register              (honest fallback)
+CTA (anywhere)          → #begin-journey
+six questions           → JourneyForm, validated client-side as UX
+review step             → the answers read back, then the pay button
+POST /api/register      → validates again (authoritatively), creates a PENDING
+                          registration and a ₹999 / 99900-paise Razorpay order
+Razorpay Checkout       → opened in the browser against that order_id
+payment                 → Razorpay returns payment_id + order_id + signature
+POST /api/razorpay/verify → HMAC check, then reads the order and the payment back
+                          from Razorpay: amount, currency, order match, capture
+                          → PAID
+success state           → rendered only from a 200 on that route
+POST /api/razorpay/webhook → Razorpay's independent confirmation, same result,
+                          for when the browser never made it back
 ```
 
-There is **no** server-side order creation, **no** webhook, **no** signature
-verification, **no** success/failure/cancel route, and **no** post-payment
-onboarding in this codebase. Fulfilment (Zoom link + WhatsApp group within
-24 hours, as stated in `PricingSection`) happens outside this repository.
+**The three load-bearing rules.**
+
+1. **`PAID` has exactly one door.** `markPaid` is called from the verify route
+   and the webhook, and nowhere else. Razorpay's `handler` callback firing in
+   the browser is a *claim* of success; it moves the UI to `confirming`, never
+   to `paid`.
+2. **The server owns the price.** `REGISTRATION_AMOUNT_PAISE` is derived from
+   `programDetails.price` in `src/lib/payments/registrations.ts`. A request body
+   carrying an `amount` is ignored, not validated — and verification re-checks
+   the amount and currency on both the order and the payment.
+3. **The key secret never leaves the server.** It is read in
+   `src/lib/payments/razorpay.ts` and nowhere else; that module and
+   `registrations.ts` both throw on import if `window` exists.
+
+**Where a registration lives.** There is no database. The durable record is the
+Razorpay order's `notes` — every answer, plus `payment_status`,
+`razorpay_payment_id` and `paid_at`. That is why verification works on any
+serverless instance and survives a refresh: it rebuilds the registration from
+Razorpay rather than from local state. `KV_REST_API_URL` / `KV_REST_API_TOKEN`
+add an optional Redis mirror (a fast index plus a cross-instance lock); it is
+never the source of truth, and its absence changes nothing.
+
+**Idempotency.** One order per registration, one capture per order. `markPaid`
+writes the same notes whatever the previous state, so a replayed verify, a
+webhook that arrives first, and a double-click all converge on one record.
+`markFailed` refuses to downgrade a PAID one — a late `payment.failed` for an
+abandoned first attempt must not un-register somebody who paid on the second.
 
 Rules:
 
-- Never treat a click as a purchase. Success must come from Razorpay or a
-  trusted backend, never from front-end state.
+- Never treat a click as a purchase. Success comes from `/api/razorpay/verify`
+  returning 200, never from front-end state.
 - Never build a fake success page or a fake confirmation.
-- Never put a Razorpay **secret** key anywhere in this repository. A hosted
-  Payment Link URL is public and safe; API keys and webhook secrets are not, and
-  they never belong in a `NEXT_PUBLIC_*` variable (§18).
-- Adding real checkout (order API, webhook verification, success/failure routes)
-  is a **backend change requiring explicit approval**, not an agent's judgment
-  call. **TODO / NEEDS CONFIRMATION.**
+- Never put a Razorpay **secret** in a `NEXT_PUBLIC_*` variable, a client
+  component, or this repository's history (§18). The **key id** is public, but
+  it reaches the browser as part of an order-creation *response*, never as
+  build-time config.
+- `RAZORPAY_WEBHOOK_SECRET` is a **different value** from `RAZORPAY_KEY_SECRET`.
+  Never assume they are the same, and never invent one.
+- Fulfilment (Zoom link + WhatsApp group within 24 hours, as stated in
+  `PricingSection` and restated verbatim in the success state) still happens
+  outside this repository. **TODO / NEEDS CONFIRMATION:** nothing here emails
+  or WhatsApps anybody — a human reads the Razorpay dashboard.
+- Still **live mode is not enabled**, and switching to it is an owner's
+  decision, not an agent's.
 
 ---
 
@@ -614,11 +686,12 @@ Rules:
 
 ### 9.1 Forms
 
-**There is currently no form in this repository.** Registration happens on
-Razorpay's hosted page.
+**There is one form: `src/components/ui/JourneyForm.tsx`** — the six
+registration questions, asked one at a time, mounted by `BeginJourneySection`.
+It meets the list below; `src/lib/validation.ts` holds its rules and
+`/api/register` re-runs them server-side, authoritatively.
 
-If a form is ever added, it must have all of the following before it is
-considered done:
+Any form must have all of the following before it is considered done:
 
 - A real `<label>` for every field. Placeholder text is never a label.
 - Required-field handling, and client-side validation for email, phone
@@ -697,50 +770,33 @@ the scroll. Two independent systems exist — know which one you are touching.
   disabled.
 - Reduced motion: `frameloop="demand"` — the object is shown, held still.
 
-### 10.2 System B — the KnowMind head
+### 10.2 System B — the KnowMind character
 
 `src/components/three/knowmind/` is a self-contained module with a public
 surface in `index.ts` and its own `README.md`. It is mounted by
 `MindEvolution.tsx`.
 
-Narrative: **TANGLED → UNRAVELING → CLEAR**. One faceless sculptural profile
-head, held still, with a shallow recess pressed into the near side of its
-cranial vault and a thread inside that recess. The head never changes — not its
-geometry, not its material, not its pose. Only the thread does. That is the
-argument the visual makes, and nothing about the head may be allowed to vary
-between states. There is exactly **one** head on screen at all times, in the
-canvas and in the flat fallback alike.
+Narrative: **TANGLED → UNRAVELING → CLEAR**. One character — a round body with a
+quiet face and thin limbs — and one continuous thread around it. A dense tangle
+loosens into flowing loops, then settles into a clean ring, and the character
+warms from near-black plum through wine violet to honey as it does; the eyes
+surface partway and the smile arrives only once the thread has settled.
 
-The head is built as a **stack of horizontal cross-sections**
-(`headGeometry.ts`), not as a swept profile. Sweeping an outline sideways gives
-every slice its own nose, converges on a line rather than a point — leaving a
-crease down the centre of the face — and produces no interior. All three are
-visible in a render. Sections are how a head is actually shaped: front and back
-read off the profile, a width curve that is widest at the parietal bone and
-narrows through jaw and neck, a superellipse section narrowed toward the face, a
-domed crown and a flat-capped base.
-
-The opening is a **pressed bowl, never a Boolean hole** — the loft has no
-interior surface, so cutting it exposes the nested rings of the sweep as a shelf
-hanging inside the head. `WINDOW` and `CAVITY` must stay aligned: the recess
-band is what decides where the skull is deep enough for the thread to sit proud
-of the floor, and moving one without the other buries half the thread.
+**The character itself never changes.** Same body, same limbs, same proportions
+in every state. The transformation is carried by the thread, the colour and the
+face. That is the argument the visual makes, and it is why there is exactly
+**one** character on screen at all times — never a row of them, and never a
+second one for comparison. The flat fallback takes the current state as a prop
+for the same reason.
 
 All three thread states come out of one parametric family at three degrees of
-disorder (`states.ts`): an Archimedean spiral progressively buried under a
-random walk. Morphing is therefore a per-point interpolation along the strand's
-own length. Scroll maps to a continuous 0..2 through two overlapping smoothsteps
-(`threadStage`, windows `[0.22, 0.42]` and `[0.54, 0.8]`), then damps — so
-nothing cuts, nothing latches, and **scrolling back up runs it in reverse**.
-
-Two properties of the CLEAR state are load-bearing and easy to break:
-
-- it is wound in a **circular** metric, not the cavity's ellipse, because a coil
-  squashed to the vault's aspect stops reading as concentric; and
-- the mass-recentring and per-axis RMS fill are **weighted by disorder**, so they
-  vanish at the ordered end. Those corrections exist to tame a random walk. A
-  spiral is already centred and already sized, and applying them to one pulls it
-  off centre and out of round.
+disorder (`states.ts`), generated from the same parameter `t` with the same
+control-point count, so morphing is a per-point interpolation along the strand's
+own length rather than a dissolve between two shapes. Scroll maps to a
+continuous stage in 0..2 through two overlapping smoothsteps (`CHAOS_TO_FLOW
+[0.22, 0.42]`, `FLOW_TO_CLARITY [0.54, 0.8]`), then damps — so nothing ever
+cuts, nothing latches, and **scrolling back up runs the whole thing in
+reverse**. Keep it a pure function of progress.
 
 Its defence-in-depth chain is the standard every 3D addition must meet:
 
@@ -752,9 +808,9 @@ Its defence-in-depth chain is the standard every 3D addition must meet:
    memory, pointer type, viewport, and a software-rasteriser check
    (SwiftShader / llvmpipe). The probe context is explicitly released.
 3. `KnowMindFallback` is **always rendered underneath** — the page never has a
-   hole in it. It traces the same profile and the same three states, follows the
-   scroll, and matches the canvas's height and side-by-side offset so the
-   crossfade has nothing to jump.
+   hole in it. It traces the same generators and the same limb curves, in
+   whichever state the scroll has reached, so the crossfade to the canvas has
+   nothing to jump.
 4. The canvas is `dynamic(..., { ssr: false })` and only mounts when the section
    is near (`rootMargin: "80% 0px"`), and only renders while on screen.
 5. `CanvasBoundary` (an error boundary) catches a crash and hands the section
@@ -764,15 +820,10 @@ Its defence-in-depth chain is the standard every 3D addition must meet:
    cannot hold ~34 fps. It never climbs back — a visitor feels a drop far more
    than they notice sharper edges.
 
-Quality tiers (`constants.ts` → `TIERS`) scale head sections and section
-resolution, thread control points, tube resolution, DPR cap, antialias and
+Quality tiers (`constants.ts` → `TIERS`) scale thread control points, tube
+resolution and sides, mote count, body and limb segments, DPR cap, antialias and
 thread update rate. **Tune these constants; do not scatter new magic numbers
 through the scene.**
-
-Shadow maps are off in every tier, measured rather than assumed: enabling them
-changed the frame by 0.17 of a possible 765 per pixel, because the key strikes
-the thread at too shallow an angle for its shadow to clear it. The plumbing
-stays in place behind `TIERS[...].shadows`.
 
 `KnowMind3D` sets **no `position`** of its own; it stacks its layers with an
 explicit `grid-cols-1 grid-rows-1`. Give it a box with a definite height. A grid
@@ -1160,8 +1211,15 @@ image, or client-only rendering.
 
 | Variable | Scope | Purpose | Required |
 | --- | --- | --- | --- |
-| `NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK` | public | Razorpay hosted Payment Link for the ₹999 founding registration. Empty → all CTAs fall back to `#register`. | for production |
+| `RAZORPAY_KEY_ID` | **server** | Razorpay API key id. Reaches the browser only inside an `/api/register` response, never as build-time config. | yes |
+| `RAZORPAY_KEY_SECRET` | **server** | Razorpay API key secret. Signs order creation and verifies the Checkout signature. **Never** `NEXT_PUBLIC_`. | yes |
+| `RAZORPAY_WEBHOOK_SECRET` | **server** | Signing secret for webhook deliveries — **a different value** from the key secret; you choose it in the dashboard. Empty → the webhook rejects every delivery. | for production |
+| `KV_REST_API_URL` | **server** | Optional Redis mirror (Vercel KV / Upstash). Absent → the mirror is skipped and nothing else changes. | no |
+| `KV_REST_API_TOKEN` | **server** | Token for the above. | no |
 | `NEXT_PUBLIC_SITE_URL` | public | Canonical origin for canonical tags, OG URLs and JSON-LD. Defaults to `https://www.kaleeswaran.com`. | recommended |
+
+`NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK` is **gone**. It configured a hosted payment
+link that bypassed the registration questions entirely; do not reintroduce it.
 
 No `.env.local` exists in the working tree — copy `.env.example` to create one.
 When you add a variable, document it in `.env.example` **and** in this table.
@@ -1170,10 +1228,10 @@ When you add a variable, document it in `.env.example` **and** in this table.
 
 ## 19 · Change management
 
-**This is not a git repository.** `git status` fails. There is no branch, no
-commit history, no undo.
-
-That raises the cost of every mistake, so:
+**This is a git repository** (branch `master`), which the earlier text here
+denied — it was written before `git init`. There is history and there is an
+undo, but the working tree still carries uncommitted work from several sittings,
+so treat a dirty tree as the normal state and:
 
 - Read a file immediately before you edit it (other agents may be editing too).
 - Never delete a file unless the task explicitly requires it.
@@ -1299,13 +1357,15 @@ need assets or a human decision.
 | --- | --- |
 | `npm run lint` broken (`next lint` removed in Next 16) | needs ESLint 9 flat config — **approval required** |
 | No test infrastructure | none planned — **decision required** |
-| Not a git repository | **decision required** |
+| No automated emailing / WhatsApp of the Zoom link after payment | a human reads the Razorpay dashboard — **decision required** |
+| Live mode not enabled — test credentials only | **owner's decision**; see §8 |
+| No rate limit on `/api/register` | an abandoned-order nuisance, not a money risk (nothing is charged). Needs the Redis mirror or a platform rule — **decision required** |
 | Video testimonials are placeholders (`src: null`) | needs real recordings |
 | Client / media logos are typographic | needs real, licensed logo files |
-| No real checkout, webhook or post-payment onboarding | backend work — **approval required** |
+| Post-payment onboarding (email / WhatsApp automation) | backend work — **approval required** |
 | No analytics | **decision required**; if added, track CTA clicks, checkout start, FAQ opens, video plays — and never let analytics failure break the page |
 | Mobile drawer has no focus trap | accessibility improvement, needs testing |
-| `.env.local` not present | copy from `.env.example` |
+| `RAZORPAY_WEBHOOK_SECRET` not set | create the webhook in the Razorpay dashboard, then set it; until then the webhook endpoint refuses every delivery by design |
 
 ---
 

@@ -34,6 +34,25 @@ import { useMediaQuery, usePrefersReducedMotion } from "@/lib/hooks";
 const EASE = "ease-[cubic-bezier(0.22,1,0.36,1)]";
 
 /**
+ * On a device that cannot hover, there is no discovery to run.
+ *
+ * The reveal was built around a pointer: hover opens a card, moving away closes
+ * it. A phone has neither half of that. It could still be tapped open, but a
+ * visitor has no way to know that — so all three cards sat as mostly-empty
+ * boxes with the offer inside them invisible, which is the opposite of what a
+ * bonus section is for. There, the cards are simply open.
+ *
+ * Done in CSS rather than from `useMediaQuery`, deliberately. That hook reports
+ * `false` on the server and for the first client render, so driving this from
+ * React would render every card open, then snap three of them shut a frame
+ * after hydration on every desktop. A media query has no such moment — and it
+ * keeps working with JavaScript disabled, which the hover path does not.
+ */
+const TOUCH_OPEN =
+  "[@media(hover:none)]:opacity-100 [@media(hover:none)]:translate-y-0 " +
+  "[@media(hover:none)]:blur-[0px] [@media(hover:none)]:[clip-path:inset(0_0_0%_0)]";
+
+/**
  * The card tag. Says "Free" rather than "Bonus deal": the label sits directly
  * beside "Bonus 01", so repeating the word there would be redundant, and this
  * section is art-directed as a gift rather than a discount. It restates the
@@ -122,20 +141,24 @@ export function BonusSection() {
     setFound((prev) => (prev.includes(i) ? prev : [...prev, i]));
   };
 
-  const foundRatio = found.length / bonuses.length;
-  const allFound = found.length === bonuses.length;
+  // Where the cards are open from the start there is nothing left to find, so
+  // the meter is already full rather than permanently empty. `canHover` is
+  // false on the server too, which is the honest answer for a render that has
+  // not yet met a pointer.
+  const foundRatio = canHover ? found.length / bonuses.length : 1;
+  const allFound = canHover ? found.length === bonuses.length : true;
 
   /* -- the concealed layer, and the two ways it can behave ---------------- */
 
   const conceal = reduced
     ? // Reduced motion: it still opens, it just does not travel.
-      "opacity-0 group-data-[open=true]:opacity-100 transition-opacity duration-200"
+      `opacity-0 group-data-[open=true]:opacity-100 transition-opacity duration-200 ${TOUCH_OPEN}`
     : `opacity-0 translate-y-2 blur-[2px] [clip-path:inset(0_0_100%_0)] ` +
       `group-data-[open=true]:opacity-100 group-data-[open=true]:translate-y-0 ` +
       // `blur-[0px]`, not `blur-0` — the latter is not a utility in Tailwind v4,
       // so it compiles to nothing and the text stays blurred once opened.
       `group-data-[open=true]:blur-[0px] group-data-[open=true]:[clip-path:inset(0_0_0%_0)] ` +
-      `transition-[opacity,transform,filter,clip-path] duration-500 ${EASE}`;
+      `transition-[opacity,transform,filter,clip-path] duration-500 ${EASE} ${TOUCH_OPEN}`;
 
   return (
     <section
@@ -165,7 +188,7 @@ export function BonusSection() {
         {/* ---------------- Three closed objects ---------------- */}
         <RevealGroup
           as="ul"
-          className="mt-14 grid gap-4 lg:mt-16 lg:grid-cols-3 lg:gap-5"
+          className="mt-10 grid gap-4 sm:mt-14 lg:mt-16 lg:grid-cols-3 lg:gap-5"
           stagger={0.09}
         >
           {bonuses.map((bonus, i) => {
@@ -179,7 +202,7 @@ export function BonusSection() {
                   data-open={isOpen}
                   onMouseEnter={canHover ? () => open(i) : undefined}
                   onMouseLeave={canHover ? () => setActive(null) : undefined}
-                  className={`group relative flex h-full flex-col border border-ink/10 bg-paper/40 px-6 pt-8 pb-7 transition-[background-color,border-color,transform,opacity] duration-500 sm:px-7 ${EASE} data-[open=true]:border-amber-ink/25 data-[open=true]:bg-paper ${
+                  className={`group relative flex h-full flex-col border border-ink/10 bg-paper/40 px-6 pt-8 pb-7 transition-[background-color,border-color,transform,opacity] duration-500 sm:px-7 ${EASE} data-[open=true]:border-amber-ink/25 data-[open=true]:bg-paper [@media(hover:none)]:border-amber-ink/25 [@media(hover:none)]:bg-paper ${
                     dimmed ? "opacity-90" : "opacity-100"
                   } ${reduced ? "" : "data-[open=true]:-translate-y-1.5"}`}
                 >
@@ -187,12 +210,12 @@ export function BonusSection() {
                   <span
                     aria-hidden
                     style={{ backgroundImage: THREAD_PAINT[i] ?? THREAD_PAINT[2] }}
-                    className={`absolute inset-x-0 top-0 h-[2px] opacity-60 transition-opacity duration-500 group-data-[open=true]:opacity-100 ${EASE}`}
+                    className={`absolute inset-x-0 top-0 h-[2px] opacity-60 transition-opacity duration-500 group-data-[open=true]:opacity-100 [@media(hover:none)]:opacity-100 ${EASE}`}
                   />
 
                   <BonusMark
                     index={i}
-                    className={`absolute top-7 right-6 h-9 w-9 text-ink/15 transition-colors duration-500 group-data-[open=true]:text-amber-ink/40 sm:right-7 ${EASE}`}
+                    className={`absolute top-7 right-6 h-9 w-9 text-ink/15 transition-colors duration-500 group-data-[open=true]:text-amber-ink/40 [@media(hover:none)]:text-amber-ink/40 sm:right-7 ${EASE}`}
                   />
 
                   {/* ---- Always legible: which bonus, and what it is ---- */}
@@ -221,7 +244,7 @@ export function BonusSection() {
                   {/* The accent line that opens with the card. */}
                   <span
                     aria-hidden
-                    className={`mt-5 h-px w-16 origin-left scale-x-50 bg-amber-ink/35 transition-transform duration-500 group-data-[open=true]:scale-x-100 ${EASE}`}
+                    className={`mt-5 h-px w-16 origin-left scale-x-50 bg-amber-ink/35 transition-transform duration-500 group-data-[open=true]:scale-x-100 [@media(hover:none)]:scale-x-100 ${EASE}`}
                   />
 
                   {/* ---- Concealed until opened, but never hidden ---- */}
@@ -244,7 +267,7 @@ export function BonusSection() {
                       tall as the taller of the two and nothing moves. */}
                   <div className="mt-auto grid pt-8">
                     <span
-                      className={`col-start-1 row-start-1 flex items-center gap-2 self-end text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase transition-opacity duration-300 group-data-[open=true]:opacity-0 ${EASE}`}
+                      className={`col-start-1 row-start-1 flex items-center gap-2 self-end text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase transition-opacity duration-300 group-data-[open=true]:opacity-0 [@media(hover:none)]:opacity-0 ${EASE}`}
                     >
                       Discover
                       <svg
@@ -291,7 +314,10 @@ export function BonusSection() {
                       free, on every input type. */}
                   <button
                     type="button"
-                    aria-expanded={isOpen}
+                    // Open is open. On touch the panel is revealed in CSS, so
+                    // reporting `false` here would describe a card the visitor
+                    // is already reading.
+                    aria-expanded={isOpen || !canHover}
                     aria-controls={panelId}
                     onFocus={() => open(i)}
                     onBlur={() => setActive(null)}
@@ -308,7 +334,7 @@ export function BonusSection() {
 
         {/* ---------------- The payoff ---------------- */}
         <Reveal>
-          <div className="mt-14 lg:mt-16">
+          <div className="mt-10 sm:mt-14 lg:mt-16">
             <div className="rule-gold" />
 
             <div className="flex flex-col gap-x-10 gap-y-5 pt-10 sm:flex-row sm:items-end sm:justify-between">

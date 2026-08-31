@@ -118,7 +118,7 @@ export function EarlyMorningSection() {
         </div>
 
         {/* ---- The argument ---- */}
-        <div className="mx-auto mt-14 max-w-2xl text-center">
+        <div className="mx-auto mt-10 max-w-2xl text-center sm:mt-14">
           <Reveal>
             <p className="text-h3 font-medium text-ink">
               Before the world starts demanding your attention —
@@ -146,7 +146,7 @@ export function EarlyMorningSection() {
 
         {/* ---- Permission to miss a day ---- */}
         <Reveal>
-          <div className="mx-auto mt-20 max-w-2xl rounded-card border border-ink/10 bg-paper/70 p-9 text-center backdrop-blur-sm sm:p-11">
+          <div className="mx-auto mt-12 max-w-2xl rounded-card border border-ink/10 bg-paper/70 p-6 text-center backdrop-blur-sm sm:mt-20 sm:p-11">
             <p className="text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase">
               Miss a day?
             </p>

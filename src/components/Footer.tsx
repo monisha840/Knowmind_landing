@@ -44,7 +44,7 @@ export function Footer() {
               ))}
               <li>
                 <a
-                  href="#register"
+                  href="#begin-journey"
                   className="link-underline text-body text-honey transition-colors"
                 >
                   Register

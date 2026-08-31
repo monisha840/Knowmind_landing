@@ -1,3 +1,5 @@
+import { AGE_MAX, AGE_MIN, type AnswerKey, type GenderValue } from "@/lib/validation";
+
 /**
  * All repeatable page content, kept as structured data so copy can be updated
  * without touching layout code.
@@ -430,6 +432,21 @@ export const clientLogos = [
 export type Testimonial = {
   name: string;
   quote: string;
+  /**
+   * Portrait of the person who said this, e.g. "/testimonials/anandha.webp".
+   *
+   * Deliberately absent on every entry: these are six real participants, and
+   * putting a stock or generated stranger's face beside a real person's words
+   * would be fabricated social proof. Until a real photograph is supplied and
+   * cleared, the card falls back to an initial drawn from the name — the same
+   * honesty rule the media wordmarks follow.
+   *
+   * To add one: run the image through `npm run optimize:assets`, drop it in
+   * `public/testimonials/`, and set this field plus `portraitAlt`.
+   */
+  portrait?: string;
+  /** Describes the person in the portrait. Required whenever `portrait` is set. */
+  portraitAlt?: string;
 };
 
 export const testimonials: Testimonial[] = [
@@ -703,4 +720,123 @@ export const tamil = {
   itsOkay: "பரவால பார்த்துக்கலாம்.",
   startAgain: "திரும்ப ஆரம்பிக்கலாம்.",
   nextDay: "அடுத்த நாள் ஆரம்பிக்கலாம்.",
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Begin your journey — the six registration questions                       */
+/*  Asked one at a time, so each one carries its own line of copy rather than  */
+/*  sitting as a label above a box.                                           */
+/* -------------------------------------------------------------------------- */
+
+export type JourneyStep = {
+  key: AnswerKey;
+  /** The question itself, set as the field's visible label. */
+  question: string;
+  /** A quiet line under the question. Omitted where the question is enough. */
+  note?: string;
+  placeholder?: string;
+  field:
+    | { kind: "text"; inputMode?: "text"; autoComplete: string }
+    | { kind: "number"; min: number; max: number; autoComplete: string }
+    | { kind: "tel"; prefix: string; autoComplete: string }
+    | { kind: "email"; autoComplete: string }
+    | { kind: "choice"; options: readonly { value: GenderValue; label: string }[] };
+};
+
+export const journeySteps: readonly JourneyStep[] = [
+  {
+    key: "name",
+    question: "What's your name?",
+    placeholder: "Your full name",
+    field: { kind: "text", autoComplete: "name" },
+  },
+  {
+    key: "age",
+    question: "How old are you?",
+    placeholder: "25",
+    field: { kind: "number", min: AGE_MIN, max: AGE_MAX, autoComplete: "off" },
+  },
+  {
+    key: "gender",
+    question: "What's your gender?",
+    field: {
+      kind: "choice",
+      options: [
+        { value: "female", label: "Female" },
+        { value: "male", label: "Male" },
+        { value: "prefer-not-to-say", label: "Prefer not to say" },
+      ],
+    },
+  },
+  {
+    key: "occupation",
+    question: "What do you do?",
+    note: "Occupation or business — a word or two is plenty.",
+    placeholder: "Occupation / Business",
+    field: { kind: "text", autoComplete: "organization-title" },
+  },
+  {
+    key: "mobile",
+    question: "Your mobile number?",
+    note: "This is where the Zoom link and WhatsApp group invite go.",
+    placeholder: "98765 43210",
+    field: { kind: "tel", prefix: "+91", autoComplete: "tel-national" },
+  },
+  {
+    key: "email",
+    question: "And your email?",
+    placeholder: "you@example.com",
+    field: { kind: "email", autoComplete: "email" },
+  },
+] as const;
+
+export const journeyForm = {
+  eyebrow: "Begin",
+  heading: "Begin your journey",
+  lead: "A few details to get you started.",
+  /** Shown once all six are answered — the review step, before any money. */
+  ready: {
+    heading: "You're ready.",
+    lines: ["A few details.", "One meaningful step forward."],
+    /** The price is appended with `inr()`; never write the number here. */
+    cta: "Pay and begin —",
+  },
+
+  /**
+   * Every state the payment can be in, in words.
+   *
+   * Written to the state matrix in CLAUDE.md §9.2: each one says what is true
+   * right now and what happens next. None of them claims a registration that
+   * the server has not verified — `success` is reached only from a 200 on
+   * `/api/razorpay/verify`.
+   */
+  payment: {
+    preparing: "Preparing payment…",
+    open: "Complete the payment in the Razorpay window.",
+    confirming: "Confirming your payment…",
+    /** Restates the commitment made in the pricing card, word for word. */
+    success: {
+      heading: "Registration successful.",
+      /** `₹999 received.` — the amount comes from `inr()`, never a literal. */
+      receivedSuffix: "received.",
+      lines: [
+        "Zoom link and WhatsApp group access within 24 hours.",
+        "Keep an eye on your email and WhatsApp.",
+      ],
+    },
+    /** Nothing was charged. Said plainly, with the way back. */
+    failed: {
+      heading: "Payment wasn't completed.",
+      line: "Nothing has been charged. Your details are still here — you can try again.",
+      retry: "Try again",
+    },
+    /**
+     * Paid, but the confirmation never reached this browser. A real outcome,
+     * and neither a success nor a failure — so it is neither claimed.
+     */
+    unconfirmed: {
+      heading: "Payment received.",
+      line: "We're still confirming it at our end. You don't need to pay again — if you don't hear from us, get in touch and we'll sort it out.",
+    },
+  },
 } as const;

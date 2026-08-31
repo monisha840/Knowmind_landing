@@ -1,8 +1,21 @@
+import Image from "next/image";
+
 import type { Testimonial } from "@/lib/content";
 
+/**
+ * One piece of quiet evidence.
+ *
+ * The quote is the whole point, so it carries the serif and the size; the
+ * person is credited underneath at reading size, never competing with it.
+ *
+ * The portrait is optional by design (see `Testimonial.portrait`). With no
+ * photograph supplied the card shows an initial rather than a stand-in face —
+ * a stranger's photo next to a real participant's words would be invented
+ * social proof.
+ */
 export function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   return (
-    <figure className="flex h-full flex-col justify-between rounded-card border border-ink/10 bg-paper p-7 transition-colors duration-500 hover:border-amber-ink/35 sm:p-8">
+    <figure className="flex h-full flex-col justify-between rounded-card border border-ink/10 bg-paper p-6 transition-colors duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/card:border-amber-ink/35 sm:p-7">
       <div>
         <svg
           aria-hidden
@@ -20,13 +33,24 @@ export function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
         </blockquote>
       </div>
 
-      <figcaption className="mt-7 flex items-center gap-3 border-t border-ink/10 pt-5">
-        <span
-          aria-hidden
-          className="grid h-9 w-9 place-items-center rounded-full bg-wine text-sm font-semibold text-cream"
-        >
-          {testimonial.name.charAt(0)}
-        </span>
+      <figcaption className="mt-6 flex items-center gap-3 border-t border-ink/10 pt-5">
+        {testimonial.portrait ? (
+          <Image
+            src={testimonial.portrait}
+            alt={testimonial.portraitAlt ?? testimonial.name}
+            width={36}
+            height={36}
+            loading="lazy"
+            className="h-9 w-9 shrink-0 rounded-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/card:scale-[1.02]"
+          />
+        ) : (
+          <span
+            aria-hidden
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-wine text-sm font-semibold text-cream"
+          >
+            {testimonial.name.charAt(0)}
+          </span>
+        )}
         <span className="text-sm font-medium text-ink">{testimonial.name}</span>
       </figcaption>
     </figure>

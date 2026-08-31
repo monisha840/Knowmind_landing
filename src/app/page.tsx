@@ -1,9 +1,8 @@
-import { Footer } from "@/components/Footer";
-import { Navbar } from "@/components/Navbar";
-import { StickyMobileCTA } from "@/components/StickyMobileCTA";
+import { StickyCTA } from "@/components/StickyCTA";
 import { BackgroundMount } from "@/components/three/BackgroundMount";
 
 import { AudienceSection } from "@/components/sections/AudienceSection";
+import { BeginJourneySection } from "@/components/sections/BeginJourneySection";
 import { BonusSection } from "@/components/sections/BonusSection";
 import { CoreMethod } from "@/components/sections/CoreMethod";
 import { EarlyMorningSection } from "@/components/sections/EarlyMorningSection";
@@ -37,10 +36,12 @@ export default function Page() {
   return (
     <>
       <BackgroundMount />
-      <Navbar />
 
-      {/* pb reserves room for the phone-only sticky registration bar. */}
-      <main id="main" className="relative z-10 pb-[4.5rem] sm:pb-0">
+      {/* No navbar and no footer: this is a single-page landing page with one
+          action, and the bar pinned to the bottom is the only chrome it needs.
+          The padding reserves that bar's room at every size — it is no longer
+          phone-only — so it can never cover the end of the last section. */}
+      <main id="main" className="relative z-10 pb-[5rem] sm:pb-[5.5rem]">
         {/* ---- Night ---- */}
         <Hero />
         <MeetKaleeswaranSection />
@@ -61,14 +62,14 @@ export default function Page() {
         {/* ---- Decision ---- */}
         <SessionFlow />
         <PricingSection />
+        <BeginJourneySection />
         <LiveOnlySection />
         <GuaranteeSection />
         <FAQSection />
         <FinalCTA />
       </main>
 
-      <Footer />
-      <StickyMobileCTA />
+      <StickyCTA />
     </>
   );
 }

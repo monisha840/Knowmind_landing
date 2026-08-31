@@ -169,7 +169,7 @@ export function MeetKaleeswaranSection() {
       <div className="container-page">
         {/* ================= Opening spread ================= */}
         {/* 45 / 55 — the photograph holds its own without crowding the question. */}
-        <div className="grid gap-14 lg:grid-cols-[minmax(0,45fr)_minmax(0,55fr)] lg:items-center lg:gap-16 xl:gap-20">
+        <div className="grid gap-10 sm:gap-14 lg:grid-cols-[minmax(0,45fr)_minmax(0,55fr)] lg:items-center lg:gap-16 xl:gap-20">
           {/* ---------------- Portrait ---------------- */}
           <Reveal amount={0.15} className={STILL} {...enter()}>
             <figure className="relative mx-auto w-full max-w-md lg:max-w-none">
@@ -254,10 +254,13 @@ export function MeetKaleeswaranSection() {
         </div>
 
         {/* ================= The numbers ================= */}
-        {/* Full width, so five sit comfortably instead of crowding a column. */}
+        {/* Full width, so five sit comfortably instead of crowding a column.
+            Two columns on a phone rather than one: five stacked rows cost
+            ~620px of scrolling, and each figure is short enough that half a
+            320px screen still holds it on one line. */}
         <RevealGroup
           as="ul"
-          className="mt-20 grid gap-x-8 gap-y-10 border-t border-cream/10 pt-12 sm:grid-cols-3 lg:mt-24 lg:grid-cols-5"
+          className="mt-12 grid grid-cols-2 gap-x-5 gap-y-7 border-t border-cream/10 pt-9 sm:mt-20 sm:grid-cols-3 sm:gap-x-8 sm:gap-y-10 sm:pt-12 lg:mt-24 lg:grid-cols-5"
           stagger={stagger}
         >
           {meetKaleeMetrics.map((metric) => {
@@ -266,11 +269,14 @@ export function MeetKaleeswaranSection() {
               <motion.li
                 key={metric.key}
                 variants={reduced ? stillChild : revealChild}
-                className={`flex flex-col gap-3 ${STILL}`}
+                className={`flex flex-col gap-2 sm:gap-3 ${STILL}`}
               >
-                <Icon className="h-6 w-6 text-gold" />
+                <Icon className="h-5 w-5 text-gold sm:h-6 sm:w-6" />
                 <div>
-                  <p className="text-h3 font-semibold tabular-nums text-honey">
+                  {/* nowrap so the figure and its `+` can never break apart —
+                      "30,000+" over two lines destroys the hierarchy the whole
+                      row is built on. */}
+                  <p className="text-h3 font-semibold whitespace-nowrap tabular-nums text-honey">
                     {metric.value}
                     {metric.suffix && <span className="opacity-80">{metric.suffix}</span>}
                   </p>
@@ -284,7 +290,7 @@ export function MeetKaleeswaranSection() {
         </RevealGroup>
 
         {/* ================= Roles + client work ================= */}
-        <div className="mt-20 grid gap-12 lg:grid-cols-12 lg:gap-16">
+        <div className="mt-14 grid gap-10 sm:mt-20 sm:gap-12 lg:grid-cols-12 lg:gap-16">
           {/* The five roles other than the headline one above. */}
           <div className="lg:col-span-4">
             <Reveal className={STILL} {...enter()}>
@@ -326,7 +332,7 @@ export function MeetKaleeswaranSection() {
         </div>
 
         {/* ================= Photographs ================= */}
-        <div className="mt-20">
+        <div className="mt-14 sm:mt-20">
           <Reveal className={STILL} {...enter()}>
             <BlockLabel>{meetKalee.photosHeading}</BlockLabel>
           </Reveal>
@@ -358,17 +364,27 @@ export function MeetKaleeswaranSection() {
         {/* ================= Credentials ================= */}
         {/* Chips, not twelve cards — and a plain list underneath the styling,
             so a screen reader gets the same twelve items in the same order. */}
-        <div className="mt-16">
+        <div className="mt-12 sm:mt-16">
           <Reveal className={STILL} {...enter()}>
             <BlockLabel>{meetKalee.credentialsHeading}</BlockLabel>
           </Reveal>
 
-          <RevealGroup as="ul" className="mt-6 flex flex-wrap gap-2.5" stagger={stagger / 2}>
+          {/* They wrap at every width. A sideways rail used to keep the row to
+              one line on a phone, but half of these labels then sat off the
+              right edge of a 320px screen with nothing to say so — and the
+              page's own `overflow-x: clip` meant a swipe was the only way to
+              reach them. Wrapping is slower to read and impossible to miss,
+              which is the right trade for a credentials list. */}
+          <RevealGroup
+            as="ul"
+            className="mt-6 flex flex-wrap gap-2 sm:gap-2.5"
+            stagger={stagger / 2}
+          >
             {credentials.map((credential) => (
               <motion.li
                 key={credential}
                 variants={reduced ? stillChild : revealChild}
-                className={`rounded-full border border-cream/12 bg-cream/[0.03] px-4 py-2 text-sm text-cream-muted transition-colors duration-300 hover:border-gold/40 hover:text-cream ${STILL}`}
+                className={`rounded-full border border-cream/12 bg-cream/[0.03] px-3.5 py-1.5 text-sm text-cream-muted transition-colors duration-300 hover:border-gold/40 hover:text-cream sm:px-4 sm:py-2 ${STILL}`}
               >
                 {credential}
               </motion.li>

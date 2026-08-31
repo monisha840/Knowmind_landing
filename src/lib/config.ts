@@ -44,16 +44,26 @@ export const programDetails = {
 } as const;
 
 /**
- * Razorpay payment link.
+ * Payment.
  *
- * Set NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK in `.env.local` (see `.env.example`).
- * While it is empty every CTA degrades gracefully to an in-page scroll to the
- * registration section rather than pointing at a URL that does not exist.
+ * There is no build-time payment URL any more, and deliberately so. Registration
+ * now runs through this application's own server:
+ *
+ *   POST /api/register          → validates the answers, creates the ₹999 order
+ *   Razorpay Standard Checkout  → opened in the browser against that order
+ *   POST /api/razorpay/verify   → checks the signature, then marks it PAID
+ *   POST /api/razorpay/webhook  → Razorpay's independent confirmation
+ *
+ * The credentials behind that live in `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET`,
+ * which are **not** NEXT_PUBLIC_ and are read only by `src/lib/payments/*` on
+ * the server. Nothing about payment is readable from this file, because
+ * anything in it can be imported by a client component.
+ *
+ * The old `RAZORPAY_PAYMENT_LINK` / `isPaymentConfigured` pair is gone with it.
+ * Whether payment is available is now a server-side fact, and a client-side
+ * guess at it would be both wrong and — differing between the server render and
+ * the browser — a hydration mismatch (CLAUDE.md §20.4).
  */
-export const RAZORPAY_PAYMENT_LINK =
-  process.env.NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK?.trim() || "";
-
-export const isPaymentConfigured = RAZORPAY_PAYMENT_LINK.length > 0;
 
 /** Indian digit grouping — 1999 renders as "1,999", not "1999". */
 export const formatINR = (n: number) => n.toLocaleString("en-IN");
@@ -61,5 +71,21 @@ export const formatINR = (n: number) => n.toLocaleString("en-IN");
 /** Price with its symbol, e.g. "₹1,999". */
 export const inr = (n: number) => `${programDetails.currencySymbol}${formatINR(n)}`;
 
-/** Anchor the CTAs fall back to when checkout is not yet wired up. */
-export const REGISTER_ANCHOR = "#register";
+/**
+ * Where every call to action on the page sends someone.
+ *
+ * The sign-up questions, not checkout. Registration now runs
+ * CTA → questions → payment, so the details are collected once, in one place,
+ * before anybody is asked for money — and the payment link is reached from the
+ * end of that form rather than from a button anywhere on the page.
+ */
+export const REGISTER_ANCHOR = "#begin-journey";
+
+/**
+ * The pricing card.
+ *
+ * Where the questions hand off to when there is no payment link yet — sending
+ * someone from the end of the form back to the top of the same form would be a
+ * button that goes nowhere.
+ */
+export const PRICING_ANCHOR = "#register";

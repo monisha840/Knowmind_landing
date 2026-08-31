@@ -1,5 +1,5 @@
 import { credentials, kalee } from "./content";
-import { programDetails, siteConfig, RAZORPAY_PAYMENT_LINK } from "./config";
+import { programDetails, siteConfig } from "./config";
 
 /**
  * JSON-LD for the page.
@@ -10,7 +10,13 @@ import { programDetails, siteConfig, RAZORPAY_PAYMENT_LINK } from "./config";
  * marking them up as course reviews would misrepresent them.
  */
 
-const registrationUrl = RAZORPAY_PAYMENT_LINK || `${siteConfig.url}/#register`;
+/*
+ * Registration happens on this page now — the questions, then Razorpay Checkout
+ * opened from the end of them — so this is the honest URL to point a search
+ * engine at. It used to fall back to an off-site hosted payment link, which
+ * would today send someone past the form the flow depends on.
+ */
+const registrationUrl = `${siteConfig.url}/#begin-journey`;
 
 const organization = {
   "@type": "Organization",

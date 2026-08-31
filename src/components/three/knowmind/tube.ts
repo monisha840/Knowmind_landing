@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { CAVITY } from "./constants";
+import { BODY } from "./constants";
 import { sampleSpline, smoothstep } from "./math";
 
 /**
@@ -50,13 +50,9 @@ export function createTube(tubular: number, radial: number) {
   geometry.setAttribute("position", positionAttr);
   geometry.setAttribute("normal", normalAttr);
   geometry.setIndex(new THREE.BufferAttribute(indices, 1));
-  // Fixed and generous: the strand is contained inside the cranial cavity, so
-  // it never leaves this sphere, and skipping the per-frame recompute keeps the
-  // update loop allocation-free.
-  geometry.boundingSphere = new THREE.Sphere(
-    new THREE.Vector3(CAVITY.x, CAVITY.y, CAVITY.zClear),
-    1.2,
-  );
+  // Fixed and generous: the thread never leaves this sphere, and skipping the
+  // per-frame recompute keeps the update loop allocation-free.
+  geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, BODY.y, 0), 2.4);
 
   // Cross-section, and the taper that closes both ends.
   const cos = new Float32Array(radial);

@@ -4,7 +4,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import type { ReactNode } from "react";
 import { useRef } from "react";
 
-import { REGISTER_ANCHOR, RAZORPAY_PAYMENT_LINK, isPaymentConfigured } from "@/lib/config";
+import { REGISTER_ANCHOR } from "@/lib/config";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
 type Variant = "primary" | "outline" | "ghost";
@@ -15,7 +15,7 @@ type CTAButtonProps = {
   variant?: Variant;
   size?: Size;
   className?: string;
-  /** Override the destination. Defaults to the Razorpay link / register anchor. */
+  /** Override the destination. Defaults to the sign-up questions. */
   href?: string;
   /** Analytics / testing hook. */
   id?: string;
@@ -43,9 +43,9 @@ const variants: Record<Variant, string> = {
 /**
  * The page's one call-to-action component.
  *
- * Destination logic: when `NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK` is set every CTA
- * opens Razorpay directly. Until then they scroll to the registration section
- * rather than pointing at a URL that does not exist yet.
+ * Destination logic: every CTA scrolls to the sign-up questions. Checkout is
+ * reached from the end of those questions, not from here — see
+ * `REGISTER_ANCHOR` in `lib/config`.
  */
 export function CTAButton({
   children,
@@ -67,7 +67,16 @@ export function CTAButton({
   const x = useTransform(sx, (v) => (reduced ? 0 : v));
   const y = useTransform(sy, (v) => (reduced ? 0 : v));
 
-  const destination = href ?? (isPaymentConfigured ? RAZORPAY_PAYMENT_LINK : REGISTER_ANCHOR);
+  /**
+   * Every button lands on the sign-up questions.
+   *
+   * It used to jump straight to Razorpay as soon as a payment link was
+   * configured, which skipped the questions entirely and asked for money before
+   * asking anything else. The one CTA that passes an explicit `href` is the one
+   * at the end of those questions — so checkout is reached from there, once,
+   * with the answers in hand.
+   */
+  const destination = href ?? REGISTER_ANCHOR;
   const isExternal = destination.startsWith("http");
 
   const onPointerMove = (e: React.PointerEvent<HTMLAnchorElement>) => {
@@ -95,7 +104,15 @@ export function CTAButton({
       style={{ x, y }}
       whileTap={reduced ? undefined : { scale: 0.97 }}
       className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}
-      data-payment-configured={isPaymentConfigured}
+      /*
+       * `data-payment-configured` used to live here, back when a build-time
+       * payment link decided where this button went. Payment is now a
+       * server-side fact that this component cannot see, and rendering a guess
+       * at it would differ between the server and the browser — a hydration
+       * mismatch (CLAUDE.md §20.4). The equivalent hook now sits where the
+       * state is genuinely known: `data-payment-phase` on the pay button at the
+       * end of the registration questions (`JourneyForm`).
+       */
     >
       {/* Soft honey bloom behind the primary button on hover. */}
       {variant === "primary" && (

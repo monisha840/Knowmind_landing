@@ -29,27 +29,40 @@ import { useId } from "react";
  *   <TumblingMark height={30} label="KnowMind Universe" />
  */
 
-const LAYERS = 13;
-
 /**
- * Spacing between slices, in px.
+ * Slice count and spacing, which are one decision rather than two.
  *
- * The asset shipped at 0.5, which at this header size left the slab 6px thick —
- * measured edge-on at 90°, that lit 0.0% of the mark's box. The logo blinked
- * out completely twice per rotation, which is the exact glitch the stack exists
- * to prevent. Measured across depths at 1× (lit area at 90° / at 86°):
+ * The slab has to be thick enough not to disappear edge-on, and the slices
+ * close enough together that they never separate into visible rings. Those pull
+ * in opposite directions if you only tune the spacing, because adjacent slices
+ * come apart once `tan(angle) > tubeWidth / DEPTH` — the tube renders about
+ * 1.6px wide at header size, so:
  *
- *   0.5 → 0.0% / 9.7      0.9 → 1.9% / 11.4      1.4 → 2.3% / 10.4
- *   0.8 → 1.4% / 10.5     1.1 → 2.2% / 12.8
+ *   DEPTH 1.1 → gaps from 55°, a third of every turn showing daylight
+ *   DEPTH 0.5 → gaps from 73°, but 12 gaps only make a 6px slab, which lights
+ *               1% of the box at 90° and reads as the logo blinking out
  *
- * 1.1 holds the most at both angles. Past it the gap approaches the tube's
- * ~1.3px rendered width and the slices start reading as separate rings — 1.4
- * already loses coherence at 86° while gaining nothing at 90°. Face-on is
- * unaffected either way (43–44% lit at every depth tried).
+ * Thickness has to come from the layer count instead. Measured on the shipped
+ * path, counting separate lit runs across three scan lines (3 = one solid
+ * object, more = that many gaps):
  *
- * Scaling the mark far past header size means raising this in proportion.
+ *   layers × depth   thick   90° lit    55°  65°  75°  85°
+ *   13 × 0.5          6.0px     1.0%      9    6    3   18
+ *   13 × 1.1         13.2px     2.5%      3   19   32   40   ← visibly striped
+ *   29 × 0.45        12.6px     3.0%      3    3    3   19
+ *   33 × 0.4         12.8px     3.7%      3    3    3   15
+ *   41 × 0.32        12.8px     4.7%      3    3    3    9   ← chosen
+ *
+ * 41 × 0.32 is solid everywhere the mark is big enough to read, and lights the
+ * most of any option at 90°. Two marks turning together hold a locked 16.7ms
+ * frame at every count tried, because the rotation is a single transform on the
+ * parent and only the two faces carry the blur — so the layers cost markup, not
+ * frames, and the markup is why the path is drawn once and `<use>`d below.
+ *
+ * Scaling the mark far past header size means raising DEPTH in proportion.
  */
-const DEPTH = 1.1;
+const LAYERS = 41;
+const DEPTH = 0.32;
 
 /** A lemniscate of Bernoulli, sampled to a polyline on a 240×120 viewBox. */
 const LEMNISCATE =
@@ -87,6 +100,7 @@ export function TumblingMark({
   const uid = useId().replace(/:/g, "");
   const stroke = `km-stroke-${uid}`;
   const glow = `km-glow-${uid}`;
+  const shape = `km-shape-${uid}`;
 
   return (
     <span
@@ -111,6 +125,11 @@ export function TumblingMark({
                 <feMergeNode in="b" />
               </feMerge>
             </filter>
+
+            {/* Drawn once. Forty-one copies of 2.6kB of path data would be a
+                quarter of a megabyte of DOM for a logo; each slice below is a
+                hundred-byte `use` of this instead. */}
+            <path id={shape} d={LEMNISCATE} />
           </defs>
         </svg>
 
@@ -136,8 +155,8 @@ export function TumblingMark({
                 on every page.
               */}
               {face && (
-                <path
-                  d={LEMNISCATE}
+                <use
+                  href={`#${shape}`}
                   stroke={`url(#${stroke})`}
                   strokeWidth="9"
                   strokeLinecap="round"
@@ -145,15 +164,15 @@ export function TumblingMark({
                   opacity="0.75"
                 />
               )}
-              <path
-                d={LEMNISCATE}
+              <use
+                href={`#${shape}`}
                 stroke={`url(#${stroke})`}
                 strokeWidth="6"
                 strokeLinecap="round"
               />
               {face && (
-                <path
-                  d={LEMNISCATE}
+                <use
+                  href={`#${shape}`}
                   stroke="#FFFFFF"
                   strokeWidth="1.6"
                   strokeLinecap="round"

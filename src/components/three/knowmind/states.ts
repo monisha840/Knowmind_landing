@@ -1,210 +1,144 @@
 /**
- * The thread inside the skull, in its three states.
+ * The three states of one thread.
  *
- * All three come out of a single parametric family — an Archimedean spiral,
- * progressively disordered. `disorder = 0` is a clean spiral; `disorder = 1`
- * buries that spiral under noise on its winding rate, its radius and the
- * position of its own centre, which is what a tangle actually is: order that
- * has lost track of itself.
- *
- * Generating all three from one family is what makes the morph work. Point `t`
- * in the tangle and point `t` in the spiral are the *same* point at different
- * degrees of disorder, so interpolating between them combs the knot out along
- * its own length rather than dissolving one shape into another.
+ * There is a single strand. It is described by the same number of control
+ * points in every state, generated from the same parameter `t`, so morphing is
+ * a straight per-point interpolation — the loop you are watching in the tangle
+ * is the loop that ends up in the halo. Nothing is cut and replaced.
  */
 
-import { CAVITY } from "./constants";
+import { BODY, PALETTE } from "./constants";
 import { lerp, noise1, snoise1 } from "./math";
 
 const TAU = Math.PI * 2;
 
-export type StateKind = 0 | 1 | 2; // TANGLED | UNRAVELING | CLEAR
+export type StateKind = 0 | 1 | 2; // CHAOS | FLOW | CLARITY
 
-/** How disordered each state is. */
-const DISORDER = [1, 0.42, 0] as const;
-
-/**
- * The two modes the family blends between.
- *
- * ORDER is an Archimedean spiral: one centre, a radius that grows steadily,
- * five and a bit turns. Archimedean specifically, because the radius grows by
- * the same amount every turn — that is what makes the rings evenly spaced, and
- * evenly spaced is most of what reads as "resolved" rather than merely "not
- * tangled".
- *
- * CHAOS is a smooth random walk — a few octaves of noise driving x and y
- * directly. That is what a dropped length of thread actually is, and it is the
- * only formulation that tangles. Anything written in polar coordinates winds
- * its angle in one direction and therefore lays down loop inside loop; noise on
- * such a spiral makes wobbly rings, never a knot. A walk changes direction, so
- * it has to cross what it already laid down, and it fills the middle of the
- * skull instead of hugging the inside of it.
- */
-const ORDER = { turns: 5.2, radiusFrom: 0.06, radiusTo: 1.0 } as const;
+/* -------------------------------------------------------------------------- */
+/*  Thread control points                                                      */
+/* -------------------------------------------------------------------------- */
 
 /**
- * Frequencies and weights of the walk.
+ * CHAOS — a dense, restless nest around the character.
  *
- * Weighted toward the middle octaves on purpose. A walk dominated by its
- * lowest frequency takes long sweeping excursions and comes out as a loop with
- * a tail; spreading the energy across four closer octaves keeps the strand in
- * one place and makes it wander *within* that place, which is what a knot is.
+ * The winding rate is pushed around by low-frequency noise, the radius swings
+ * between a tight curl and a wide sweep, and — the part that actually makes it
+ * a tangle rather than a spring — the centre each loop turns about drifts as
+ * the strand travels. Loops that share a centre nest; loops that do not cross
+ * each other.
  */
-const WALK = [
-  { f: 5.5, a: 0.3 },
-  { f: 11.0, a: 0.34 },
-  { f: 21.0, a: 0.26 },
-  { f: 34.0, a: 0.14 },
-] as const;
+function chaosPoint(t: number, out: Float32Array, o: number): void {
+  const a = t * TAU * 8.2 + snoise1(t * 3.1 + 11.3) * 3.4 + snoise1(t * 7.9 + 2.2) * 0.9;
+  const r = 0.24 + 0.8 * noise1(t * 5.3 + 2.1);
+  const wanderX = snoise1(t * 2.1 + 3.3) * 0.58;
+  const wanderY = snoise1(t * 1.9 + 8.8) * 0.58;
+  const depth = 0.55 + 0.45 * noise1(t * 3.3 + 6.6);
 
-function walk(t: number, seed: number): number {
-  let sum = 0;
-  for (let i = 0; i < WALK.length; i += 1) {
-    sum += snoise1(t * WALK[i].f + seed * (i + 1) * 1.7 + i * 4.3) * WALK[i].a;
+  out[o] = wanderX + Math.cos(a) * r;
+  out[o + 1] = wanderY + Math.sin(a) * r * 0.96 + BODY.y;
+  out[o + 2] = (Math.sin(t * TAU * 3.1 + 1.1) * 0.6 + snoise1(t * 6.2 + 5.5) * 0.46) * depth;
+}
+
+/**
+ * FLOW — the same strand, wound down to a few wide loops.
+ *
+ * Still loops in the picture plane, so the eye can follow one strand all the
+ * way round, but they now drift slowly through depth instead of scattering.
+ * Fewer crossings, far more negative space, still visibly in motion.
+ */
+function flowPoint(t: number, out: Float32Array, o: number): void {
+  const a = t * TAU * 3.7 + snoise1(t * 2.0 + 3.1) * 0.44;
+  const r = 0.8 + 0.4 * noise1(t * 2.6 + 4.4);
+  // The same wander as the tangle, damped almost out of existence — enough to
+  // keep the loops from stacking into a target, not enough to read as chaos.
+  const wanderX = snoise1(t * 1.5 + 3.3) * 0.2;
+  const wanderY = snoise1(t * 1.4 + 8.8) * 0.2;
+
+  out[o] = wanderX + Math.cos(a) * r;
+  out[o + 1] = wanderY + Math.sin(a) * r * 0.94 + BODY.y;
+  out[o + 2] = Math.sin(t * TAU * 1.35 + 0.6) * 0.38 + snoise1(t * 2.4 + 7.1) * 0.11;
+}
+
+/**
+ * CLARITY — one elegant loop, tilted just enough to stay three-dimensional.
+ *
+ * The two ends of the thread come round to almost meet at the bottom. They do
+ * not quite touch, and they pass on either side of each other: the ring is
+ * closed enough to read as whole, honest enough to admit it is still a thread.
+ */
+const TILT_X = 0.2;
+const TILT_Y = 0.16;
+function clarityPoint(t: number, out: Float32Array, o: number): void {
+  const a = t * TAU * 0.978 - Math.PI * 0.5;
+  const r = 1.09 + 0.02 * Math.sin(t * TAU * 3 + 0.6);
+
+  let x = Math.cos(a) * r;
+  const y0 = Math.sin(a) * r * 0.99;
+  // Ends drift apart in z so they cross cleanly rather than fight for pixels.
+  let z = Math.sin(a * 2) * 0.07 + (t - 0.5) * 0.13;
+
+  // Tilt about x, then y — a halo seen slightly from above and the side.
+  const cx = Math.cos(TILT_X);
+  const sx = Math.sin(TILT_X);
+  const y1 = y0 * cx - z * sx;
+  const z1 = y0 * sx + z * cx;
+  const cy = Math.cos(TILT_Y);
+  const sy = Math.sin(TILT_Y);
+  const x1 = x * cy + z1 * sy;
+  z = -x * sy + z1 * cy;
+  x = x1;
+
+  out[o] = x;
+  out[o + 1] = y1 + BODY.y;
+  out[o + 2] = z;
+}
+
+const GENERATORS = [chaosPoint, flowPoint, clarityPoint] as const;
+
+/**
+ * Nudge a generated state so its bounding box sits centred on the body.
+ *
+ * The noise that makes the tangle irregular is not zero-mean over any finite
+ * sample, so an untouched tangle drifts off to one side — which reads as a
+ * mistake rather than as chaos. Applied once, at build time, so the three
+ * states stay in register with each other and with the character.
+ */
+function recentre(points: Float32Array): void {
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  let minZ = Infinity;
+  let maxZ = -Infinity;
+
+  for (let i = 0; i < points.length; i += 3) {
+    if (points[i] < minX) minX = points[i];
+    if (points[i] > maxX) maxX = points[i];
+    if (points[i + 1] < minY) minY = points[i + 1];
+    if (points[i + 1] > maxY) maxY = points[i + 1];
+    if (points[i + 2] < minZ) minZ = points[i + 2];
+    if (points[i + 2] > maxZ) maxZ = points[i + 2];
   }
-  return sum;
-}
 
-/* -------------------------------------------------------------------------- */
-/*  Containment                                                                */
-/* -------------------------------------------------------------------------- */
+  const dx = (minX + maxX) / 2;
+  const dy = (minY + maxY) / 2 - BODY.y;
+  const dz = (minZ + maxZ) / 2;
 
-/**
- * Compress a point softly back inside the cranial ellipse.
- *
- * Not a clamp — a clamp would flatten every stray loop against the same arc
- * and draw a visible hard edge around the tangle. This lets a strand bulge a
- * little past the boundary, less and less the further it tries to go, so the
- * knot presses against the inside of the skull instead of being cut by it.
- */
-function contain(x: number, y: number, out: Float32Array, o: number): void {
-  const dx = (x - CAVITY.x) / CAVITY.rx;
-  const dy = (y - CAVITY.y) / CAVITY.ry;
-  const d = Math.hypot(dx, dy);
-
-  if (d <= 1) {
-    out[o] = x;
-    out[o + 1] = y;
-    return;
+  for (let i = 0; i < points.length; i += 3) {
+    points[i] -= dx;
+    points[i + 1] -= dy;
+    points[i + 2] -= dz;
   }
-
-  const target = 1 + (CAVITY.overflow - 1) * (1 - Math.exp(-(d - 1) * 1.8));
-  const k = target / d;
-  out[o] = CAVITY.x + (x - CAVITY.x) * k;
-  out[o + 1] = CAVITY.y + (y - CAVITY.y) * k;
 }
 
-/* -------------------------------------------------------------------------- */
-/*  The family                                                                 */
-/* -------------------------------------------------------------------------- */
-
-function threadPoint(t: number, disorder: number, out: Float32Array, o: number): void {
-  // Raw — containment and recentring are applied once the whole strand exists.
-
-  const angle = t * TAU * ORDER.turns;
-  const radius = ORDER.radiusFrom + (ORDER.radiusTo - ORDER.radiusFrom) * t;
-
-  // The ordered spiral is wound in a *circular* metric — the cranium is an
-  // ellipse, and a coil stretched to its aspect stops reading as concentric.
-  // The walk keeps the ellipse: chaos should fill the whole vault.
-  const iso = Math.min(CAVITY.rx, CAVITY.ry);
-
-  out[o] = CAVITY.x + lerp(Math.cos(angle) * radius * iso, walk(t, 3.3) * CAVITY.rx, disorder);
-  out[o + 1] =
-    CAVITY.y + lerp(Math.sin(angle) * radius * iso, walk(t, 8.8) * CAVITY.ry, disorder);
-
-  // Depth. Ordered, the spiral lies almost flat, just proud of the skull, with
-  // the gentlest forward drift as it winds outward. Disordered, it dives in and
-  // out through the head's surface, and the strands that go behind are properly
-  // hidden by it.
-  out[o + 2] =
-    lerp(CAVITY.zClear, CAVITY.zChaos, disorder) +
-    (Math.sin(t * TAU * 2.2 + 1.1) * 0.3 + snoise1(t * 6.2 + 5.5) * 0.62) *
-      CAVITY.zDepth *
-      disorder +
-    (t - 0.5) * 0.05 * (1 - disorder);
-}
-
-/**
- * `count` control points for one state, as a flat xyz array.
- *
- * The strand is generated, then recentred, then contained — in that order.
- * Recentring matters: value noise is not zero-mean over any finite sample, so
- * an untouched tangle drifts off to one side of the skull and sits further
- * forward than intended. Fixing that before containment means the compression
- * is symmetric rather than shaving one side of the knot flat.
- */
+/** `count` control points for one state, as a flat xyz array. */
 export function buildThreadPoints(kind: StateKind, count: number): Float32Array {
   const out = new Float32Array(count * 3);
-  const disorder = DISORDER[kind];
-
+  const gen = GENERATORS[kind];
   for (let i = 0; i < count; i += 1) {
-    threadPoint(i / (count - 1), disorder, out, i * 3);
+    gen(i / (count - 1), out, i * 3);
   }
-
-  // Centred on the strand's mass, not on its bounding box: a walk usually has
-  // one end reaching further than the rest, and centring the box around it
-  // pushes the body of the knot off to the opposite side of the skull.
-  let sumX = 0;
-  let sumY0 = 0;
-  let sumZ = 0;
-  for (let i = 0; i < out.length; i += 3) {
-    sumX += out[i];
-    sumY0 += out[i + 1];
-    sumZ += out[i + 2];
-  }
-
-  const dx = CAVITY.x - sumX / count;
-  const dy = CAVITY.y - sumY0 / count;
-  const dz = lerp(CAVITY.zClear, CAVITY.zChaos, disorder) - sumZ / count;
-
-  // Then scaled to fill the skull. Summed octaves of noise reach nowhere near
-  // the sum of their amplitudes, so a walk left as generated occupies the
-  // middle third of the cavity and reads as a small knot floating in a large
-  // empty head. Normalising is also what keeps the three states the same size
-  // as each other, which matters more here than any absolute figure.
-  // Each axis is fitted separately, and fitted on the spread of the whole
-  // strand rather than on its furthest point. A walk is rarely as wide as it is
-  // tall, and one stray end reaching for the skull would otherwise decide the
-  // scale for everything else and shrink the knot away from the sides. The soft
-  // containment above catches whatever this lets past.
-  let spreadX = 0;
-  let spreadY = 0;
-  for (let i = 0; i < out.length; i += 3) {
-    const u = (out[i] + dx - CAVITY.x) / CAVITY.rx;
-    const v = (out[i + 1] + dy - CAVITY.y) / CAVITY.ry;
-    spreadX += u * u;
-    spreadY += v * v;
-  }
-  const rmsX = Math.sqrt(spreadX / count);
-  const rmsY = Math.sqrt(spreadY / count);
-  const fillX = rmsX > 0.01 ? CAVITY.fill / rmsX : 1;
-  const fillY = rmsY > 0.01 ? CAVITY.fill / rmsY : 1;
-
-  // Both corrections are weighted by disorder, so they vanish entirely at the
-  // ordered end. They exist to tame a random walk: a walk lands off-centre and
-  // undersized, and needs recentring and rescaling before it reads as a knot
-  // filling a skull. A spiral has neither problem — it is already centred on
-  // the cavity and already sized to it — and applying a mass-centroid shift and
-  // a per-axis stretch to one only pulls it off centre and squashes it out of
-  // round. The clear state has to be *exactly* concentric, so it is left exactly
-  // as generated.
-  const w = disorder;
-  const cx = dx * w;
-  const cy = dy * w;
-  const fx = lerp(1, fillX, w);
-  const fy = lerp(1, fillY, w);
-
-  for (let i = 0; i < out.length; i += 3) {
-    out[i + 2] += dz * w;
-    contain(
-      CAVITY.x + (out[i] + cx - CAVITY.x) * fx,
-      CAVITY.y + (out[i + 1] + cy - CAVITY.y) * fy,
-      out,
-      i,
-    );
-  }
-
+  recentre(out);
   return out;
 }
 
@@ -216,22 +150,22 @@ export function buildThreadPoints(kind: StateKind, count: number): Float32Array 
  * Blend the three point sets into `out` at a continuous stage in 0..2.
  *
  * `restless` adds a per-point wander whose amplitude the caller ties to how
- * tangled the strand currently is — the knot fidgets, the spiral barely
- * breathes. Applied here so the movement travels *along* the thread rather
- * than shaking the whole mesh.
+ * tangled the strand currently is — the knot fidgets, the halo barely breathes.
+ * It is applied here so the movement travels *along* the thread instead of
+ * shaking the whole mesh.
  */
 export function blendThread(
   out: Float32Array,
-  tangled: Float32Array,
-  unraveling: Float32Array,
-  clear: Float32Array,
+  chaos: Float32Array,
+  flow: Float32Array,
+  clarity: Float32Array,
   stage: number,
   time: number,
   restless: number,
 ): void {
   const second = stage > 1;
-  const a = second ? unraveling : tangled;
-  const b = second ? clear : unraveling;
+  const a = second ? flow : chaos;
+  const b = second ? clarity : flow;
   const t = second ? stage - 1 : stage;
 
   for (let i = 0; i < out.length; i += 3) {
@@ -243,7 +177,7 @@ export function blendThread(
       const p = i * 0.37;
       x += Math.sin(time * 0.9 + p) * restless;
       y += Math.sin(time * 0.73 + p * 1.7 + 2.1) * restless;
-      z += Math.sin(time * 1.11 + p * 0.9 + 4.2) * restless * 1.4;
+      z += Math.sin(time * 1.11 + p * 0.9 + 4.2) * restless;
     }
 
     out[i] = x;
@@ -253,49 +187,107 @@ export function blendThread(
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Per-state look and motion                                                  */
+/*  Material + motion configuration per state                                  */
 /* -------------------------------------------------------------------------- */
 
 export type StateVisual = {
+  thread: string;
   threadRadius: number;
-  /** Amplitude and speed of the strand's own restlessness. */
+  threadEmissive: number;
+  head: string;
+  headEmissive: number;
+  headRoughness: number;
+  limb: string;
+  /** Amplitude / speed of the thread's own restlessness. */
   restless: number;
   restlessSpeed: number;
-  /** How much the head itself drifts — chaos is never quite still. */
-  unrest: number;
+  /** Slow sway of the whole character, in radians. */
+  spin: number;
+  cameraZ: number;
+  /** Eye and smile presence, 0..1. */
+  eyes: number;
+  smile: number;
+  /** Arm pivot angle — drooping, neutral, open. */
+  arm: number;
+  motes: number;
 };
 
 export const STATE_VISUALS: readonly [StateVisual, StateVisual, StateVisual] = [
   {
-    // 01 TANGLED — mental clutter.
-    threadRadius: 0.0165,
-    restless: 0.0105,
+    // CHAOS — something is happening inside me.
+    thread: PALETTE.purpleLift,
+    threadRadius: 0.024,
+    threadEmissive: 0,
+    head: PALETTE.wineDeep,
+    headEmissive: 0,
+    headRoughness: 0.78,
+    limb: PALETTE.purpleDeep,
+    restless: 0.05,
     restlessSpeed: 1.0,
-    unrest: 1,
+    spin: 0.13,
+    cameraZ: 6.75,
+    eyes: 0,
+    smile: 0,
+    arm: -0.5,
+    motes: 1,
   },
   {
-    // 02 UNRAVELING — awareness, reflection. The chaos being organised.
-    threadRadius: 0.0185,
-    restless: 0.0048,
-    restlessSpeed: 0.58,
-    unrest: 0.55,
+    // FLOW — I am beginning to understand my patterns.
+    thread: PALETTE.wineLift,
+    threadRadius: 0.028,
+    threadEmissive: 0,
+    head: PALETTE.wineLift,
+    headEmissive: 0,
+    headRoughness: 0.72,
+    limb: PALETTE.wineMid,
+    restless: 0.021,
+    restlessSpeed: 0.62,
+    spin: 0.075,
+    cameraZ: 7.1,
+    eyes: 0.32,
+    smile: 0,
+    arm: -0.2,
+    motes: 0.72,
   },
   {
-    // 03 CLEAR — clarity. 1% better.
-    threadRadius: 0.021,
-    restless: 0.0016,
-    restlessSpeed: 0.24,
-    unrest: 0.2,
+    // CLARITY — I don't need to be perfect. I know how to return.
+    thread: PALETTE.wineLift2,
+    threadRadius: 0.032,
+    threadEmissive: 0,
+    head: PALETTE.honey,
+    headEmissive: 0.17,
+    headRoughness: 0.66,
+    limb: PALETTE.wineViolet,
+    restless: 0.007,
+    restlessSpeed: 0.26,
+    spin: 0.035,
+    cameraZ: 7.45,
+    eyes: 1,
+    smile: 1,
+    arm: 0.13,
+    motes: 0.38,
   },
 ];
 
+/** The fields of `StateVisual` that interpolate. Colours are handled by hand. */
+type NumericKey =
+  | "threadRadius"
+  | "threadEmissive"
+  | "headEmissive"
+  | "headRoughness"
+  | "restless"
+  | "restlessSpeed"
+  | "spin"
+  | "cameraZ"
+  | "eyes"
+  | "smile"
+  | "arm"
+  | "motes";
+
 /** Read any numeric field of `STATE_VISUALS` at a continuous stage in 0..2. */
-export function visualAt(key: keyof StateVisual, stage: number): number {
+export function visualAt(key: NumericKey, stage: number): number {
   const second = stage > 1;
   const a = STATE_VISUALS[second ? 1 : 0][key];
   const b = STATE_VISUALS[second ? 2 : 1][key];
   return lerp(a, b, second ? stage - 1 : stage);
 }
-
-/** Deterministic noise re-exported so the flat fallback can trace the same curves. */
-export { noise1, snoise1 };

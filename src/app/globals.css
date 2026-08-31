@@ -98,6 +98,24 @@
    Base
    ========================================================================== */
 
+/* --------------------------------------------------------------------------
+   Phone-only rhythm
+
+   The section band above is tuned for a screen with room to spare: it never
+   drops below 5rem, so a 320px phone gets the same 80px of air above and
+   below every one of the page's eighteen sections that a tablet does — nearly
+   3,000px of the scroll spent on nothing. Below `sm` the band is redefined on
+   its own curve, roughly a third shorter, which is still a clear separation at
+   phone scale. Nothing at 640px and above is touched: the media query stops
+   exactly where Tailwind's `sm` breakpoint starts.
+   -------------------------------------------------------------------------- */
+
+@media (width < 40rem) {
+  :root {
+    --spacing-section: clamp(3.25rem, 1.5rem + 7vw, 4.5rem);
+  }
+}
+
 @layer base {
   *,
   *::before,
@@ -107,8 +125,10 @@
 
   html {
     scroll-behavior: smooth;
-    /* Nav is fixed — keep anchor targets clear of it. */
-    scroll-padding-top: 6rem;
+    /* There is no fixed nav any more, so an anchor no longer has to clear one —
+       this is just breathing room above the section you jumped to. The pinned
+       CTA is at the *bottom*, and anchors align to the top, so it needs none. */
+    scroll-padding-top: 2rem;
     -webkit-text-size-adjust: 100%;
   }
 
@@ -270,6 +290,80 @@
   }
 }
 
+/* ==========================================================================
+   Hero portrait — the two added lights
+   See src/components/hero/LivingPortrait.tsx for the composition they sit in.
+   ========================================================================== */
+
+@layer components {
+  /* Both lights start invisible and are revealed only once the rim matte has
+     decoded, by a data attribute the component sets. Until then the hero is the
+     untouched artwork — which is also what a browser that cannot mask, or that
+     fails to fetch the matte, keeps forever. Failing closed here is the whole
+     safety story: an unmasked gold layer is a rectangle across his face. */
+  .hp-lit {
+    opacity: 0;
+    transition: opacity 0.9s var(--ease-out-soft);
+  }
+
+  [data-hp-lit="true"] .hp-lit {
+    opacity: 1;
+  }
+
+  /* The travelling band, inside the silhouette matte.
+
+     Vertical, because the rim itself runs top to bottom — crown, temple, ear,
+     jaw, shoulder — so a downward sweep traverses hair to shoulder in the order
+     a real light would. Tilted 12 degrees off vertical to sit along his
+     shoulder line rather than cutting square across it.
+
+     The band is 24% of the frame tall and travels from just above his crown to
+     just past his lapel — far enough that it is clear of the matte at both
+     ends, which is what makes the loop point invisible: there is nothing on
+     screen at the instant it restarts.
+
+     Linear, after trying `ease-in-out` and measuring it. Easing puts the slow
+     part of the cycle at the extremes, where the band is off-frame and lighting
+     nothing, and the fast part across his face — so the light crept while
+     invisible and then hurried over the one stretch worth watching. Constant
+     speed is also what a real light on a slow track does.
+
+     9s, halved from 18s. At 18s a person who looked at the hero for the three
+     or four seconds anyone actually spends on it saw the band cross a fifth of
+     him and concluded nothing was moving. Slow enough to stay calm has to be
+     measured against how long the hero is looked at, not in the abstract.
+
+     Both percentages are read against the carrier, which is sized to the frame
+     exactly so that they mean what they say. */
+  .hp-rim-sweep {
+    background: linear-gradient(
+      168deg,
+      transparent 36%,
+      rgba(230, 180, 76, 0.2) 44%,
+      rgba(254, 183, 55, 0.44) 50%,
+      rgba(230, 180, 76, 0.2) 56%,
+      transparent 64%
+    );
+    animation: hp-rim-travel 9s linear infinite;
+    will-change: transform;
+  }
+
+  /* Nothing to light while he is off screen. A paused compositor animation
+     costs nothing at all, and the rAF loop has stopped by this point too. */
+  [data-hp-active="false"] .hp-rim-sweep {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes hp-rim-travel {
+  from {
+    transform: translate3d(0, -62%, 0);
+  }
+  to {
+    transform: translate3d(0, 62%, 0);
+  }
+}
+
 @keyframes km-tumble {
   from {
     transform: rotateY(0deg);
@@ -292,6 +386,16 @@
      flat and face-on, instead of racing one 0.001ms turn on load. */
   .km-mark-inner {
     animation: none !important;
+  }
+
+  /* Same reasoning. The blanket rule below would race the sweep to its end
+     state and park the band off-frame, lighting nothing; holding it still at
+     centre keeps the one thing worth keeping — a soft warm edge along his
+     silhouette — as a static treatment rather than removing it. All the
+     parallax is already gone: the component never starts its loop. */
+  .hp-rim-sweep {
+    animation: none !important;
+    transform: translate3d(0, 0, 0);
   }
 
   *,

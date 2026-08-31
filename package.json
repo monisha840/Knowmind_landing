@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "optimize:assets": "node scripts/optimize-assets.mjs",
+    "video": "node scripts/strip-audio.mjs",
     "icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {

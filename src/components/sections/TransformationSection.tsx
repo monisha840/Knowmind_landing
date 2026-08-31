@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { Reveal } from "@/components/ui/Reveal";
 import { beforeAfter } from "@/lib/content";
-import { useMediaQuery, usePrefersReducedMotion } from "@/lib/hooks";
+import { usePrefersReducedMotion } from "@/lib/hooks";
 
 /**
  * The turn in the page: chaos resolving into calm.
@@ -41,7 +41,7 @@ function Panel({
         isBefore ? "bg-wine-950" : "bg-paper"
       }`}
     >
-      <div className="container-page py-16">
+      <div className="container-page py-10 sm:py-16">
         <div className="mx-auto max-w-2xl">
           <span
             className={`text-eyebrow font-semibold tracking-[0.18em] uppercase ${
@@ -52,7 +52,7 @@ function Panel({
           </span>
 
           <p
-            className={`mt-5 font-serif text-h2 italic ${
+            className={`mt-4 font-serif text-h3 italic sm:mt-5 sm:text-h2 ${
               isBefore ? "text-cream" : "text-ink"
             }`}
           >
@@ -60,16 +60,16 @@ function Panel({
           </p>
 
           <p
-            className={`mt-6 text-body ${isBefore ? "text-cream-dim" : "text-ink-muted"}`}
+            className={`mt-5 text-sm sm:mt-6 sm:text-body ${isBefore ? "text-cream-dim" : "text-ink-muted"}`}
           >
             {connector}
           </p>
 
-          <ul className="mt-5 flex flex-col gap-2.5">
+          <ul className="mt-4 flex flex-col gap-2 sm:mt-5 sm:gap-2.5">
             {points.map((point) => (
               <li
                 key={point}
-                className={`flex items-start gap-3 text-lead ${
+                className={`flex items-start gap-3 text-base sm:text-lead ${
                   isBefore ? "text-cream/80" : "text-ink"
                 }`}
               >
@@ -93,7 +93,6 @@ function Panel({
 
 export function TransformationSection() {
   const ref = useRef<HTMLDivElement>(null);
-  const isDesktop = useMediaQuery("(min-width: 1024px)");
   const reduced = usePrefersReducedMotion();
 
   /**
@@ -162,7 +161,9 @@ export function TransformationSection() {
     if (el) el.dataset.phase = p >= 0.88 ? "exited" : p > 0 ? "active" : "initial";
   });
 
-  const useWipe = isDesktop && !reduced;
+  // The wipe is not a desktop luxury — it is the turn the whole page pivots
+  // on. It runs at every width now; only reduced motion opts out.
+  const useWipe = !reduced;
 
   if (!useWipe) {
     return (
@@ -186,13 +187,22 @@ export function TransformationSection() {
       id="transformation"
       ref={ref}
       aria-labelledby="transformation-heading"
-      className="relative h-[200vh]"
+      /* Shorter on a phone. The stage is pinned for the section's height minus
+         one screen, so 200svh spends a whole extra screen of scrolling on a
+         wipe that is already legible in half of it — and on a phone that reads
+         as the page having stalled. 160svh leaves ~0.5 screens of travel, which
+         is enough for the rule to cross the copy at a readable speed. The
+         measured range is derived from `offsetHeight`, so nothing else has to
+         know this number changed. */
+      className="relative h-[160svh] sm:h-[200svh]"
     >
       <h2 id="transformation-heading" className="sr-only">
         Before and after the journey
       </h2>
 
-      <div className="sticky top-0 h-screen overflow-hidden">
+      {/* svh, not vh: mobile browser chrome makes vh unreliable for a pinned
+          stage, and this one is pinned on phones now too. */}
+      <div className="sticky top-0 h-[100svh] overflow-hidden">
         {/* Base state */}
         <div className="absolute inset-0">
           <Panel tone="before" {...before} />

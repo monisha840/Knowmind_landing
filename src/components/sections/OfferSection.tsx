@@ -24,12 +24,12 @@ export function OfferSection() {
           }
         />
 
-        <RevealGroup as="ul" className="mt-16 grid gap-px bg-ink/10 sm:grid-cols-2 lg:grid-cols-3">
+        <RevealGroup as="ul" className="mt-10 grid gap-px bg-ink/10 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3">
           {inclusions.map((item, i) => (
             <motion.li
               key={item.key}
               variants={revealChild}
-              className="group relative bg-paper p-8 transition-colors duration-500 hover:bg-paper-2 sm:p-9"
+              className="group relative bg-paper p-6 transition-colors duration-500 hover:bg-paper-2 sm:p-9"
             >
               <span className="text-sm font-medium tabular-nums text-amber-ink">
                 {String(i + 1).padStart(2, "0")}
@@ -48,7 +48,7 @@ export function OfferSection() {
         </RevealGroup>
 
         <Reveal delay={0.1}>
-          <div className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-5">
+          <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-5 sm:mt-14">
             <CTAButton>I want to begin</CTAButton>
             <p className="text-body text-ink-muted">
               {programDetails.seats} seats · {programDetails.dateLabel}

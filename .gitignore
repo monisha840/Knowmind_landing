@@ -11,3 +11,8 @@ npm-debug.log*
 .vercel
 *.tsbuildinfo
 next-env.d.ts
+
+# Credential files dropped into the working tree (Razorpay key exports, etc.)
+# never belong in history.
+rzp-*.csv
+*key*.csv

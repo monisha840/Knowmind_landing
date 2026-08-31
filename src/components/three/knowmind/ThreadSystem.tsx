@@ -3,22 +3,22 @@
 import { type RefObject, useEffect, useImperativeHandle, useMemo } from "react";
 import * as THREE from "three";
 
-import { lerpHueShort } from "./color";
-import { PALETTE, type Tier, TIERS, threadWarmth } from "./constants";
+import { PALETTE, type Tier, TIERS } from "./constants";
+import { clamp01 } from "./math";
 import { blendThread, buildThreadPoints, visualAt } from "./states";
 import { createTube, sweep } from "./tube";
 
 /**
- * The thread inside one skull.
+ * The thread.
  *
- * A single continuous strand, swept as a tube along a Catmull-Rom spline
- * through a fixed number of control points. The control points are what morph;
- * the tube around them is rebuilt in place every frame into buffers allocated
- * once, so each strand is one draw call with zero per-frame allocation.
+ * One continuous strand, swept as a tube along a Catmull-Rom spline through a
+ * fixed number of control points. The control points are what morph; the tube
+ * around them is rebuilt in place every frame into buffers allocated once, so
+ * the whole system is a single draw call with zero per-frame allocation.
  *
- * Both ends taper away to nothing, which hides the open ends of the tube and
- * lets the strand read as one length of thread that begins and ends somewhere
- * rather than as a closed loop.
+ * Both ends taper away to almost nothing, which hides the open ends of the tube
+ * and — in the final state, where the strand comes round to meet itself — lets
+ * the ring read as whole without pretending it never had ends.
  */
 
 export type ThreadHandle = {
@@ -29,12 +29,11 @@ export type ThreadHandle = {
 type ThreadSystemProps = {
   handleRef: RefObject<ThreadHandle | null>;
   tier: Tier;
-  castShadow?: boolean;
 };
 
 /* -------------------------------------------------------------------------- */
 
-export function ThreadSystem({ handleRef, tier, castShadow = false }: ThreadSystemProps) {
+export function ThreadSystem({ handleRef, tier }: ThreadSystemProps) {
   const settings = TIERS[tier];
 
   const tube = useMemo(
@@ -45,9 +44,9 @@ export function ThreadSystem({ handleRef, tier, castShadow = false }: ThreadSyst
   const shapes = useMemo(() => {
     const n = settings.control;
     return {
-      tangled: buildThreadPoints(0, n),
-      unraveling: buildThreadPoints(1, n),
-      clear: buildThreadPoints(2, n),
+      chaos: buildThreadPoints(0, n),
+      flow: buildThreadPoints(1, n),
+      clarity: buildThreadPoints(2, n),
       blended: new Float32Array(n * 3),
     };
   }, [settings.control]);
@@ -55,21 +54,16 @@ export function ThreadSystem({ handleRef, tier, castShadow = false }: ThreadSyst
   const material = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: new THREE.Color(PALETTE.wineViolet),
-        roughness: 0.52,
-        metalness: 0.05,
+        color: new THREE.Color(PALETTE.purpleLift),
+        emissive: new THREE.Color(PALETTE.honey),
+        emissiveIntensity: 0,
+        roughness: 0.55,
+        metalness: 0.08,
       }),
     [],
   );
 
-  const local = useMemo(
-    () => ({
-      from: new THREE.Color(PALETTE.wineViolet),
-      to: new THREE.Color(PALETTE.honey),
-      accum: 0,
-    }),
-    [],
-  );
+  const local = useMemo(() => ({ from: new THREE.Color(), to: new THREE.Color(), accum: 0 }), []);
 
   useImperativeHandle(
     handleRef,
@@ -84,26 +78,29 @@ export function ThreadSystem({ handleRef, tier, castShadow = false }: ThreadSyst
           local.accum = 0;
         }
 
+        const restless = visualAt("restless", stage);
+        const speed = visualAt("restlessSpeed", stage);
         blendThread(
           shapes.blended,
-          shapes.tangled,
-          shapes.unraveling,
-          shapes.clear,
+          shapes.chaos,
+          shapes.flow,
+          shapes.clarity,
           stage,
-          time * visualAt("restlessSpeed", stage),
-          visualAt("restless", stage),
+          time * speed,
+          restless,
         );
         sweep(tube, shapes.blended, visualAt("threadRadius", stage));
         tube.positionAttr.needsUpdate = true;
         tube.normalAttr.needsUpdate = true;
 
-        // Wine violet warms toward honey, but late: at UNRAVELING the strand
-        // should carry only a hint of gold, which is what `threadWarmth`
-        // encodes. The hue takes the short way round, so it passes through
-        // amber rather than through the cyan a linear hue lerp would give.
-        const warmth = threadWarmth(stage);
-        lerpHueShort(material.color, local.from, local.to, warmth, 0.3);
-        material.roughness = 0.52 - warmth * 0.14;
+        // Deep purple warms into wine violet as the strand loosens, then lifts
+        // once more — the thread stays cool so the face can own the warmth.
+        const second = stage > 1;
+        local.from.set(second ? "#6d2f58" : "#4e2874");
+        local.to.set(second ? "#8a4a72" : "#6d2f58");
+        material.color.copy(local.from).lerp(local.to, second ? stage - 1 : stage);
+        material.emissiveIntensity = visualAt("threadEmissive", stage);
+        material.roughness = 0.55 - clamp01(stage / 2) * 0.13;
       },
     }),
     [shapes, tube, material, local, settings.threadHz],
@@ -114,12 +111,5 @@ export function ThreadSystem({ handleRef, tier, castShadow = false }: ThreadSyst
   useEffect(() => () => tube.geometry.dispose(), [tube]);
   useEffect(() => () => material.dispose(), [material]);
 
-  return (
-    <mesh
-      geometry={tube.geometry}
-      material={material}
-      castShadow={castShadow}
-      frustumCulled={false}
-    />
-  );
+  return <mesh geometry={tube.geometry} material={material} frustumCulled={false} />;
 }

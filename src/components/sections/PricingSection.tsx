@@ -2,7 +2,7 @@
 
 import { CTAButton } from "@/components/ui/CTAButton";
 import { Reveal } from "@/components/ui/Reveal";
-import { inr, isPaymentConfigured, programDetails, siteConfig } from "@/lib/config";
+import { inr, programDetails, siteConfig } from "@/lib/config";
 
 const facts = [
   { label: "Duration", value: `${programDetails.days} days` },
@@ -35,7 +35,14 @@ export function PricingSection() {
           <div className="mx-auto max-w-4xl overflow-hidden rounded-[1.75rem] bg-paper text-ink shadow-[0_40px_120px_-30px_rgba(0,0,0,0.85)]">
             <div className="grid lg:grid-cols-12">
               {/* ---- The offer ---- */}
-              <div className="p-9 sm:p-12 lg:col-span-7">
+              {/* `min-w-0` is load-bearing, not tidiness. A grid item's
+                  automatic minimum size is the min-content width of what is
+                  inside it, and the setup note below holds a 33-character
+                  environment-variable name with nowhere to break. At 320px that
+                  one token sized this track to 300px inside a 280px container,
+                  so the whole registration card hung 20px past the page gutter
+                  and lost its right-hand margin and its rounded corner. */}
+              <div className="min-w-0 p-6 sm:p-12 lg:col-span-7">
                 <span className="text-eyebrow font-semibold tracking-[0.18em] text-amber-ink uppercase">
                   Founding journey — {siteConfig.batch}
                 </span>
@@ -83,19 +90,10 @@ export function PricingSection() {
                   </span>
                 </p>
 
-                {/* Build-time reminder for whoever deploys this. Never ships to production. */}
-                {!isPaymentConfigured && process.env.NODE_ENV !== "production" && (
-                  <p className="mt-5 rounded-lg border border-dashed border-amber-ink/40 bg-honey/10 p-4 text-sm text-ink">
-                    <strong>Setup needed:</strong> set{" "}
-                    <code className="font-mono text-xs">NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK</code>{" "}
-                    in <code className="font-mono text-xs">.env.local</code> to send this button
-                    to checkout. Until then every CTA scrolls here instead.
-                  </p>
-                )}
               </div>
 
               {/* ---- The particulars ---- */}
-              <div className="border-t border-ink/10 bg-paper-2 p-9 sm:p-12 lg:col-span-5 lg:border-t-0 lg:border-l">
+              <div className="min-w-0 border-t border-ink/10 bg-paper-2 p-6 sm:p-12 lg:col-span-5 lg:border-t-0 lg:border-l">
                 <p className="text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase">
                   {programDetails.dateLabel}
                 </p>

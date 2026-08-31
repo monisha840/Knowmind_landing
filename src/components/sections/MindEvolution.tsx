@@ -103,13 +103,21 @@ export function MindEvolution() {
       {/* ---- The pinned visual ---------------------------------------- */}
       <div className="sticky top-0 h-[100svh] w-full">
         {/* Legibility washes: sideways on desktop where the copy sits beside
-            the character, upward on mobile where it sits beneath it. */}
+            the character, upward on mobile where it sits beneath it.
+
+            The mobile ramp starts higher and closes harder than the desktop
+            one because it has more to do. Beside the character there is empty
+            frame to put text on; underneath him there is the character, and a
+            phone's copy block is tall enough to reach up into his body. So the
+            wash is dense by the time the eyebrow arrives and fully opaque
+            under the paragraph — he reads as a background layer rather than as
+            something the text is sitting on top of. */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 lg:hidden"
           style={{
             background:
-              "linear-gradient(180deg, rgba(12,4,16,0) 34%, rgba(12,4,16,0.82) 58%, rgba(12,4,16,0.96) 74%)",
+              "linear-gradient(180deg, rgba(12,4,16,0) 24%, rgba(12,4,16,0.55) 38%, rgba(12,4,16,0.90) 50%, rgba(12,4,16,0.98) 62%)",
           }}
         />
         <div
@@ -122,8 +130,13 @@ export function MindEvolution() {
         />
 
         {/* Phones get the character in the upper half with the copy beneath it;
-            from lg it takes the whole frame and stands beside the copy. */}
-        <div className="absolute inset-x-0 top-[6svh] h-[52svh] lg:inset-0 lg:h-full">
+            from lg it takes the whole frame and stands beside the copy.
+
+            The band sits a little higher and a little shorter than the copy
+            would strictly need, because the copy is bottom-aligned and its
+            tallest block runs to about 55svh — anything larger and the
+            paragraph climbs into his legs. */}
+        <div className="absolute inset-x-0 top-[3svh] h-[45svh] lg:inset-0 lg:h-full">
           <KnowMind3D
             trackRef={track}
             align="right"
@@ -167,8 +180,18 @@ export function MindEvolution() {
           <article
             key={state.key}
             aria-label={`State ${state.index}: ${state.label}`}
-            /* pb clears the phone-only sticky registration bar. */
-            className="flex h-[100svh] items-end pb-[13svh] lg:items-center lg:pb-0"
+            /* pb clears the sticky registration bar.
+
+               88svh rather than a full screen on a phone. Each block is
+               bottom-anchored in its own window and fades once it rises out of
+               the lower band, so at 100svh the last one had finished fading
+               with a whole screen of section still to scroll — the blank
+               stretch between this section and the problem section. Three
+               windows a screen and a bit shorter close that without changing
+               the choreography: the character's two transitions are fractions
+               of the track, so shortening every window by the same amount
+               leaves them where they were. */
+            className="flex h-[88svh] items-end pb-[12svh] lg:h-[100svh] lg:items-center lg:pb-0"
           >
             <div className="container-page w-full">
               <div
@@ -209,8 +232,13 @@ export function MindEvolution() {
         {/* A tail after the last state. It gives the third screen room to be
             read while the character holds its final arrangement, and it means
             the visual has faded out by the time the pin releases — so it never
-            overlaps whatever the next section puts on screen. */}
-        <div aria-hidden className="h-[30svh]" />
+            overlaps whatever the next section puts on screen.
+
+            Nearly nothing on a phone. The fade is a fraction of the track,
+            so it still finishes before the pin releases — the tail is slack,
+            not structure, and a third of a screen of it is a much bigger share
+            of a phone's patience than of a desktop's. */}
+        <div aria-hidden className="h-[6svh] lg:h-[30svh]" />
       </div>
     </section>
   );

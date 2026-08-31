@@ -10,7 +10,8 @@ import { inr, programDetails } from "@/lib/config";
  * Phone-only registration bar.
  *
  * Appears once the hero has been passed and hides again over the registration
- * card and the footer, so it never sits on top of the thing it points at.
+ * card, the sign-up questions and the footer, so it never sits on top of the
+ * thing it points at — and never covers a field someone is filling in.
  */
 export function StickyMobileCTA() {
   const [visible, setVisible] = useState(false);
@@ -20,8 +21,9 @@ export function StickyMobileCTA() {
       const pastHero = window.scrollY > window.innerHeight * 0.9;
 
       const register = document.getElementById("register");
+      const journey = document.getElementById("begin-journey");
       const footer = document.querySelector("footer");
-      const overlapping = [register, footer].some((el) => {
+      const overlapping = [register, journey, footer].some((el) => {
         if (!el) return false;
         const rect = el.getBoundingClientRect();
         return rect.top < window.innerHeight && rect.bottom > 0;
