@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
 
-import { siteConfig } from "@/lib/config";
+import { PROGRAM_URL } from "@/lib/config";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: siteConfig.url,
+      url: PROGRAM_URL,
       lastModified: new Date("2026-08-31"),
       changeFrequency: "weekly",
       priority: 1,

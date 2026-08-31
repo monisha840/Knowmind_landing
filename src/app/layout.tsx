@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Instrument_Sans, Instrument_Serif, Noto_Sans_Tamil } from "next/font/google";
 
-import { programDetails, siteConfig } from "@/lib/config";
+import { PROGRAM_PATH, PROGRAM_URL, programDetails, siteConfig } from "@/lib/config";
 import { jsonLd } from "@/lib/schema";
 import "./globals.css";
 
@@ -68,13 +68,13 @@ export const metadata: Metadata = {
     "Tamil self improvement program",
   ],
   alternates: {
-    canonical: "/",
+    canonical: PROGRAM_PATH,
   },
   openGraph: {
     type: "website",
     locale: "en_IN",
     alternateLocale: ["ta_IN"],
-    url: siteConfig.url,
+    url: PROGRAM_URL,
     siteName: siteConfig.name,
     title,
     description: `${programDetails.dateLabel} · ${programDetails.timeLabel} · Live on Zoom · Tamil + English · ${programDetails.seats} participants · Founding price ₹${programDetails.price}.`,

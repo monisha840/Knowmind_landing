@@ -77,6 +77,23 @@ export const programDetails = {
  * the browser — a hydration mismatch (CLAUDE.md §20.4).
  */
 
+/**
+ * Where the programme lives.
+ *
+ * The page used to be the site root. It now sits on its own path so the root
+ * is free for a KnowMind Universe site later. Declared once here because six
+ * things derive from it — the route folder's name, the canonical tag, the Open
+ * Graph URL, the sitemap entry, the manifest's start_url and the registration
+ * URL in the JSON-LD. Change it here and in the folder name under `src/app/`,
+ * and nothing else needs touching.
+ *
+ * No trailing slash: everything below concatenates onto it.
+ */
+export const PROGRAM_PATH = "/1percentagebetter";
+
+/** The programme's absolute URL. */
+export const PROGRAM_URL = `${siteConfig.url}${PROGRAM_PATH}`;
+
 /** Indian digit grouping — 1999 renders as "1,999", not "1999". */
 export const formatINR = (n: number) => n.toLocaleString("en-IN");
 

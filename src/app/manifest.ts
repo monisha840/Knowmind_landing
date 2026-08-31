@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { programDetails, siteConfig } from "@/lib/config";
+import { PROGRAM_PATH, programDetails, siteConfig } from "@/lib/config";
 
 /**
  * Web app manifest.
@@ -14,7 +14,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: `${siteConfig.name} — ${siteConfig.program}`,
     short_name: siteConfig.name,
     description: `${siteConfig.programSubtitle} · ${programDetails.dateLabel} · ${programDetails.timeLabel}`,
-    start_url: "/",
+    start_url: PROGRAM_PATH,
     display: "browser",
     background_color: "#0c0410",
     theme_color: "#0c0410",

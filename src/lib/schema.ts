@@ -1,5 +1,5 @@
 import { credentials, kalee } from "./content";
-import { programDetails, siteConfig } from "./config";
+import { PROGRAM_URL, programDetails, siteConfig } from "./config";
 
 /**
  * JSON-LD for the page.
@@ -16,7 +16,7 @@ import { programDetails, siteConfig } from "./config";
  * engine at. It used to fall back to an off-site hosted payment link, which
  * would today send someone past the form the flow depends on.
  */
-const registrationUrl = `${siteConfig.url}/#begin-journey`;
+const registrationUrl = `${PROGRAM_URL}#begin-journey`;
 
 const organization = {
   "@type": "Organization",
