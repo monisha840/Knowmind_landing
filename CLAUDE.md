@@ -1369,7 +1369,7 @@ need assets or a human decision.
 | Post-payment onboarding (email / WhatsApp automation) | backend work — **approval required** |
 | No analytics | **decision required**; if added, track CTA clicks, checkout start, FAQ opens, video plays — and never let analytics failure break the page |
 | Mobile drawer has no focus trap | accessibility improvement, needs testing |
-| `RAZORPAY_WEBHOOK_SECRET` not set | create the webhook in the Razorpay dashboard, then set it; until then the webhook endpoint refuses every delivery by design |
+| No webhook configured (`RAZORPAY_WEBHOOK_SECRET` unset) | **deliberate, not an oversight.** The endpoint refuses every delivery by design, and the flow does not depend on it: `registrationFromOrder` derives PAID from `order.status === "paid"`, which Razorpay sets itself on capture, so a browser that never returns still reads correctly. Fulfilment is manual from the dashboard, where the order's `notes` carry every answer. The only cost is that such a visitor sees the honest "payment received, still confirming" state instead of the success panel. `scripts/create-webhook.mjs` creates it in one command whenever that trade stops being acceptable — and must be re-run with live keys for live mode, since test and live webhooks are separate. |
 
 ---
 
