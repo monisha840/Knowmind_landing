@@ -6,7 +6,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: PROGRAM_URL,
-      lastModified: new Date("2026-08-31"),
+      /* Build time, not a date typed by hand. The page is statically
+         generated, so this is stamped whenever the site is deployed — which is
+         the only moment its content can actually have changed. The previous
+         hardcoded date went stale the first time anything shipped after it. */
+      lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 1,
     },

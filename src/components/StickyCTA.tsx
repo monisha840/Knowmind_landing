@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 
 import { CTAButton } from "@/components/ui/CTAButton";
+import { hero } from "@/lib/content";
 import { inr, programDetails } from "@/lib/config";
 
 /**
@@ -34,9 +35,12 @@ export function StickyCTA() {
     const update = () => {
       const pastHero = window.scrollY > window.innerHeight * 0.9;
 
+      /* The footer is back on the page, so the bar hides over it again as
+         well as over the registration card and the questions themselves. */
       const register = document.getElementById("register");
       const journey = document.getElementById("begin-journey");
-      const overlapping = [register, journey].some((el) => {
+      const footer = document.querySelector("footer");
+      const overlapping = [register, journey, footer].some((el) => {
         if (!el) return false;
         const rect = el.getBoundingClientRect();
         return rect.top < window.innerHeight && rect.bottom > 0;
@@ -74,7 +78,7 @@ export function StickyCTA() {
                 {inr(programDetails.price)}
               </p>
               <p className="truncate text-xs text-cream-dim sm:text-sm">
-                {programDetails.dateLabelShort} · {programDetails.seats} seats
+                {programDetails.dateLabelShort} · {hero.batchNote}
               </p>
             </div>
 

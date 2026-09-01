@@ -22,7 +22,7 @@ import {
  * The answers live in this component for the length of the visit. At the end
  * they are POSTed to `/api/register`, which validates them again with the same
  * rules from `lib/validation` — authoritatively, because front-end validation
- * is UX and not security — and creates the ₹999 Razorpay order that Checkout
+ * is UX and not security — and creates the ₹699 Razorpay order that Checkout
  * opens against.
  *
  * The state below is deliberately split in two. `done` is *this form's*
@@ -404,7 +404,7 @@ export function JourneyForm() {
         </div>
 
         <p className="mt-6 text-sm text-ink-muted">
-          Secure payment via Razorpay. Zoom link and WhatsApp group access within 24 hours.
+          Secure payment via Razorpay. Zoom link within 24 hours.
         </p>
       </motion.div>
     );

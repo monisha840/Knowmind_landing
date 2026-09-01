@@ -4,7 +4,7 @@ import Image from "next/image";
 import { motion } from "motion/react";
 
 import { Reveal, RevealGroup, revealChild } from "@/components/ui/Reveal";
-import { kalee, notForYou, outcomes, personas } from "@/lib/content";
+import { forYouIf, kalee, notForYou, notForYouHeading, outcomes } from "@/lib/content";
 import { programDetails } from "@/lib/config";
 
 /* -------------------------------------------------------------------------- */
@@ -35,8 +35,6 @@ import { programDetails } from "@/lib/config";
 /*  in-flow element so it can never sit under the text.                       */
 /* -------------------------------------------------------------------------- */
 
-const EASE = "ease-[cubic-bezier(0.22,1,0.36,1)]";
-
 const FIGURE = "/kalee/kaleeswaran-cutout.webp";
 const FIGURE_W = 672;
 const FIGURE_H = 1736;
@@ -63,48 +61,15 @@ const FIGURE_MOBILE_H = 1050;
 
 /* -------------------------------------------------------------------------- */
 
-const iconBase = {
-  viewBox: "0 0 24 24",
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 1.4,
-  strokeLinecap: "round" as const,
-  strokeLinejoin: "round" as const,
-};
-
-/**
- * One mark per way in. Stroke-only on the same 24-unit grid as `MethodIcons`,
- * so the two sets read as one family and the page keeps zero icon dependencies.
+/*
+ * The four persona marks that stood here are gone with the four personas.
+ *
+ * The deck answers "is this for me?" with seven statements rather than four
+ * job titles, and a statement has nothing for an icon to depict — one drawing
+ * per sentence would be decoration standing in for meaning. The number and its
+ * hairline carry the index instead, which is the idiom this list already used
+ * beside those icons. `MethodIcons` is a separate set and is untouched.
  */
-const PERSONA_ICONS: Record<string, (props: { className?: string }) => React.ReactElement> = {
-  entrepreneur: ({ className }) => (
-    <svg {...iconBase} className={className} aria-hidden>
-      <path d="M9.2 16.4a5.5 5.5 0 1 1 5.6 0v1.9H9.2v-1.9Z" />
-      <path d="M10.4 21h3.2" />
-    </svg>
-  ),
-  professional: ({ className }) => (
-    <svg {...iconBase} className={className} aria-hidden>
-      <rect x="3.2" y="7.4" width="17.6" height="12.4" rx="2.2" />
-      <path d="M9 7.4V6a1.8 1.8 0 0 1 1.8-1.8h2.4A1.8 1.8 0 0 1 15 6v1.4" />
-      <path d="M3.2 12.6h17.6" />
-    </svg>
-  ),
-  freelancer: ({ className }) => (
-    <svg {...iconBase} className={className} aria-hidden>
-      <circle cx="12" cy="8.4" r="3.6" />
-      <path d="M5.4 19.8a6.6 6.6 0 0 1 13.2 0" />
-    </svg>
-  ),
-  anyone: ({ className }) => (
-    <svg {...iconBase} className={className} aria-hidden>
-      <path d="M4 16.2 9.4 10.8l3.4 3.4L20 7" />
-      <path d="M15.4 7H20v4.6" />
-    </svg>
-  ),
-};
-
-/* -------------------------------------------------------------------------- */
 
 export function AudienceSection() {
   return (
@@ -229,57 +194,37 @@ export function AudienceSection() {
                 </h2>
               </Reveal>
 
-              {/* ---- The four ways in ----
-                  A column at every width: cards below `lg`, the ruled index
-                  from `lg`. This was a sideways rail on a phone to save four
-                  rows of scrolling, but a swipe with no visible affordance is
-                  a poor way to hide three quarters of who the programme is
-                  for. The cards are compact instead. */}
+              {/* ---- The seven ways this is for you ----
+                  A column at every width: compact cards below `lg`, the ruled
+                  index from `lg` — the treatment the four persona rows already
+                  used, tightened for one sentence instead of a title and a
+                  description.
+
+                  Held at `text-base` from `lg` on purpose. The figure beside
+                  this list is sized as a percentage of this block, so every
+                  extra line of wrap in here scales him up with it; one line per
+                  statement keeps the composition the size it was drawn at. */}
               <RevealGroup
                 as="ul"
                 className="mt-8 flex flex-col gap-2.5 lg:mt-12 lg:gap-0"
-                stagger={0.07}
+                stagger={0.05}
               >
-                {personas.map((persona, i) => {
-                  const Icon = PERSONA_ICONS[persona.key];
-
-                  return (
-                    <motion.li
-                      key={persona.key}
-                      variants={revealChild}
-                      // Card on a phone, ruled row from `lg`. The border stays
-                      // a box below `lg`: at that width the rows carry a lot
-                      // less horizontal air, and a single top rule is not
-                      // enough to separate them.
-                      className="group flex items-center gap-4 rounded-card border border-cream/10 bg-cream/[0.03] p-4 sm:gap-5 lg:gap-6 lg:rounded-none lg:border-0 lg:border-t lg:border-cream/[0.09] lg:bg-transparent lg:p-0 lg:py-5 lg:last:border-b"
-                    >
-                      <span className="flex shrink-0 items-center gap-2.5 sm:gap-3.5">
-                        <span className="text-sm font-medium tabular-nums text-honey">
-                          {String(i + 1).padStart(2, "0")}
-                        </span>
-                        <span aria-hidden className="h-px w-4 bg-honey/50 sm:w-6" />
+                {forYouIf.map((point, i) => (
+                  <motion.li
+                    key={point}
+                    variants={revealChild}
+                    className="flex items-start gap-4 rounded-card border border-cream/10 bg-cream/[0.03] p-3.5 sm:gap-5 lg:gap-6 lg:rounded-none lg:border-0 lg:border-t lg:border-cream/[0.09] lg:bg-transparent lg:p-0 lg:py-3.5 lg:last:border-b"
+                  >
+                    <span className="flex shrink-0 items-center gap-2.5 pt-px sm:gap-3.5">
+                      <span className="text-sm font-medium tabular-nums text-honey">
+                        {String(i + 1).padStart(2, "0")}
                       </span>
+                      <span aria-hidden className="h-px w-4 bg-honey/50 sm:w-6" />
+                    </span>
 
-                      {Icon && (
-                        <span
-                          aria-hidden
-                          className={`grid h-11 w-11 shrink-0 place-items-center rounded-full border border-honey/20 bg-purple/45 text-honey shadow-[0_0_22px_-6px_rgba(254,183,55,0.45)] transition-colors duration-500 ${EASE} group-hover:border-honey/45 group-hover:bg-purple/65`}
-                        >
-                          <Icon className="h-5 w-5" />
-                        </span>
-                      )}
-
-                      <span className="min-w-0">
-                        <h3 className="text-base font-semibold text-cream sm:text-lg">
-                          {persona.title}
-                        </h3>
-                        <p className="mt-0.5 text-sm leading-snug text-cream-muted sm:text-base">
-                          {persona.description}
-                        </p>
-                      </span>
-                    </motion.li>
-                  );
-                })}
+                    <p className="min-w-0 text-sm text-cream sm:text-base">{point}</p>
+                  </motion.li>
+                ))}
               </RevealGroup>
             </div>
           </div>
@@ -343,7 +288,7 @@ export function AudienceSection() {
             <Reveal>
               <div className="rounded-card border border-cream/10 bg-purple-900/40 p-6 sm:p-9">
                 <h3 className="text-eyebrow font-semibold tracking-[0.18em] text-cream-dim uppercase">
-                  Not for you if&hellip;
+                  {notForYouHeading}
                 </h3>
 
                 <ul className="mt-5 flex flex-col gap-3.5 sm:mt-7 sm:gap-4">

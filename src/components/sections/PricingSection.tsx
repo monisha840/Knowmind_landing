@@ -2,6 +2,7 @@
 
 import { CTAButton } from "@/components/ui/CTAButton";
 import { Reveal } from "@/components/ui/Reveal";
+import { hero } from "@/lib/content";
 import { inr, programDetails, siteConfig } from "@/lib/config";
 
 const facts = [
@@ -9,7 +10,6 @@ const facts = [
   { label: "Format", value: programDetails.platform },
   { label: "Time", value: programDetails.timeLabel },
   { label: "Language", value: programDetails.language },
-  { label: "Cohort size", value: `${programDetails.seats} participants` },
 ];
 
 export function PricingSection() {
@@ -58,13 +58,10 @@ export function PricingSection() {
                   <span className="text-body text-ink-muted">one time</span>
                 </div>
 
-                <p className="mt-4 text-body text-ink-muted">
-                  Founding price for this batch. The next batch is{" "}
-                  <span className="font-semibold text-ink tabular-nums">
-                    {inr(programDetails.nextBatchPrice)}
-                  </span>
-                  .
-                </p>
+                {/* The deck states scarcity as a batch and gives no
+                    next-batch price. A "next batch is X" line beside ₹699
+                    would be a saving the approved source does not claim. */}
+                <p className="mt-4 text-body text-ink-muted">{hero.batchNote}</p>
 
                 <div className="mt-9">
                   <CTAButton className="w-full sm:w-auto">Yes, I want to begin</CTAButton>
@@ -85,8 +82,7 @@ export function PricingSection() {
                     />
                   </svg>
                   <span>
-                    Secure payment via Razorpay. Zoom link and WhatsApp group access within 24
-                    hours.
+                    Secure payment via Razorpay. Zoom link within 24 hours.
                   </span>
                 </p>
 
@@ -110,10 +106,6 @@ export function PricingSection() {
                   ))}
                 </dl>
 
-                <p className="mt-8 border-t border-ink/10 pt-6 text-sm text-ink-muted">
-                  Only {programDetails.seats} people join each batch — small enough that Kalee
-                  can actually see you in the room.
-                </p>
               </div>
             </div>
           </div>

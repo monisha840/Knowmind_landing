@@ -6,7 +6,7 @@
  * Checkout hands the browser three values and the browser forwards them here.
  * None of them is believed. The signature proves they came from Razorpay; a
  * read-back from Razorpay's own API proves the payment is real, belongs to this
- * order, and is for ₹999 in INR. A frontend that simply POSTs
+ * order, and is for ₹699 in INR. A frontend that simply POSTs
  * `{status:"PAID"}` gets a 400, which is the requirement the whole route exists
  * to satisfy.
  *

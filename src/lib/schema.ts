@@ -94,7 +94,7 @@ const event = {
   "@id": `${siteConfig.url}/#event`,
   name: `${siteConfig.program} — ${siteConfig.batch}`,
   description:
-    "Fourteen consecutive live morning sessions on Zoom, 5:30 AM – 6:15 AM IST, in Tamil and English. Limited to 25 participants.",
+    "Fourteen consecutive live morning sessions on Zoom, 5:30 AM – 6:15 AM IST, in Tamil and English. Limited batch.",
   startDate: `${programDetails.startDate}T05:30:00+05:30`,
   endDate: `${programDetails.endDate}T06:15:00+05:30`,
   eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",

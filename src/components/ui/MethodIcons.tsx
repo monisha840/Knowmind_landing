@@ -1,10 +1,10 @@
-import type { MethodStage } from "@/lib/content";
+import type { PhilosophyStage } from "@/lib/content";
 
 /**
- * Purpose-drawn symbols for the five stages of the method.
+ * Purpose-drawn symbols for the four stages of the 1% Better philosophy.
  *
  * Geometric, stroke-only and on one 24-unit grid, so they read as a set rather
- * than as clip-art. Deliberately not emoji.
+ * than as clip-art. Deliberately not emoji, and no icon dependency.
  */
 
 type IconProps = { className?: string };
@@ -29,29 +29,6 @@ function AwarenessIcon({ className }: IconProps) {
   );
 }
 
-/** Reflection — a form and its answering echo across a still line. */
-function ReflectionIcon({ className }: IconProps) {
-  return (
-    <svg {...base} className={className} aria-hidden>
-      <path d="M4 12h16" opacity="0.45" />
-      <path d="M7 9.2 12 4l5 5.2" />
-      <path d="M7 14.8 12 20l5-5.2" opacity="0.4" />
-    </svg>
-  );
-}
-
-/** Action — one deliberate step toward a mark. */
-function ActionIcon({ className }: IconProps) {
-  return (
-    <svg {...base} className={className} aria-hidden>
-      <circle cx="17" cy="12" r="4" opacity="0.35" />
-      <circle cx="17" cy="12" r="1.4" fill="currentColor" stroke="none" />
-      <path d="M3 12h8.5" />
-      <path d="M8.8 9.2 11.6 12l-2.8 2.8" />
-    </svg>
-  );
-}
-
 /** Repetition — the return. */
 function RepetitionIcon({ className }: IconProps) {
   return (
@@ -62,7 +39,7 @@ function RepetitionIcon({ className }: IconProps) {
   );
 }
 
-/** 1% Better — a small rise that keeps going. */
+/** Growth — a small rise that keeps going. */
 function BetterIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className} aria-hidden>
@@ -73,10 +50,31 @@ function BetterIcon({ className }: IconProps) {
   );
 }
 
-export const methodIcons: Record<MethodStage["key"], (p: IconProps) => React.ReactElement> = {
+/** Choice — one path, and the moment it becomes two. */
+function ChoiceIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className} aria-hidden>
+      <path d="M12 21V13" />
+      <path d="M12 13 5.5 6.5" opacity="0.4" />
+      <path d="M12 13 18.5 6.5" />
+      <circle cx="18.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="5.5" cy="6.5" r="1.5" opacity="0.4" />
+    </svg>
+  );
+}
+
+/**
+ * The four stages of the approved 1% Better philosophy.
+ *
+ * `growth` reuses the rise that was drawn as `better`, which is the same idea
+ * under the deck's name for it, so the four read as one family.
+ */
+export const philosophyIcons: Record<
+  PhilosophyStage["key"],
+  (p: IconProps) => React.ReactElement
+> = {
   awareness: AwarenessIcon,
-  reflection: ReflectionIcon,
-  action: ActionIcon,
+  choice: ChoiceIcon,
   repetition: RepetitionIcon,
-  better: BetterIcon,
+  growth: BetterIcon,
 };

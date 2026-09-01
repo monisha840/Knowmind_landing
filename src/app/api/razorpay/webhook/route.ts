@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
   try {
     const { order, registration } = await loadFromOrder(credentials, orderId);
 
-    /* An order that is not ours, or not for ₹999, is acknowledged and dropped.
+    /* An order that is not ours, or not for ₹699, is acknowledged and dropped.
        The same server-side constant guards this path as guards verification —
        a webhook is not a way around the price. */
     if (order.amount !== REGISTRATION_AMOUNT_PAISE || order.currency !== REGISTRATION_CURRENCY) {

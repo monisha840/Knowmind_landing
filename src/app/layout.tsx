@@ -77,7 +77,7 @@ export const metadata: Metadata = {
     url: PROGRAM_URL,
     siteName: siteConfig.name,
     title,
-    description: `${programDetails.dateLabel} · ${programDetails.timeLabel} · Live on Zoom · Tamil + English · ${programDetails.seats} participants · Founding price ₹${programDetails.price}.`,
+    description: `${programDetails.dateLabel} · ${programDetails.timeLabel} · Live on Zoom · Tamil + English · Limited batch · Founding price ₹${programDetails.price}.`,
   },
   twitter: {
     card: "summary_large_image",

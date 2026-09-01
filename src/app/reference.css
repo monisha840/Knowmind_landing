@@ -1,0 +1,1863 @@
+/* ==========================================================================
+   Reference design system — "1% Better Every Day"
+   --------------------------------------------------------------------------
+   A faithful transcription of the reference landing page's stylesheet, scoped
+   under `.ref-page` so it governs the programme page and nothing else in the
+   application.
+
+   Values are the reference's own, read from the live document rather than
+   estimated (Master Reproduction Specification §03). Where a rule departs from
+   the reference it carries a comment saying why — there are six such places,
+   and they are the four defects the specification names plus two legibility
+   restorations:
+
+     1. `.price-center > p` is a child selector, not a descendant one. In the
+        reference it is `.price-center p`, whose (0,1,1) specificity silently
+        beats every `.p-*` class at (0,1,0) — so ₹699 renders at 15px in
+        lavender rather than 80px in amber, and every line in the price box
+        picks up a 36px bottom margin. Restricting it to the one paragraph it
+        was written for is the smallest change that makes §03 and §10 true.
+     2. Tamil keeps Noto Sans Tamil; the reference has no webfont for it.
+     3. The sticky bar's CTA holds a 44px touch target at every width.
+     4. The sticky bar and footer respect the safe-area insets.
+     5. `:focus-visible` rings exist.
+     6. Both infinite animations stop under `prefers-reduced-motion`.
+   ========================================================================== */
+
+@layer components {
+  .ref-page {
+    font-family: "Segoe UI", "Arial", sans-serif;
+    color: #1a0030;
+    background: #fff;
+  }
+
+  /* The project's base layer sets `font-weight:600` and `text-wrap:balance` on
+     every heading. The reference weights each one itself, and balancing rewraps
+     lines the reference sets explicitly. */
+  .ref-page :where(h1, h2, h3, h4) {
+    font-weight: inherit;
+    text-wrap: initial;
+  }
+
+  /* The reference has no Tamil webfont and falls back to whatever the platform
+     supplies — Nirmala UI on Windows, something else elsewhere, tofu where
+     there is no Tamil face at all. The project already loads Noto Sans Tamil
+     for exactly this reason; keeping it is a fix, not a deviation. */
+  .ref-page :lang(ta) {
+    font-family: var(--font-tamil), "Segoe UI", "Arial", sans-serif;
+    line-height: 1.7;
+  }
+
+  .ref-page a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .ref-page :is(a, button):focus-visible {
+    outline: 3px solid #ffb300;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* -- STICKY ------------------------------------------------------------ */
+  .ref-page .sticky {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: #2d0060;
+    padding: 10px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+  }
+  .ref-page .s-logo {
+    color: #ffb300;
+    font-size: 15px;
+    font-weight: 800;
+  }
+  .ref-page .s-logo span {
+    color: #d8b8f5;
+    font-size: 10px;
+    display: block;
+    font-weight: 400;
+    letter-spacing: 1px;
+  }
+  .ref-page .s-cta {
+    background: #ffb300;
+    color: #1a0030;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 10px 22px;
+    border-radius: 6px;
+    /* Reference: a plain inline box. The 44px floor is ours — see §07. */
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+  .ref-page .timer {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .ref-page .tb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    padding: 4px 8px;
+    text-align: center;
+  }
+  .ref-page .tb .n {
+    color: #ffb300;
+    font-size: 14px;
+    font-weight: 800;
+    display: block;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .ref-page .tb .l {
+    color: #d8b8f5;
+    font-size: 8px;
+    display: block;
+  }
+  .ref-page .tlbl {
+    color: #d8b8f5;
+    font-size: 11px;
+    margin-right: 4px;
+  }
+  .ref-page .timer-closed {
+    color: #ffb300;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* -- HERO -------------------------------------------------------------- */
+  .ref-page .hero {
+    background: linear-gradient(160deg, #1a0030 0%, #4b0082 60%, #6a0dad 100%);
+    padding: 70px 40px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .ref-page .hero::after {
+    content: "∞";
+    position: absolute;
+    right: -80px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 600px;
+    color: rgba(255, 255, 255, 0.02);
+    font-weight: 900;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .ref-page .hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 60px;
+    align-items: flex-end;
+    position: relative;
+  }
+  .ref-page .hero-left {
+    padding-bottom: 60px;
+  }
+  .ref-page .h-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 179, 0, 0.12);
+    border: 1px solid rgba(255, 179, 0, 0.35);
+    color: #ffb300;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 22px;
+  }
+  .ref-page .h-dot {
+    width: 6px;
+    height: 6px;
+    background: #ffb300;
+    border-radius: 50%;
+    animation: ref-blink 1.5s infinite;
+    flex-shrink: 0;
+  }
+  .ref-page .h-main {
+    font-size: 52px;
+    font-weight: 900;
+    color: #ffb300;
+    line-height: 1.05;
+    font-style: italic;
+    letter-spacing: -1px;
+    display: block;
+  }
+  .ref-page .h-sub {
+    font-size: 26px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.85);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 6px;
+  }
+  .ref-page .h-tamil {
+    font-size: 21px;
+    font-weight: 700;
+    color: #ffb300;
+    margin: 16px 0 5px;
+    opacity: 0.9;
+  }
+  .ref-page .h-tamil-eng {
+    font-size: 12px;
+    color: #d8b8f5;
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+  .ref-page .h-headline {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.4;
+    margin-bottom: 6px;
+  }
+  .ref-page .h-sub2 {
+    color: #d8b8f5;
+    font-size: 14px;
+    line-height: 1.8;
+    margin-bottom: 26px;
+    max-width: 440px;
+  }
+  .ref-page .h-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 30px;
+  }
+  .ref-page .hb {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #fff;
+    padding: 6px 13px;
+    border-radius: 20px;
+    font-size: 12px;
+  }
+  .ref-page .h-cta {
+    background: #ffb300;
+    color: #1a0030;
+    font-size: 19px;
+    font-weight: 900;
+    padding: 20px 48px;
+    border-radius: 12px;
+    display: inline-block;
+    box-shadow: 0 4px 24px rgba(255, 179, 0, 0.4);
+    margin-bottom: 10px;
+  }
+  .ref-page .h-cta-note {
+    color: #d8b8f5;
+    font-size: 12px;
+  }
+  .ref-page .hero-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .ref-page .hero-photo {
+    width: 380px;
+    min-height: 440px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 20px 20px 0 0;
+    border: 1px solid rgba(255, 179, 0, 0.15);
+    border-bottom: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 12px;
+    gap: 8px;
+    /* The reference frames a placeholder; §05 puts the real portrait in it,
+       which has to be clipped to the frame's own asymmetric radius. */
+    position: relative;
+    overflow: hidden;
+  }
+  .ref-page .hero-photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 16%;
+  }
+  .ref-page .hero-photo .ph-icon {
+    font-size: 52px;
+  }
+  .ref-page .hero-stat-bar {
+    background: rgba(27, 0, 48, 0.95);
+    border-top: 1px solid rgba(255, 179, 0, 0.25);
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-around;
+    width: 380px;
+    position: relative;
+  }
+  .ref-page .hstat {
+    text-align: center;
+  }
+  .ref-page .hstat .n {
+    color: #ffb300;
+    font-size: 17px;
+    font-weight: 900;
+    display: block;
+  }
+  .ref-page .hstat .l {
+    color: #d8b8f5;
+    font-size: 10px;
+  }
+
+  /* -- VSL --------------------------------------------------------------- */
+  .ref-page .vsl-section {
+    background: #1a0030;
+    padding: 52px 40px;
+  }
+  .ref-page .vsl-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .ref-page .vsl-label {
+    color: #d8b8f5;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .ref-page .vsl-frame {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 179, 0, 0.2);
+    border-radius: 16px;
+    padding: 60px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 220px;
+  }
+  .ref-page .vsl-play {
+    font-size: 52px;
+  }
+  .ref-page .vsl-text {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 13px;
+  }
+  .ref-page .vsl-quote {
+    color: #ffb300;
+    font-size: 18px;
+    font-weight: 700;
+    font-style: italic;
+    margin-top: 12px;
+  }
+
+  /* -- SHARED SECTION FURNITURE ------------------------------------------ */
+  /* The reference sets this pill inline in seven places and as
+     `.pattern-left .s-tag` in the eighth; the values are identical. */
+  .ref-page .s-tag {
+    display: inline-block;
+    background: #ede7f6;
+    color: #3c3489;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .ref-page .s-title {
+    font-size: 34px;
+    font-weight: 900;
+    color: #1a0030;
+    line-height: 1.25;
+    margin-bottom: 12px;
+  }
+  .ref-page .s-title span {
+    color: #4b0082;
+  }
+  .ref-page .s-sub {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.8;
+    margin-bottom: 28px;
+  }
+  .ref-page .s-sub.centred {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* -- PATTERN ----------------------------------------------------------- */
+  .ref-page .pattern-section {
+    background: #f8f5ff;
+    padding: 72px 40px;
+  }
+  .ref-page .pattern-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .ref-page .pattern-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ref-page .pf-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: #fff;
+    border-left: 4px solid #4b0082;
+    border-radius: 0 10px 10px 0;
+    padding: 14px 18px;
+  }
+  .ref-page .pf-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .ref-page .pf-text strong {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a0030;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .ref-page .pf-text p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.5;
+  }
+  .ref-page .pf-arrow {
+    text-align: center;
+    color: #4b0082;
+    font-size: 20px;
+  }
+  .ref-page .truth-box {
+    background: #4b0082;
+    border-radius: 16px;
+    padding: 40px 32px;
+    text-align: center;
+  }
+  .ref-page .tb-top {
+    color: #d8b8f5;
+    font-size: 15px;
+    line-height: 1.9;
+    margin-bottom: 18px;
+  }
+  .ref-page .tb-tamil {
+    color: #ffb300;
+    font-size: 26px;
+    font-weight: 900;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .ref-page .tb-eng {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+    font-style: italic;
+    margin-bottom: 22px;
+    display: block;
+  }
+  .ref-page .tb-quote {
+    color: #fff;
+    font-size: 17px;
+    font-weight: 800;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding-top: 20px;
+  }
+  .ref-page .tb-note {
+    color: #d8b8f5;
+    font-size: 12px;
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  /* -- PHILOSOPHY -------------------------------------------------------- */
+  .ref-page .phil-section {
+    background: #fff;
+    padding: 72px 40px;
+  }
+  .ref-page .phil-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .ref-page .phil-top {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .ref-page .phil-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .ref-page .phil-card {
+    background: #f8f5ff;
+    border-radius: 14px;
+    padding: 24px 20px;
+    text-align: center;
+    position: relative;
+  }
+  .ref-page .phil-card::after {
+    content: "↓";
+    position: absolute;
+    bottom: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #4b0082;
+    font-size: 18px;
+    font-weight: 900;
+  }
+  .ref-page .phil-card:last-child::after {
+    display: none;
+  }
+  .ref-page .phil-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+  .ref-page .phil-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #4b0082;
+    margin-bottom: 6px;
+  }
+  .ref-page .phil-desc {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.5;
+  }
+  .ref-page .phil-bottom {
+    background: #ede7f6;
+    border-radius: 14px;
+    padding: 28px 32px;
+    text-align: center;
+    margin-top: 40px;
+  }
+  .ref-page .phil-bottom p {
+    color: #4b0082;
+    font-size: 15px;
+    line-height: 1.9;
+  }
+  .ref-page .phil-bottom strong {
+    font-weight: 800;
+  }
+
+  /* -- JOURNEY ----------------------------------------------------------- */
+  .ref-page .journey-section {
+    background: #f8f5ff;
+    padding: 72px 40px;
+  }
+  .ref-page .journey-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .ref-page .journey-top {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .ref-page .weeks-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  .ref-page .week-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid #e8e0f0;
+  }
+  .ref-page .wk-label {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  .ref-page .wk-label.w1 {
+    background: #4b0082;
+    color: #ffb300;
+  }
+  .ref-page .wk-label.w2 {
+    background: #1b5e20;
+    color: #69f0ae;
+  }
+  .ref-page .day-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+  }
+  .ref-page .day-num {
+    background: #ede7f6;
+    color: #4b0082;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .ref-page .day-num.g {
+    background: #e8f5e9;
+    color: #1b5e20;
+  }
+  .ref-page .day-info :is(h4, h5) {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a0030;
+    margin-bottom: 2px;
+  }
+  .ref-page .day-info p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+  }
+  .ref-page .journey-note {
+    background: #4b0082;
+    border-radius: 12px;
+    padding: 20px 24px;
+    text-align: center;
+  }
+  .ref-page .journey-note p {
+    color: #d8b8f5;
+    font-size: 14px;
+  }
+  .ref-page .journey-note strong {
+    color: #ffb300;
+  }
+  .ref-page .cta-center {
+    text-align: center;
+    margin-top: 36px;
+  }
+  .ref-page .cta-btn {
+    display: inline-block;
+    background: #ffb300;
+    color: #1a0030;
+    font-size: 17px;
+    font-weight: 900;
+    padding: 18px 44px;
+    border-radius: 10px;
+  }
+
+  /* -- HOW IT WORKS ------------------------------------------------------ */
+  .ref-page .how-section {
+    background: #2d0060;
+    padding: 72px 40px;
+  }
+  .ref-page .how-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .ref-page .how-top {
+    text-align: center;
+    margin-bottom: 44px;
+  }
+  .ref-page .how-top h2 {
+    color: #fff;
+    font-size: 34px;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+  .ref-page .how-top p {
+    color: #d8b8f5;
+    font-size: 15px;
+  }
+  .ref-page .how-steps {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .ref-page .how-step {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px 14px;
+    text-align: center;
+  }
+  .ref-page .how-num {
+    width: 40px;
+    height: 40px;
+    background: #ffb300;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 900;
+    color: #1a0030;
+    margin: 0 auto 12px;
+  }
+  .ref-page .how-title {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .ref-page .how-desc {
+    color: #d8b8f5;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .ref-page .how-clarity {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 179, 0, 0.2);
+    border-radius: 12px;
+    padding: 24px 32px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    text-align: center;
+  }
+  .ref-page .hc-item .icon {
+    font-size: 20px;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .ref-page .hc-item .label {
+    color: #d8b8f5;
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+  .ref-page .hc-item .val {
+    color: #ffb300;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .ref-page .how-miss {
+    background: rgba(255, 179, 0, 0.08);
+    border: 1px solid rgba(255, 179, 0, 0.2);
+    border-radius: 10px;
+    padding: 18px 24px;
+    text-align: center;
+    margin-top: 20px;
+  }
+  .ref-page .how-miss p {
+    color: #d8b8f5;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  .ref-page .how-miss .tamil {
+    color: #ffb300;
+    font-size: 19px;
+    font-weight: 800;
+  }
+  .ref-page .how-miss .after {
+    color: #d8b8f5;
+    font-size: 13px;
+    margin-top: 6px;
+    margin-bottom: 0;
+  }
+
+  /* -- EXPLORE ----------------------------------------------------------- */
+  .ref-page .explore-section {
+    background: #fff;
+    padding: 72px 40px;
+  }
+  .ref-page .explore-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .ref-page .explore-top {
+    text-align: center;
+    margin-bottom: 44px;
+  }
+  .ref-page .explore-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .ref-page .explore-card {
+    background: #f8f5ff;
+    border-radius: 12px;
+    padding: 22px 24px;
+    border-left: 4px solid #4b0082;
+  }
+  .ref-page .explore-card .ec-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .ref-page .explore-card :is(h3, h4) {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a0030;
+    margin-bottom: 6px;
+  }
+  .ref-page .explore-card p {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.5;
+  }
+  .ref-page .explore-bottom {
+    background: #4b0082;
+    border-radius: 14px;
+    padding: 28px;
+    text-align: center;
+    margin-top: 24px;
+  }
+  .ref-page .explore-bottom p {
+    color: #d8b8f5;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .ref-page .explore-bottom strong {
+    color: #ffb300;
+  }
+
+  /* -- MEET KALEE -------------------------------------------------------- */
+  .ref-page .kalee-section {
+    background: #f8f5ff;
+    padding: 72px 40px;
+  }
+  .ref-page .kalee-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 56px;
+    align-items: start;
+  }
+  .ref-page .kalee-card {
+    background: #4b0082;
+    border-radius: 20px;
+    padding: 32px 24px;
+    text-align: center;
+    position: sticky;
+    top: 80px;
+  }
+  .ref-page .kalee-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: rgba(255, 179, 0, 0.15);
+    border: 3px solid #ffb300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 42px;
+    font-weight: 900;
+    color: #ffb300;
+    /* §05 puts the real portrait where the placeholder glyph sat. */
+    position: relative;
+    overflow: hidden;
+  }
+  .ref-page .kalee-photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 20%;
+  }
+  .ref-page .kalee-name {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .ref-page .kalee-title {
+    color: #d8b8f5;
+    font-size: 12px;
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+  .ref-page .k-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .ref-page .k-stat {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+  }
+  .ref-page .k-stat .n {
+    color: #ffb300;
+    font-size: 18px;
+    font-weight: 900;
+    display: block;
+  }
+  .ref-page .k-stat .l {
+    color: #d8b8f5;
+    font-size: 10px;
+  }
+  .ref-page .g-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+  .ref-page .g-score {
+    color: #ffb300;
+    font-size: 26px;
+    font-weight: 900;
+  }
+  .ref-page .g-stars {
+    color: #ffb300;
+    display: block;
+    font-size: 14px;
+    letter-spacing: 2px;
+    margin: 3px 0;
+  }
+  .ref-page .g-rev {
+    color: #d8b8f5;
+    font-size: 10px;
+  }
+  .ref-page .kalee-content h2 {
+    font-size: 30px;
+    font-weight: 900;
+    color: #1a0030;
+    margin-bottom: 14px;
+    line-height: 1.3;
+  }
+  .ref-page .k-quote {
+    font-size: 15px;
+    color: #444;
+    line-height: 1.9;
+    border-left: 4px solid #ffb300;
+    padding-left: 16px;
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+  .ref-page .k-bio {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.9;
+    margin-bottom: 14px;
+  }
+  .ref-page .k-approach {
+    background: #fff;
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 18px;
+  }
+  .ref-page .k-approach :is(h3, h4) {
+    font-size: 14px;
+    font-weight: 700;
+    color: #4b0082;
+    margin-bottom: 12px;
+  }
+  .ref-page .k-point {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #444;
+    line-height: 1.5;
+  }
+  .ref-page .k-approach .k-close {
+    font-size: 13px;
+    color: #666;
+    margin-top: 10px;
+    font-style: italic;
+  }
+  .ref-page .spec-badges {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .ref-page .sb {
+    background: #ede7f6;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .ref-page .sb .si {
+    font-size: 20px;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .ref-page .sb strong {
+    color: #4b0082;
+    font-size: 11px;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .ref-page .sb p {
+    color: #666;
+    font-size: 10px;
+    line-height: 1.3;
+  }
+
+  /* -- MARQUEES ---------------------------------------------------------- */
+  .ref-page .marquee-wrap-outer {
+    overflow: hidden;
+    position: relative;
+  }
+  .ref-page .marquee-wrap-outer::before,
+  .ref-page .marquee-wrap-outer::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 60px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .ref-page .marquee-pad {
+    padding: 0 40px;
+  }
+  .ref-page .media-label {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #888;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .ref-page .marquee-track {
+    display: flex;
+    gap: 0;
+    width: max-content;
+    animation: ref-scroll 25s linear infinite;
+  }
+  .ref-page .marquee-track:hover {
+    animation-play-state: paused;
+  }
+  .ref-page .logo-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    margin: 0 8px;
+    background: #fff;
+    border: 1px solid #e8e0f0;
+    border-radius: 8px;
+    min-width: 110px;
+    height: 48px;
+    filter: grayscale(100%);
+    opacity: 0.55;
+    transition: all 0.3s;
+    flex-shrink: 0;
+  }
+  .ref-page .logo-pill:hover {
+    filter: grayscale(0%);
+    opacity: 1;
+    border-color: #4b0082;
+  }
+  .ref-page .logo-pill span {
+    font-size: 11px;
+    font-weight: 700;
+    color: #444;
+    text-align: center;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+  .ref-page .corp-section {
+    background: #fff;
+    padding: 32px 0;
+    border-bottom: 1px solid #f0e8ff;
+  }
+  .ref-page .corp-section .marquee-wrap-outer::before {
+    background: linear-gradient(to right, #fff, transparent);
+    left: 0;
+  }
+  .ref-page .corp-section .marquee-wrap-outer::after {
+    background: linear-gradient(to left, #fff, transparent);
+    right: 0;
+  }
+  .ref-page .media-feat-section {
+    background: #2d0060;
+    padding: 32px 0;
+  }
+  .ref-page .media-feat-section .marquee-wrap-outer::before {
+    background: linear-gradient(to right, #2d0060, transparent);
+    left: 0;
+  }
+  .ref-page .media-feat-section .marquee-wrap-outer::after {
+    background: linear-gradient(to left, #2d0060, transparent);
+    right: 0;
+  }
+  .ref-page .media-feat-section .media-label {
+    color: rgba(255, 255, 255, 0.4);
+  }
+  .ref-page .media-feat-section .logo-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .ref-page .media-feat-section .logo-pill span {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .ref-page .media-feat-section .logo-pill:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #ffb300;
+  }
+
+  /* -- TESTIMONIALS ------------------------------------------------------ */
+  .ref-page .test-section {
+    background: #fff;
+    padding: 72px 40px;
+  }
+  .ref-page .test-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .ref-page .test-top {
+    text-align: center;
+    margin-bottom: 44px;
+  }
+  .ref-page .test-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  .ref-page .test-card {
+    background: #f8f5ff;
+    border-left: 4px solid #4b0082;
+    border-radius: 0 12px 12px 0;
+    padding: 22px;
+  }
+  .ref-page .test-stars {
+    color: #ffb300;
+    font-size: 13px;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  .ref-page .test-q {
+    font-size: 13px;
+    color: #444;
+    line-height: 1.8;
+    font-style: italic;
+    margin-bottom: 14px;
+  }
+  .ref-page .test-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #4b0082;
+  }
+  .ref-page .test-role {
+    font-size: 11px;
+    color: #888;
+  }
+  .ref-page .videos-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .ref-page .video-ph {
+    background: #1a0030;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 32px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ref-page .video-ph .vplay {
+    font-size: 36px;
+  }
+  .ref-page .video-ph p {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 12px;
+    text-align: center;
+  }
+  .ref-page .test-cta {
+    background: #ede7f6;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    margin-top: 24px;
+  }
+  .ref-page .test-cta p {
+    color: #4b0082;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  /* -- WHO JOINS --------------------------------------------------------- */
+  .ref-page .who-section {
+    background: #f8f5ff;
+    padding: 72px 40px;
+  }
+  .ref-page .who-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .ref-page .for-col h3 {
+    font-size: 28px;
+    font-weight: 900;
+    color: #1a0030;
+    margin-bottom: 24px;
+  }
+  .ref-page .for-item {
+    display: flex;
+    gap: 14px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+  }
+  .ref-page .fi-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .ref-page .fi-text strong {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a0030;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .ref-page .fi-text p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.5;
+  }
+  .ref-page .after-box {
+    background: #4b0082;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 20px;
+  }
+  .ref-page .after-box :is(h4, h5) {
+    color: #ffb300;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .ref-page .ai {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #c8e6c9;
+    line-height: 1.5;
+  }
+  .ref-page .not-col h3 {
+    font-size: 28px;
+    font-weight: 900;
+    color: #c62828;
+    margin-bottom: 24px;
+  }
+  .ref-page .not-item {
+    display: flex;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #fff5f5;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #555;
+    align-items: flex-start;
+  }
+  .ref-page .not-x {
+    color: #e24b4a;
+    font-weight: 900;
+    flex-shrink: 0;
+  }
+  .ref-page .not-note {
+    background: #2d0060;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 20px;
+    text-align: center;
+  }
+  .ref-page .not-note p {
+    color: #d8b8f5;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  .ref-page .not-note .big {
+    color: #ffb300;
+    font-size: 22px;
+    font-weight: 900;
+  }
+  .ref-page .not-note .tamil {
+    color: #ffb300;
+    font-size: 20px;
+    font-weight: 800;
+    margin-top: 12px;
+    margin-bottom: 0;
+  }
+
+  /* -- BONUS ------------------------------------------------------------- */
+  .ref-page .bonus-section {
+    background: #fff;
+    padding: 72px 40px;
+  }
+  .ref-page .bonus-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .ref-page .bonus-top {
+    text-align: center;
+    margin-bottom: 44px;
+  }
+  .ref-page .bonus-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .ref-page .bonus-card {
+    background: #fff8e1;
+    border: 1px solid #ffb300;
+    border-top: 4px solid #ffb300;
+    border-radius: 0 0 12px 12px;
+    padding: 24px 20px;
+    text-align: center;
+  }
+  .ref-page .bc-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+  .ref-page .bc-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #633806;
+    margin-bottom: 8px;
+  }
+  .ref-page .bc-desc {
+    font-size: 13px;
+    color: #854f0b;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .ref-page .bc-val {
+    font-size: 13px;
+    color: #888;
+    font-style: italic;
+  }
+  .ref-page .bonus-total {
+    background: #4b0082;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+  .ref-page .bonus-total p {
+    color: #d8b8f5;
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+  .ref-page .bonus-total .big {
+    color: #ffb300;
+    font-size: 32px;
+    font-weight: 900;
+  }
+  .ref-page .bonus-total .after {
+    color: #d8b8f5;
+    font-size: 13px;
+    margin-top: 6px;
+    margin-bottom: 0;
+  }
+
+  /* -- PRICE + PROMISE --------------------------------------------------- */
+  .ref-page .price-section {
+    background: #2d0060;
+    padding: 80px 40px;
+  }
+  .ref-page .price-center {
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .ref-page .price-center h2 {
+    color: #fff;
+    font-size: 34px;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+  /*
+   * DEVIATION 1 of 6 — see the file header.
+   *
+   * The reference writes this as `.price-center p`, which outranks every
+   * `.p-*` class below it and collapses the whole price box to 15px lavender
+   * with a 36px gap under each line. `> p` restricts it to the single
+   * paragraph it was written for — the band's subtitle — and lets §03's
+   * declared type scale render as specified.
+   */
+  .ref-page .price-center > p {
+    color: #d8b8f5;
+    font-size: 15px;
+    margin-bottom: 36px;
+  }
+  .ref-page .price-box {
+    background: #4b0082;
+    border: 2px solid #ffb300;
+    border-radius: 20px;
+    padding: 48px 40px;
+    margin-bottom: 24px;
+  }
+  .ref-page .p-lbl {
+    color: #d8b8f5;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .ref-page .p-main {
+    color: #ffb300;
+    font-size: 80px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .ref-page .p-was {
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 14px;
+    text-decoration: line-through;
+    margin-bottom: 8px;
+  }
+  .ref-page .p-incl {
+    color: #d8b8f5;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  .ref-page .p-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .ref-page .pb {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+  }
+  .ref-page .p-cta {
+    display: block;
+    width: 100%;
+    background: #ffb300;
+    color: #1a0030;
+    font-size: 20px;
+    font-weight: 900;
+    padding: 22px 40px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 24px rgba(255, 179, 0, 0.4);
+    text-align: center;
+    border: 0;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .ref-page .p-note {
+    color: #d8b8f5;
+    font-size: 11px;
+  }
+  .ref-page .p-bonus-list {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .ref-page .p-bonus-list p {
+    color: #d8b8f5;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  .ref-page .p-bonus-list p:last-child {
+    margin-bottom: 0;
+    color: #ffb300;
+    font-weight: 700;
+  }
+  .ref-page .no-rec {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    gap: 12px;
+    margin: 16px 0;
+    text-align: left;
+  }
+  .ref-page .no-rec .dot {
+    color: #ff8a80;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .ref-page .no-rec-text {
+    color: #d8b8f5;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .ref-page .no-rec-text strong {
+    color: #fff;
+  }
+  .ref-page .guar-box {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+    padding: 28px;
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    text-align: left;
+    margin-top: 20px;
+  }
+  .ref-page .g-icon {
+    font-size: 36px;
+    flex-shrink: 0;
+  }
+  .ref-page .g-title {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .ref-page .g-text {
+    color: #d8b8f5;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  /* The reference sets this footnote at #555 on a #4B0082 ground — 1.6:1, and
+     unreadable. Lifted to the band's own body colour at 60%, which keeps it
+     visibly subordinate and legible (CLAUDE.md §13.4). */
+  .ref-page .g-fine {
+    font-size: 11px;
+    color: rgba(216, 184, 245, 0.6);
+    font-style: italic;
+    display: block;
+    margin-top: 14px;
+  }
+
+  /* -- FAQ --------------------------------------------------------------- */
+  .ref-page .faq-section {
+    background: #fff;
+    padding: 72px 40px;
+  }
+  .ref-page .faq-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .ref-page .faq-top {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .ref-page .faq-top .s-title {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .ref-page .faq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .ref-page .faq-card {
+    background: #f8f5ff;
+    border: 1px solid #e8e0f0;
+    border-radius: 12px;
+    padding: 20px 22px;
+  }
+  .ref-page .faq-q {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a0030;
+    margin-bottom: 8px;
+  }
+  .ref-page .faq-a {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.7;
+  }
+  .ref-page .faq-tamil {
+    color: #4b0082;
+    font-weight: 700;
+  }
+
+  /* -- FINAL ------------------------------------------------------------- */
+  .ref-page .final-section {
+    background: #4b0082;
+    padding: 80px 40px;
+  }
+  .ref-page .final-center {
+    max-width: 680px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .ref-page .final-lines {
+    color: #d8b8f5;
+    font-size: 17px;
+    line-height: 2.3;
+    margin-bottom: 24px;
+  }
+  .ref-page .final-lines strong {
+    color: #ffb300;
+    font-size: 20px;
+  }
+  .ref-page .final-checklist {
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 28px;
+    text-align: left;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .ref-page .fc {
+    color: #c8e6c9;
+    font-size: 14px;
+  }
+  .ref-page .final-tamil {
+    color: #ffb300;
+    font-size: 30px;
+    font-weight: 900;
+    display: block;
+    margin: 12px 0 4px;
+  }
+  .ref-page .final-sub {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 13px;
+    font-style: italic;
+    margin-bottom: 24px;
+    display: block;
+  }
+  .ref-page .final-cta {
+    background: #ffb300;
+    color: #1a0030;
+    font-size: 20px;
+    font-weight: 900;
+    padding: 22px 44px;
+    border-radius: 12px;
+    display: inline-block;
+    box-shadow: 0 4px 24px rgba(255, 179, 0, 0.4);
+  }
+  .ref-page .final-meta {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 12px;
+    margin-top: 16px;
+  }
+  .ref-page .final-sign {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 12px;
+    margin-top: 16px;
+    font-style: italic;
+  }
+
+  /* -- FOOTER ------------------------------------------------------------ */
+  .ref-page .ref-footer {
+    background: #0d0020;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .ref-page .f-logo {
+    color: #ffb300;
+    font-size: 15px;
+    font-weight: 800;
+  }
+  .ref-page .f-logo span {
+    color: #555;
+    font-size: 10px;
+    display: block;
+  }
+  .ref-page .f-copy {
+    color: #555;
+    font-size: 11px;
+    margin-top: 4px;
+  }
+  .ref-page .f-right {
+    text-align: right;
+  }
+  .ref-page .f-contact {
+    color: #555;
+    font-size: 11px;
+  }
+  .ref-page .f-contact a:hover {
+    color: #ffb300;
+  }
+  .ref-page .f-disc {
+    color: #444;
+    font-size: 10px;
+    margin-top: 4px;
+  }
+}
+
+@keyframes ref-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes ref-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* ==========================================================================
+   Responsive — the reference's own two breakpoints, 1000px and 700px
+   --------------------------------------------------------------------------
+   `.how-steps` is written once here. The reference declares `display:none` on
+   it and then `display:grid` two rules later in the same block; the later rule
+   wins, so the steps do show and the `none` is dead code. Carrying the
+   contradiction forward would only invite someone to "fix" the wrong half
+   (specification §07).
+   ========================================================================== */
+
+@media (max-width: 1000px) {
+  .ref-page .hero-inner,
+  .ref-page .weeks-grid,
+  .ref-page .who-inner,
+  .ref-page .kalee-inner,
+  .ref-page .pattern-inner,
+  .ref-page .explore-grid {
+    grid-template-columns: 1fr;
+  }
+  .ref-page .hero-right {
+    display: none;
+  }
+  .ref-page .how-steps {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .ref-page .spec-badges {
+    grid-template-columns: 1fr 1fr;
+  }
+  /* Sticky is pointless once the card is above the bio rather than beside it,
+     and it pins the card over the content it is meant to introduce. */
+  .ref-page .kalee-card {
+    position: static;
+  }
+}
+
+@media (max-width: 700px) {
+  .ref-page .test-grid,
+  .ref-page .videos-grid,
+  .ref-page .bonus-grid,
+  .ref-page .faq-grid,
+  .ref-page .final-checklist {
+    grid-template-columns: 1fr;
+  }
+  .ref-page .how-steps,
+  .ref-page .how-clarity,
+  .ref-page .phil-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .ref-page .h-main {
+    font-size: 40px;
+  }
+  .ref-page .sticky {
+    padding: 10px 16px;
+    /* The reference has no safe-area handling anywhere; a pinned bar under a
+       notch is a defect, not a design (specification §07). */
+    padding-top: max(10px, env(safe-area-inset-top));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    flex-wrap: wrap;
+  }
+  .ref-page .s-cta {
+    /* Reference: 8px 14px at 12px — roughly 30px tall, under the 44px floor
+       the project holds itself to (CLAUDE.md §12.1). The padding follows the
+       reference; the floor is held by `min-height` in the base rule. */
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+  /* The reference keeps its 40px inline gutter at every width, which is more
+     than a 320px screen can spare on both sides of a card. */
+  .ref-page .hero,
+  .ref-page .vsl-section,
+  .ref-page .pattern-section,
+  .ref-page .phil-section,
+  .ref-page .journey-section,
+  .ref-page .how-section,
+  .ref-page .explore-section,
+  .ref-page .kalee-section,
+  .ref-page .test-section,
+  .ref-page .who-section,
+  .ref-page .bonus-section,
+  .ref-page .price-section,
+  .ref-page .faq-section,
+  .ref-page .final-section {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .ref-page .ref-footer {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .ref-page .f-right {
+    text-align: left;
+  }
+  .ref-page .marquee-pad {
+    padding: 0 20px;
+  }
+  .ref-page .price-box {
+    padding: 32px 20px;
+  }
+  .ref-page .p-main {
+    font-size: 64px;
+  }
+  .ref-page .p-cta {
+    padding: 20px 16px;
+    font-size: 16px;
+  }
+  .ref-page .h-cta {
+    padding: 18px 28px;
+    font-size: 17px;
+  }
+  .ref-page .final-cta {
+    padding: 20px 24px;
+    font-size: 17px;
+  }
+  .ref-page .cta-btn {
+    padding: 16px 28px;
+    font-size: 16px;
+  }
+  .ref-page .guar-box {
+    padding: 22px 18px;
+  }
+  .ref-page .hero::after {
+    font-size: 340px;
+    right: -60px;
+  }
+}
+
+/* Both of the page's infinite animations, stopped. The reference runs them
+   regardless of preference; the project does not (CLAUDE.md §11.1). */
+@media (prefers-reduced-motion: reduce) {
+  .ref-page .h-dot,
+  .ref-page .marquee-track {
+    animation: none !important;
+  }
+}

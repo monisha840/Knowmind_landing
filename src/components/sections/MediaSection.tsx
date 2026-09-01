@@ -1,47 +1,28 @@
-import { Marquee } from "@/components/ui/Marquee";
-import { Reveal } from "@/components/ui/Reveal";
-import { clientLogos, mediaOutlets } from "@/lib/content";
+import { LogoMarquee } from "@/components/ui/LogoMarquee";
+import { refCorpMarquee, refMediaMarquee } from "@/lib/reference-content";
 
 /**
- * Media and client credibility.
+ * Bands 10 and 11 — the two logo strips.
  *
- * Rendered as typographic wordmarks rather than logo files: no real logo
- * assets were supplied, and fabricating them would misrepresent the brands.
- * Drop real SVGs into /public/logos and swap the `renderItem` when they exist.
+ * The same component twice, inverted: eighteen organisations on white, then
+ * nine media names on #2D0060. They are the only two bands on the page that do
+ * not reflow at any width — 146px and 145px at 1440 and at 390 alike — because
+ * a marquee has no layout to lose.
+ *
+ * Both are full-bleed with a 40px inner pad and a 60px gradient mask at each
+ * edge, painted in the band's own ground so the pills dissolve rather than
+ * getting cut.
  */
 export function MediaSection() {
   return (
-    <section
-      id="media"
-      aria-labelledby="media-heading"
-      className="relative overflow-hidden bg-paper py-20 text-ink sm:py-24"
-    >
-      <div className="container-page">
-        <Reveal>
-          <h2
-            id="media-heading"
-            className="text-center text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase"
-          >
-            Featured in Tamil Nadu&rsquo;s leading media
-          </h2>
-        </Reveal>
-      </div>
+    <>
+      <section className="corp-section" aria-label={refCorpMarquee.label}>
+        <LogoMarquee items={refCorpMarquee.items} label={refCorpMarquee.label} />
+      </section>
 
-      <div className="mt-10">
-        <Marquee items={mediaOutlets} tone="light" duration={55} />
-      </div>
-
-      <div className="container-page mt-20">
-        <Reveal>
-          <h2 className="text-center text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase">
-            Organisations Kalee has trained
-          </h2>
-        </Reveal>
-      </div>
-
-      <div className="mt-10">
-        <Marquee items={clientLogos} tone="light" duration={90} reverse />
-      </div>
-    </section>
+      <section className="media-feat-section" aria-label={refMediaMarquee.label}>
+        <LogoMarquee items={refMediaMarquee.items} label={refMediaMarquee.label} />
+      </section>
+    </>
   );
 }

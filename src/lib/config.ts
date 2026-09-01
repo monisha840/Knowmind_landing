@@ -49,8 +49,18 @@ export const programDetails = {
   language: "Tamil + English",
   languageNote: "Natural Tanglish",
   seats: 25,
-  price: 999,
-  nextBatchPrice: 1999,
+  /**
+   * The programme price, and the only one.
+   *
+   * This single number is both what the page renders (via `inr()`) and what
+   * Razorpay charges: `REGISTRATION_AMOUNT_PAISE` in
+   * `lib/payments/registrations.ts` is `price * 100`, and the verify route and
+   * the webhook both re-check the order and the payment against it. There is
+   * deliberately no second constant — a page that displays one figure while
+   * checkout collects another is the failure this arrangement exists to make
+   * impossible (CLAUDE.md §7.5, §8).
+   */
+  price: 699,
   currency: "INR",
   currencySymbol: "₹",
 } as const;
@@ -61,7 +71,7 @@ export const programDetails = {
  * There is no build-time payment URL any more, and deliberately so. Registration
  * now runs through this application's own server:
  *
- *   POST /api/register          → validates the answers, creates the ₹999 order
+ *   POST /api/register          → validates the answers, creates the ₹699 order
  *   Razorpay Standard Checkout  → opened in the browser against that order
  *   POST /api/razorpay/verify   → checks the signature, then marks it PAID
  *   POST /api/razorpay/webhook  → Razorpay's independent confirmation

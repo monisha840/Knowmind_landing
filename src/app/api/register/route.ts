@@ -2,7 +2,7 @@
  * POST /api/register
  *
  * Step one of registration: validate the six answers, write them down as a
- * PENDING registration, and create the ₹999 Razorpay order that Checkout will
+ * PENDING registration, and create the ₹699 Razorpay order that Checkout will
  * be opened against.
  *
  * No `runtime` export — Node is the default in Next 16 and the Edge runtime is

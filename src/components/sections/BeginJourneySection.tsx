@@ -28,19 +28,18 @@ import { journeyForm } from "@/lib/content";
 export function BeginJourneySection() {
   return (
     /*
-     * Every call to action on the page lands here, and it has to land flush:
-     * this is a whole composition, so any gap above it shows the tail of the
-     * section before and pushes the first question down the screen.
+     * Every call to action on the page lands here, and it is the last section
+     * on the page, so it now lands going forward rather than scrolling back.
      *
-     * `-scroll-mt-8` cancels the `scroll-padding-top: 2rem` that `globals.css`
-     * sets on `html` to clear fixed chrome. Nothing is fixed above this
-     * section, so the two cancel to zero. If that global value changes, this
-     * one changes with it.
+     * The `-scroll-mt-8` that used to sit here cancelled a 2rem
+     * `scroll-padding-top` set for a page with no fixed chrome. There is a
+     * navbar again and the global value is 6rem, so the cancel is gone and the
+     * section keeps that clearance like every other anchor.
      */
     <section
       id="begin-journey"
       aria-labelledby="begin-journey-heading"
-      className="relative -scroll-mt-8 bg-paper text-ink min-[1200px]:min-h-svh"
+      className="relative bg-paper text-ink min-[1200px]:min-h-svh"
     >
       {/* Draws nothing: keeps the landing exact when a long smooth scroll
           outruns the layout settling above it. */}

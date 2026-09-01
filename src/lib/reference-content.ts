@@ -1,0 +1,729 @@
+/**
+ * The reference landing page's copy, verbatim.
+ *
+ * WHAT THIS IS
+ * ------------
+ * Every string the reference renders, transcribed exactly as it renders it —
+ * punctuation, ellipses (… as one glyph), em and en dashes, emoji and Tamil
+ * included. It is the content half of the Master Reproduction Specification
+ * §02; `reference.css` is the design half.
+ *
+ * WHY IT IS A SEPARATE MODULE
+ * ---------------------------
+ * `content.ts` is the approved programme deck, and several of its blocks say
+ * the same thing in different words — the deck writes Day 1 as "What's really
+ * going on within you?" where the reference writes "Notice what is within
+ * you.", and lists the client as "McKinsey & Company" where the reference
+ * writes "McKinsey & Co.". Overwriting the deck to match the reference would
+ * destroy the approved record; paraphrasing the reference to match the deck
+ * would break the reproduction. So both are kept, each labelled with what it
+ * is, and this module is the one the programme page reads.
+ *
+ * Every divergence found while transcribing is listed at the foot of this file
+ * rather than silently resolved (specification §09, task A9).
+ *
+ * RULES
+ * -----
+ * Do not paraphrase, shorten, correct or "improve" anything here — not the
+ * grammar, not the capitalisation, not the spacing around the ellipses. It is
+ * a transcription, and its only correctness criterion is that it matches the
+ * reference. Prices and dates are interpolated from `config.ts` wherever the
+ * reference's literal agrees with it, so the page can still never disagree
+ * with what checkout charges (CLAUDE.md §1.1, §7.5).
+ */
+
+import { formatINR, inr, programDetails, siteConfig } from "@/lib/config";
+
+/* -------------------------------------------------------------------------- */
+/*  Band 1 — the sticky bar                                                   */
+/* -------------------------------------------------------------------------- */
+
+export const refSticky = {
+  brand: siteConfig.name,
+  tagline: siteConfig.tagline,
+  closesIn: "Closes in",
+  /** The instant the countdown runs to — the first session, in IST. */
+  deadline: "2026-09-14T05:30:00+05:30",
+  closed: "🔴 Closing",
+  cta: `🌱 Join — ${inr(programDetails.price)}`,
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Band 2 — hero                                                             */
+/* -------------------------------------------------------------------------- */
+
+export const refHero = {
+  tag: `${siteConfig.batch} · Live on Zoom · ${programDetails.dateLabelShort}`,
+  mark: "1% Better.",
+  sub: "Every Day.",
+  tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாம். ❤️",
+  tamilEnglish: "You don't have to be perfect. You just have to begin.",
+  headline: "Are You Ready to Become 1% Better Every Day?",
+  /** Two lines, set as two lines by a <br> in the reference. */
+  subLines: [
+    "14 Days. One Small Commitment. One Better Relationship with Yourself.",
+    "Let's Understand Yourself Better. Let's Notice Your Patterns. Let's Change, One Small Step at a Time.",
+  ],
+  badges: [
+    "🌅 5:30 AM Live",
+    `📅 ${programDetails.dateLabelShort}`,
+    "💻 Zoom",
+    "🗣 Tamil + English",
+    "👥 Limited Batch",
+  ],
+  cta: "🌱 BEGIN MY 14-DAY JOURNEY",
+  ctaNote: `${inr(programDetails.price)} only · Includes ${inr(1097)} worth of bonuses free · Limited seats`,
+  /** The placeholder the reference frames, kept for the no-photo path. */
+  photoPlaceholder: "Kalee's photo here",
+  stats: [
+    { n: "4.9 ⭐", l: "258 reviews" },
+    { n: "30,000+", l: "Impacted" },
+    { n: "15+", l: "Years" },
+  ],
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Band 3 — VSL                                                              */
+/* -------------------------------------------------------------------------- */
+
+export const refVsl = {
+  label: "🎥 Watch this first",
+  placeholder: "Add VSL video here (1.5–2 minutes)",
+  quote: '"Oru Chinna Kelvi Ungalukku..."',
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Band 4 — is this your pattern?                                            */
+/* -------------------------------------------------------------------------- */
+
+export const refPattern = {
+  tag: "Idhu Ungaloda Pattern-aa? 🤔",
+  titleTamil: "நாம் எல்லாரும் change ஆகணும் என்று நினைக்கிறோம்…",
+  titleTamilAccent: "ஆனால் journey ippadi dhaan போகுது.",
+  steps: [
+    {
+      icon: "🚀",
+      title: '"Indha time kandippa consistent-aa iruppen!"',
+      body: "Motivation irukkum. Energy irukkum. Strong start.",
+    },
+    {
+      icon: "🤯",
+      title: "Overthink Pannuvom",
+      body: '"Idha panna enna use?" "Naan correct direction-la dhaan porena?"',
+    },
+    {
+      icon: "👀",
+      title: "Compare Pannuvom",
+      body: '"Avanga evlo munnaadi poitaanga…"',
+    },
+    {
+      icon: "💔",
+      title: "Oru Naal Miss Aagum",
+      body: "Routine breaks. Guilt sets in. The cycle restarts.",
+    },
+  ],
+  truth: {
+    top: ["You don't need another motivational speech.", "You don't need more information."],
+    tamil: ["பரவால பார்த்துக்கலாம்…", "ஆரம்பிக்கலாம். ❤️"],
+    english: "You don't have to be perfect. You just have to begin.",
+    quote: "🌱 You need Awareness + Choice + Repetition + Growth.",
+    note: "Not perfection. Not pressure. Just progress.",
+  },
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Band 5 — the 1% philosophy                                                */
+/* -------------------------------------------------------------------------- */
+
+export const refPhilosophy = {
+  tag: "The 1% Philosophy",
+  title: { before: "What Is ", accent: "1% Better Every Day?" },
+  lead: "Real change doesn't always begin with a big decision. Sometimes it begins with one small step. One honest reflection. One promise you keep to yourself.",
+  cards: [
+    {
+      icon: "👀",
+      title: "AWARENESS",
+      body: "You cannot change what you don't notice. Become aware of what is running your life.",
+    },
+    {
+      icon: "🎯",
+      title: "CHOICE",
+      body: "Once you become aware, you can choose differently. Awareness opens the door.",
+    },
+    {
+      icon: "🔁",
+      title: "REPETITION",
+      body: "Small choices repeated create new patterns. Return again. Even after you miss.",
+    },
+    {
+      icon: "🌱",
+      title: "GROWTH",
+      body: "Over time, small changes become part of who you are. This is not perfection. It's intention.",
+    },
+  ],
+  /** Four lines, set as four lines by <br> in the reference. */
+  bottom: {
+    first: "This is not about becoming perfect.",
+    secondBefore: "It's about becoming ",
+    secondStrong: "a little more conscious",
+    secondAfter: " every day.",
+    third: "A little more honest. A little more intentional.",
+    last: "Just 1% Better. Every Day.",
+  },
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Band 6 — the fourteen days                                                */
+/* -------------------------------------------------------------------------- */
+
+export type RefDay = {
+  /** The reference's own label: D1 … D14. */
+  n: string;
+  title: string;
+  body: string;
+};
+
+export const refJourney = {
+  tag: "Your 14-Day Growth Journey",
+  title: { before: "14 Days. ", accent: "14 Powerful Conversations with Yourself." },
+  lead: "This is not about learning more. It's about pausing, reflecting, and practicing. One day. One insight. One small practice.",
+  weeks: [
+    {
+      label: "Week 1 — Understand Yourself 🧠",
+      tone: "w1" as const,
+      days: [
+        { n: "D1", title: "Awareness", body: "Notice what is within you." },
+        { n: "D2", title: "Patterns", body: "Understand the patterns shaping your life." },
+        {
+          n: "D3",
+          title: "Self-Trust",
+          body: "Build trust by keeping small promises to yourself.",
+        },
+        { n: "D4", title: "Playfulness", body: "Bring more joy and lightness into your journey." },
+        { n: "D5", title: "Comparison", body: "Learn from others without losing yourself." },
+        { n: "D6", title: "Inner Coach", body: "Change the way you speak to yourself." },
+        { n: "D7", title: "Integration", body: "Pause. Reflect. Connect the dots." },
+      ] satisfies RefDay[],
+    },
+    {
+      label: "Week 2 — Move Forward 🌱",
+      tone: "w2" as const,
+      days: [
+        { n: "D8", title: "Gratitude", body: "Notice what is already present in your life." },
+        { n: "D9", title: "Dreams", body: "Give yourself permission to want more from life." },
+        { n: "D10", title: "Vision", body: "Turn your dreams into direction." },
+        { n: "D11", title: "Being", body: "Pause. Observe. Respond instead of reacting." },
+        {
+          n: "D12",
+          title: "Repetition & Resilience",
+          body: "Keep returning. Keep practicing. Keep growing.",
+        },
+        { n: "D13", title: "Self-Love", body: "Accept yourself while continuing to grow." },
+        { n: "D14", title: "Reflection", body: "Turn experience into wisdom and move forward." },
+      ] satisfies RefDay[],
+    },
+  ],
+  note: {
+    before: "You don't have to do everything at once. ",
+    strong: "Just show up for yourself.",
+    after: " One day. One insight. One small practice.",
+  },
+  cta: "YES, I WANT TO JOIN → ",
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Band 7 — how it works                                                     */
+/* -------------------------------------------------------------------------- */
+
+export const refHow = {
+  title: "How Does the 14-Day Journey Work?",
+  lead: "Simple. Live. Psychological. One step at a time.",
+  steps: [
+    {
+      title: "Join the Journey",
+      body: "Register for the 14-Day 1% Better Every Day journey.",
+    },
+    {
+      title: "Join Live at 5:30 AM",
+      body: "Start your morning with a focused live Zoom session. Short. Simple. Practical.",
+    },
+    {
+      title: "Reflect & Practice",
+      body: "Each day, explore one psychological principle and take a small action into your day.",
+    },
+    {
+      title: "Stay Connected",
+      body: "Be part of a community choosing to become better — one small step at a time.",
+    },
+    {
+      title: "Complete Your Journey",
+      body: "At the end of 14 days, pause and see: What changed? What will you continue?",
+    },
+  ],
+  clarity: [
+    { icon: "📅", label: "Duration", val: "14 Days" },
+    { icon: "💻", label: "Format", val: "Live Zoom" },
+    { icon: "⏰", label: "Time", val: programDetails.timeShort },
+    { icon: "🎯", label: "Focus", val: "Psychological Growth" },
+  ],
+  miss: {
+    question: "Miss a day?",
+    tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாம். 🌱",
+    after: "Don't disappear. The next morning is another opportunity.",
+  },
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Band 8 — what you explore                                                 */
+/* -------------------------------------------------------------------------- */
+
+export const refExplore = {
+  tag: "14 Days. 14 Powerful Shifts.",
+  title: { before: "What Will You ", accent: "Explore in 14 Days?" },
+  cards: [
+    {
+      icon: "🧠",
+      title: "Your Mind",
+      body: "Awareness · Patterns · Inner Critic · Comparison — understand what is shaping your thoughts and decisions.",
+    },
+    {
+      icon: "❤️",
+      title: "Your Relationship with Yourself",
+      body: "Self-Trust · Playfulness · Gratitude · Self-Love — rebuild how you speak to and feel about yourself.",
+    },
+    {
+      icon: "🎯",
+      title: "Your Direction",
+      body: "Dreams · Bucket List · Vision · Goals — give yourself permission to want more and move toward it.",
+    },
+    {
+      icon: "🧘",
+      title: "Your Inner Stability",
+      body: "Non-Reactivity · Repetition · Resilience · Reflection — learn to pause, return, and keep going.",
+    },
+  ],
+  bottom: {
+    first: "This is not about becoming someone else.",
+    secondBefore: "It is about ",
+    secondStrong: "understanding yourself better",
+    secondAfter: " — and becoming more intentional about the person you are becoming.",
+    third: "One day. One insight. One small step.",
+    last: "1% Better. Every Day.",
+  },
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Band 9 — meet Kaleeswaran                                                 */
+/* -------------------------------------------------------------------------- */
+
+export const refKalee = {
+  tag: "Meet the Psychologist & Trainer",
+  heading: "For 15+ years, one question has guided my work.",
+  quote:
+    '"Why do we know what to do… but still struggle to do it consistently? Through my work in psychology, coaching, training and personal transformation, I have seen something clearly: Knowledge alone doesn\'t create change. Awareness, practice and repetition do."',
+  bio: { before: "That is one of the reasons behind creating: ", strong: "1% Better Every Day." },
+  approach: {
+    heading:
+      "My Approach — I don't believe transformation comes from simply telling you what to do. My role is to help you:",
+    points: [
+      "🧠 Understand yourself better",
+      "👀 Become aware of your patterns",
+      "💭 Ask better questions",
+      "🎯 Take meaningful action",
+      "🔁 Keep returning to the practice",
+    ],
+    close:
+      "Because ultimately, I cannot change your life for you. But I can walk with you, guide you, and help you understand the path better.",
+  },
+  badges: [
+    {
+      icon: "🏛️",
+      title: "McKinsey & Company",
+      body: "Worked with one of the world's top consulting firms",
+    },
+    { icon: "👮", title: "TN Police — NIMHANS", body: "1,200+ police personnel trained" },
+    { icon: "🌍", title: "International Trainer", body: "Programs across India and internationally" },
+  ],
+  card: {
+    name: "Kaleeswaran Kamaraj",
+    roleLines: ["Transformational Psychologist & Leadership Trainer", "Founder — KnowMind Universe"],
+    stats: [
+      { n: "15+", l: "Years" },
+      { n: "2,000+", l: "Coaching hours" },
+      { n: "30,000+", l: "Impacted" },
+      { n: "100+", l: "Organisations" },
+    ],
+    google: {
+      score: "4.9",
+      stars: "★★★★★",
+      reviews: `258 Google reviews — ${siteConfig.name}`,
+    },
+  },
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Bands 10 and 11 — the two marquees                                        */
+/* -------------------------------------------------------------------------- */
+
+export const refCorpMarquee = {
+  label: "Organisations Kalee has trained",
+  items: [
+    "McKinsey & Co.",
+    "Siemens Gamesa",
+    "Daimler India",
+    "Bosch",
+    "Ashok Leyland",
+    "Titan Company",
+    "ITC Limited",
+    "Amara Raja",
+    "Renault Nissan",
+    "TVS Electronics",
+    "HP India",
+    "Tata Tea",
+    "Samsung",
+    "Saint Gobain",
+    "Aditya Birla",
+    "FLSmidth",
+    "TN Police Dept",
+    "Greater Chennai Corp",
+  ],
+} as const;
+
+export const refMediaMarquee = {
+  label: "Featured in Tamil Nadu's leading media",
+  items: [
+    "📺 Sun News",
+    "📺 Thanthi TV",
+    "📺 Vijay TV",
+    "📰 Vikatan",
+    "📻 Hello FM 106.4",
+    "📺 Puthiya Thalaimurai",
+    "📺 Puthu Yugam",
+    "📰 Maalai Malar",
+    "📰 The Federal",
+  ],
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Band 12 — testimonials                                                    */
+/* -------------------------------------------------------------------------- */
+
+export const refTestimonials = {
+  tag: "What Participants Say",
+  title: {
+    before: "The Best Way to Understand a Journey Is to ",
+    accent: "Hear from the People Who Experienced It.",
+  },
+  /**
+   * Three slots the reference labels rather than fills. No participant
+   * recordings exist in this repository, so the reference's own placeholder is
+   * reproduced rather than filled with something that is not a participant
+   * (specification §05 — "Gap, keep placeholder"; CLAUDE.md §0.4).
+   */
+  videoSlots: ["Participant Video 1", "Participant Video 2", "Participant Video 3"],
+  videoPlaceholder: "Add video embed here",
+  /** All six carry five stars and the same role line in the reference. */
+  role: "1% Better Program — Founding Batch",
+  quotes: [
+    {
+      name: "Anandha",
+      quote:
+        '"Simple way of explanation. This is a great GPS for personal and professional life. Looking forward to reflect on upcoming days."',
+    },
+    {
+      name: "Deepa Sai",
+      quote:
+        '"The content touched things I knew but never faced honestly. Day 1 itself created a real shift in me. Thank you for the clarity."',
+    },
+    {
+      name: "Vinoth Kannan",
+      quote:
+        '"It helped me move forward without overthinking and negative thoughts. That is what shifted in me after the program."',
+    },
+    {
+      name: "Vadivelmani",
+      quote:
+        '"This program helped me understand why I was losing focus. Now I know how to return when I drift. That alone changed everything."',
+    },
+    {
+      name: "Vijaya Saravanan",
+      quote:
+        '"Goals always need to be measurable. If we feel it is increasing, for sure we will move forward everyday. Kalee made that real."',
+    },
+    {
+      name: "GS",
+      quote:
+        '"Get my sleep cycle fixed was my Day 1 commitment. By Day 7 I had kept it 5 times. That felt completely different from before."',
+    },
+  ],
+  closer: {
+    tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாமா? 🌱",
+    english: "Your journey could be the next story.",
+  },
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Band 13 — who joins                                                       */
+/* -------------------------------------------------------------------------- */
+
+export const refWho = {
+  forHeading: "This Journey Is For You If…",
+  forItems: [
+    {
+      icon: "🌱",
+      title: "You want to work on yourself",
+      body: "Not because everything is wrong — but because you know there is more to understand and improve.",
+    },
+    {
+      icon: "🔄",
+      title: "You keep starting but struggle to continue",
+      body: "You want to understand why certain patterns repeat in your life.",
+    },
+    {
+      icon: "🧠",
+      title: "You are tired of only consuming motivational content",
+      body: "You want to pause, reflect and actually apply something.",
+    },
+    {
+      icon: "🤝",
+      title: "You want to rebuild self-trust",
+      body: "By starting small and keeping promises to yourself.",
+    },
+    {
+      icon: "❤️",
+      title: "You want a better relationship with yourself",
+      body: "Less self-criticism. More awareness. More conscious growth.",
+    },
+  ],
+  afterHeading: "🌱 You may begin to notice…",
+  afterItems: [
+    "Your thoughts, emotions and patterns more clearly.",
+    "Why you repeatedly start and stop.",
+    "Self-trust rebuilding through small kept promises.",
+    "More focus on your journey instead of comparing.",
+    "The ability to return — even after missing a day — without guilt.",
+  ],
+  notHeading: "This May NOT Be For You If…",
+  notItems: [
+    "You are looking for a quick fix. 14 days can begin a journey — but it cannot magically solve everything overnight.",
+    "You only want motivation and entertainment. This journey involves reflection, dedication and small actions.",
+    "You expect someone else to change your life. Your participation matters.",
+    "You are not willing to spend a few minutes reflecting on yourself.",
+    "You are looking for individual therapy or clinical treatment. This is a psychological growth and learning journey.",
+  ],
+  notNote: {
+    top: "You don't have to be highly disciplined to begin.",
+    big: "You just need a willingness to start.",
+    tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாம். 🌱",
+  },
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Band 14 — bonuses                                                         */
+/* -------------------------------------------------------------------------- */
+
+export const refBonuses = {
+  tag: "🎁 Bonus Offer",
+  title: { before: "What Comes Free ", accent: "With Your Registration" },
+  cards: [
+    {
+      icon: "📘",
+      name: "14-Day Reflection Workbook",
+      body: "Reflect, learn and apply your daily insights. A structured companion for your 14-day journey.",
+      value: 299,
+    },
+    {
+      icon: "🪞",
+      name: "Self-Trust Assessment",
+      body: "Understand your self-trust, consistency and ability to restart. Take on Day 1 and Day 14 to see your shift.",
+      value: 499,
+    },
+    {
+      icon: "🌱",
+      name: "30-Day Continuation Tracker",
+      body: "Keep your 1% Better journey going beyond 14 days. Build the habit beyond the program.",
+      value: 299,
+    },
+  ],
+  totalLabel: "Total Bonus Value",
+} as const;
+
+/** One fact, one place — the reference's ₹1,097 is this sum (CLAUDE.md §4.2). */
+export const refBonusTotal = refBonuses.cards.reduce((sum, b) => sum + b.value, 0);
+
+/* -------------------------------------------------------------------------- */
+/*  Band 15 — price, live-only, promise                                       */
+/* -------------------------------------------------------------------------- */
+
+/** The next batch's price. Struck through beneath the founding price. */
+export const NEXT_BATCH_PRICE = 1999;
+
+export const refPrice = {
+  heading: "Your Next 1% Starts Here.",
+  sub: `${programDetails.dateLabel} · ${programDetails.timeShort} · Live on Zoom · ${programDetails.seats} participants only`,
+  label: `🌱 Join the Journey — Founding ${siteConfig.batch} Price`,
+  was: `Next batch: ${inr(NEXT_BATCH_PRICE)}`,
+  includes: `Includes all 3 bonuses worth ${inr(refBonusTotal)} — absolutely free`,
+  bonusLines: refBonuses.cards.map((b) => `${b.icon} ${b.name} — Worth ${inr(b.value)}`),
+  bonusTotalLine: `🎁 Total Bonus Value: ${inr(refBonusTotal)} — Included Free`,
+  badges: [
+    `📅 ${programDetails.dateLabelShort}`,
+    `⏰ ${programDetails.timeShort} Live`,
+    "💻 Zoom",
+    "🗣 Tamil + English",
+    `👥 ${programDetails.seats} seats`,
+  ],
+  cta: "[ YES, I WANT TO GIVE MYSELF 14 DAYS → ]",
+  note: `📅 Limited registrations · 💻 Live on Zoom · ⏰ ${programDetails.timeShort} · A ${siteConfig.name} Initiative`,
+  noRecording: {
+    strong: "Live only — no recording",
+    rest: " for the first four batches. Because transformation doesn't happen when you collect more videos. It begins when you show up.",
+  },
+  guarantee: {
+    title: "My Promise to You",
+    body: "Attend all 14 days. Do the daily reflection every night. If you feel no shift in your awareness, self-trust, or consistency — I will return every rupee. No questions asked. I am that confident in what these 14 days will do for you.",
+    fine: "Refund applies to participants who attend all 14 sessions and complete all 14 night reflections.",
+  },
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Band 16 — FAQ                                                             */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Eight questions, numbered in the copy itself exactly as the reference numbers
+ * them. `tamil` splits answer 3, which sets one clause in Tamil mid-sentence.
+ */
+export const refFaq = {
+  tag: "Frequently Asked Questions",
+  title: "Everything You Want to Know",
+  items: [
+    {
+      q: "1. What is 1% Better Every Day?",
+      a: "A 14-day live psychological growth journey designed to help you understand your patterns, build self-trust and take small steps towards meaningful change.",
+    },
+    {
+      q: "2. What time are the sessions?",
+      a: "⏰ 5:30 AM. Each live session is designed to be around 45 minutes — focused, practical and complete before your day begins.",
+    },
+    {
+      q: "3. Do I need to attend all 14 days?",
+      a: "We strongly encourage it. But remember — progress, not perfection. ",
+      tamil: "பரவால பார்த்துக்கலாம்.",
+      aAfter: " If you miss a session, don't give up. Return the next morning.",
+    },
+    {
+      q: "4. What language will the sessions be in?",
+      a: "A simple mix of Tamil and English — Tanglish — making psychological concepts easy to understand and relate to. Everyone is comfortable.",
+    },
+    {
+      q: "5. Is this therapy?",
+      a: "No. This is a psychological learning and personal growth program, not individual therapy or clinical treatment. If you need clinical support, please seek a licensed professional.",
+    },
+    {
+      q: "6. Do I have to speak or share personally?",
+      a: "No. You can participate at your comfort level. There may be opportunities to reflect and interact, but you are never forced to share personal experiences.",
+    },
+    {
+      q: "7. Who can join?",
+      a: "Entrepreneurs, professionals, freelancers — and anyone genuinely interested in working on themselves and growing. If you are willing to start, you are welcome.",
+    },
+    {
+      q: "8. What if I complete everything but feel no value?",
+      a: "That is where My Promise to You applies. Attend all 14 sessions and complete all daily reflections. If you genuinely feel no shift in your awareness, self-trust or consistency — your payment will be refunded.",
+    },
+  ],
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Band 17 — the close                                                       */
+/* -------------------------------------------------------------------------- */
+
+export const refFinal = {
+  lines: {
+    first: "Every Transformation Starts With 1%.",
+    second: "Are You Ready to Become 1% Better Every Day?",
+    strong: "You Don't Have to Change Everything Today.",
+    last: "Just Give Yourself 14 Days.",
+  },
+  checklist: [
+    "🌱 Pause for yourself.",
+    "🧠 Understand yourself better.",
+    "🪞 Reflect honestly.",
+    "🎯 Take one small step.",
+    "🔁 Keep returning.",
+    "📅 14 Days. 45 Minutes a Day.",
+  ],
+  tamil: "பரவால பார்த்துக்கலாம்…",
+  tamilSub: "ஆரம்பிக்கலாம். ❤️ — You don't have to be perfect. You just have to begin.",
+  cta: "[ YES, I WANT TO GIVE MYSELF 14 DAYS → ]",
+  meta: `${inr(programDetails.price)} · Including All 3 Bonuses · Sep 14–27 · ${programDetails.timeShort} · Live on Zoom · A ${siteConfig.name} Initiative`,
+  sign: `— Kalee | Counselling Psychologist | ${siteConfig.name} | ${siteConfig.tagline}`,
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Band 18 — footer                                                          */
+/* -------------------------------------------------------------------------- */
+
+export const refFooter = {
+  brand: siteConfig.name,
+  tagline: siteConfig.tagline,
+  copyright: `© 2026 ${siteConfig.name}. All rights reserved.`,
+  disclaimer: "Results may vary based on individual commitment and participation.",
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Assets — specification §05                                                */
+/*                                                                            */
+/*  The reference ships no binary assets at all: four labelled placeholders    */
+/*  and about sixty emoji. Three of the four have a real counterpart already   */
+/*  in `public/`; the fourth does not, and keeps the reference's placeholder.  */
+/* -------------------------------------------------------------------------- */
+
+export const refAssets = {
+  /** 380×440 frame, radius 20px 20px 0 0. Replaces "📸 Kalee's photo here". */
+  heroPhoto: {
+    src: "/kalee/kaleeswaran-hero.webp",
+    alt: "Kaleeswaran Kamaraj, transformational psychologist and leadership trainer.",
+  },
+  /** 150px circle with a 3px amber ring. Replaces the 📸 glyph on the card. */
+  portrait: {
+    src: "/kalee/kaleeswaran-portrait.webp",
+    alt: "Kaleeswaran Kamaraj.",
+  },
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Divergences found while transcribing (specification §09, task A9)          */
+/*                                                                            */
+/*  Recorded rather than resolved. Each is a place where the reference and the */
+/*  approved deck in `content.ts` say the same thing differently. The          */
+/*  programme page renders the reference's wording, per the reproduction       */
+/*  brief; the deck's wording is untouched above it in `content.ts`. Neither   */
+/*  is a fact conflict — no price, date, time, seat count, contact detail or   */
+/*  claim differs between them, and all of those are read from `config.ts` by  */
+/*  both.                                                                     */
+/*                                                                            */
+/*   1. Day titles and descriptions. The deck writes Day 1 as "What's really   */
+/*      going on within you?", the reference as "Notice what is within you."   */
+/*      All fourteen differ in wording; none differ in subject. The deck also  */
+/*      names Day 11 "Doing Nothing & Being" and Day 14 "Reflection &          */
+/*      Continuation" where the reference has "Being" and "Reflection".        */
+/*   2. Client names. Reference: "McKinsey & Co.", "Titan Company",            */
+/*      "ITC Limited", "TN Police Dept". Deck: "McKinsey & Company", "Titan",  */
+/*      "ITC", "TN Police". Same eighteen organisations, and the reference's   */
+/*      order differs from the deck's.                                        */
+/*   3. Tamil. The deck's `tamil.itsOkayLetsSee` is                            */
+/*      "பரவால … பார்த்துக்கலாம் ஆரம்பிக்கலாம்." — the reference sets the      */
+/*      ellipsis after the second word and adds a heart: "பரவால                */
+/*      பார்த்துக்கலாம்… ஆரம்பிக்கலாம். ❤️". Transcribed as the reference has  */
+/*      it, per the brief; neither was machine-translated or altered.          */
+/*   4. FAQ. Same eight subjects, the reference numbering them in the copy      */
+/*      itself and phrasing several answers more briefly.                     */
+/*   5. Testimonials. The six names and quotes are identical in both. Only     */
+/*      the role line differs: the reference gives all six "1% Better Program  */
+/*      — Founding Batch".                                                    */
+/* -------------------------------------------------------------------------- */
+
+/** Re-exported so a section never has to reach past this module for money. */
+export { formatINR, inr };

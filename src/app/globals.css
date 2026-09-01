@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./reference.css";
 
 /* ==========================================================================
    KnowMind Universe — design tokens
@@ -92,6 +93,37 @@
   --radius-pill: 999px;
 
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ---- Reference palette -------------------------------------------------
+     The nine grounds and accents of the reference landing page, recorded as
+     tokens beside the brand set above rather than replacing it: the brand
+     palette still dresses the registration questions and every page that is
+     not the programme itself. The rules that consume these live in
+     `reference.css`; the names follow the Master Reproduction Specification
+     §03 so a value can be traced back to the measurement it came from.
+     ---------------------------------------------------------------------- */
+  --color-ref-ink: #1a0030;
+  --color-ref-deep: #2d0060;
+  --color-ref-primary: #4b0082;
+  --color-ref-violet: #6a0dad;
+  --color-ref-amber: #ffb300;
+  --color-ref-lilac: #d8b8f5;
+  --color-ref-lavender: #f8f5ff;
+  --color-ref-mist: #ede7f6;
+  --color-ref-footer: #0d0020;
+  --color-ref-hairline: #e8e0f0;
+  --color-ref-eyebrow-ink: #3c3489;
+
+  /* Accents, used in one place each. */
+  --color-ref-warn: #c62828;
+  --color-ref-cross: #e24b4a;
+  --color-ref-warn-fill: #fff5f5;
+  --color-ref-green: #1b5e20;
+  --color-ref-green-ink: #69f0ae;
+  --color-ref-check: #c8e6c9;
+  --color-ref-bonus-fill: #fff8e1;
+  --color-ref-bonus-title: #633806;
+  --color-ref-bonus-body: #854f0b;
 }
 
 /* ==========================================================================
@@ -128,7 +160,9 @@
     /* There is no fixed nav any more, so an anchor no longer has to clear one —
        this is just breathing room above the section you jumped to. The pinned
        CTA is at the *bottom*, and anchors align to the top, so it needs none. */
-    scroll-padding-top: 2rem;
+    /* Clears the fixed navbar so an anchored section never lands under it.
+       Back to 6rem now that the navbar is on the page again. */
+    scroll-padding-top: 6rem;
     -webkit-text-size-adjust: 100%;
   }
 

@@ -47,9 +47,9 @@ if (typeof window !== "undefined") {
 /**
  * The price, in paise, decided here and only here.
  *
- * Derived from `programDetails.price` so it cannot drift from the ₹999 the page
+ * Derived from `programDetails.price` so it cannot drift from the ₹699 the page
  * renders (CLAUDE.md §1.1, §7.5). Razorpay works in the smallest currency unit,
- * so ₹999 is 99900 — passing 999 would charge nine rupees and ninety-nine paise.
+ * so ₹699 is 69900 — passing 699 would charge six rupees and ninety-nine paise.
  *
  * Nothing in the browser contributes to this value. A request body that tries
  * to carry an amount is ignored, not validated.

@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "optimize:assets": "node scripts/optimize-assets.mjs",
     "video": "node scripts/strip-audio.mjs",
     "icons": "node scripts/generate-icons.mjs"
@@ -26,6 +26,8 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.5",
     "@types/three": "^0.185.4",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.4",
     "postcss": "^8.5.26",
     "sharp": "^0.35.4",
     "tailwindcss": "^4.3.3",

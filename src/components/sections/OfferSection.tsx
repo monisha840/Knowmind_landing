@@ -1,13 +1,25 @@
-"use client";
-
-import { motion } from "motion/react";
-
 import { CTAButton } from "@/components/ui/CTAButton";
-import { Reveal, RevealGroup, revealChild } from "@/components/ui/Reveal";
+import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { inclusions } from "@/lib/content";
+import { hero, offer } from "@/lib/content";
 import { inr, programDetails } from "@/lib/config";
 
+/**
+ * What you get.
+ *
+ * The programme, stated plainly, and nothing more — the three bonuses are the
+ * section immediately below this one, which is why this ends without listing
+ * them. Between the two, a visitor has the whole offer.
+ *
+ * The six-cell inclusions grid that stood here is gone. It listed the workbook,
+ * which the deck now gives as a bonus, so the page was about to count it twice;
+ * the rest is the deck's own clarity box — duration, format, time, focus — with
+ * the programme named above it.
+ *
+ * Now a server component. It was `"use client"` only for the staggered grid;
+ * four static rows need no JavaScript, and `Reveal` is its own boundary
+ * (CLAUDE.md §4.1).
+ */
 export function OfferSection() {
   return (
     <section
@@ -17,42 +29,49 @@ export function OfferSection() {
     >
       <div className="container-page">
         <SectionHeading
+          id="offer-heading"
           tone="light"
           eyebrow="What you get"
           title={
-            <>Your {inr(programDetails.price)} includes&hellip;</>
+            <>
+              Your {inr(programDetails.price)} includes&hellip;
+            </>
           }
         />
 
-        <RevealGroup as="ul" className="mt-10 grid gap-px bg-ink/10 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3">
-          {inclusions.map((item, i) => (
-            <motion.li
-              key={item.key}
-              variants={revealChild}
-              className="group relative bg-paper p-6 transition-colors duration-500 hover:bg-paper-2 sm:p-9"
-            >
-              <span className="text-sm font-medium tabular-nums text-amber-ink">
-                {String(i + 1).padStart(2, "0")}
-              </span>
+        {/* The programme itself, at the size of the thing being bought. */}
+        <Reveal delay={0.06}>
+          <p className="mt-10 max-w-3xl text-h2 leading-[1.1] font-semibold text-balance text-ink sm:mt-14">
+            {offer.headline}
+          </p>
+        </Reveal>
 
-              <h3 className="mt-5 text-h3 font-semibold text-ink">{item.title}</h3>
-              <p className="mt-3 text-body text-ink-muted">{item.description}</p>
+        {/*
+          The four facts, as a ruled index rather than four cards. They are
+          label-and-value pairs — a specification, not a feature list — and a
+          bordered box around each would make four small claims out of one
+          plain statement.
 
-              {/* Honey rule that draws in on hover. */}
-              <span
-                aria-hidden
-                className="absolute bottom-0 left-0 h-px w-0 bg-honey transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:w-full"
-              />
-            </motion.li>
-          ))}
-        </RevealGroup>
-
+          One column on a phone, two at `sm`, four at `lg`.
+        */}
         <Reveal delay={0.1}>
-          <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-5 sm:mt-14">
+          <dl className="mt-9 grid gap-x-10 border-t border-ink/12 sm:grid-cols-2 lg:mt-12 lg:grid-cols-4">
+            {offer.specs.map((spec) => (
+              <div key={spec.label} className="border-b border-ink/12 py-5 lg:py-6">
+                <dt className="text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase">
+                  {spec.label}
+                </dt>
+                <dd className="mt-2.5 text-lead font-medium text-ink">{spec.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </Reveal>
+
+        <Reveal delay={0.14}>
+          <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-5 sm:mt-12">
             <CTAButton>I want to begin</CTAButton>
-            <p className="text-body text-ink-muted">
-              {programDetails.seats} seats · {programDetails.dateLabel}
-            </p>
+            {/* The deck states scarcity as a batch, not a seat count. */}
+            <p className="text-body text-ink-muted">{hero.batchNote}</p>
           </div>
         </Reveal>
       </div>

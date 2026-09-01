@@ -19,7 +19,7 @@ export default function OpengraphImage() {
     programDetails.dateLabel,
     programDetails.timeShort,
     "Live on Zoom",
-    `${programDetails.seats} seats`,
+    "Limited batch",
   ];
 
   return new ImageResponse(

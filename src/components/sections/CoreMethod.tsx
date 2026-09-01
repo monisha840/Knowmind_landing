@@ -1,54 +1,39 @@
 "use client";
 
-import { AnimatePresence, motion, useInView } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
 
-import { methodIcons } from "@/components/ui/MethodIcons";
-import { Reveal } from "@/components/ui/Reveal";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { methodStages } from "@/lib/content";
-import { usePrefersReducedMotion } from "@/lib/hooks";
+import { philosophyIcons } from "@/components/ui/MethodIcons";
+import { Reveal, RevealGroup, revealChild } from "@/components/ui/Reveal";
+import { Eyebrow } from "@/components/ui/SectionHeading";
+import { philosophy } from "@/lib/content";
 
-const RADIUS = 41; // % of the square container
-const STEP_MS = 3600;
-
-/** Node coordinates, starting at the top and moving clockwise. */
-const nodePosition = (i: number, total: number) => {
-  const angle = (-90 + (360 / total) * i) * (Math.PI / 180);
-  return {
-    left: `${50 + RADIUS * Math.cos(angle)}%`,
-    top: `${50 + RADIUS * Math.sin(angle)}%`,
-  };
-};
-
+/**
+ * What is 1% Better Every Day? — the explainer.
+ *
+ * This replaces the auto-rotating five-node wheel that stood here. That version
+ * showed one stage at a time and advanced itself every 3.6 seconds, which meant
+ * a visitor could not read the model without waiting eighteen seconds for it to
+ * come round — the brief rules out animation that makes someone wait, and this
+ * was the clearest case of it on the page. Everything is now on screen at once
+ * and the section reads identically with every animation disabled.
+ *
+ * Five movements, each answering the one before it:
+ *
+ *   RELEASE      you don't have to change everything — begin with one step
+ *   OVERWHELM    the six things you might want, and why all six at once fails
+ *   THE REFRAME  the question that overwhelms, beside the question that doesn't
+ *   THE MODEL    Awareness → Choice → Repetition → Growth, all four visible
+ *   THE CLOSE    not perfection; just 1% better
+ *
+ * The four stages are a plain list with a marker, a name and one line each. No
+ * theory was added around them — the deck gives one sentence per stage and that
+ * is exactly what is rendered.
+ */
 export function CoreMethod() {
-  const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { amount: 0.4 });
-  const reduced = usePrefersReducedMotion();
-
-  const total = methodStages.length;
-  const stage = methodStages[active];
-
-  // Advances on its own while visible, and yields the moment anyone touches it.
-  useEffect(() => {
-    if (!inView || paused || reduced) return;
-    const id = window.setInterval(() => setActive((i) => (i + 1) % total), STEP_MS);
-    return () => window.clearInterval(id);
-  }, [inView, paused, reduced, total]);
-
-  // Arc length for the progress ring, in SVG user units.
-  const circumference = 2 * Math.PI * 41;
-  const progress = total > 1 ? active / (total - 1) : 1;
+  const last = philosophy.stages.length - 1;
 
   return (
-    <section
-      id="method"
-      data-three-window
-      aria-labelledby="method-heading"
-      className="section-y relative"
-    >
+    <section id="method" data-three-window aria-labelledby="method-heading" className="section-y relative">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-[1]"
@@ -59,170 +44,175 @@ export function CoreMethod() {
       />
 
       <div className="container-page">
-        <SectionHeading
-          eyebrow="The method"
-          title={
-            <>
-              Not motivation. <span className="text-honey">A cycle.</span>
-            </>
-          }
-          lead="Five movements that repeat every single day of the journey. Small enough to actually complete. Repeated often enough to compound."
-          className="mx-auto max-w-3xl text-center [&>*]:items-center"
-          align="center"
-        />
-
-        <div
-          ref={ref}
-          className="mt-20 grid items-center gap-16 lg:mt-24 lg:grid-cols-2 lg:gap-20"
-          onPointerEnter={() => setPaused(true)}
-          onPointerLeave={() => setPaused(false)}
-          onFocusCapture={() => setPaused(true)}
-        >
-          {/* ---------------- The wheel ---------------- */}
-          <Reveal className="order-2 lg:order-1">
-            <div className="relative mx-auto aspect-square w-full max-w-[30rem]">
-              <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full -rotate-90">
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="41"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="0.35"
-                  className="text-cream/15"
-                />
-                <motion.circle
-                  cx="50"
-                  cy="50"
-                  r="41"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="0.7"
-                  strokeLinecap="round"
-                  className="text-honey"
-                  strokeDasharray={circumference}
-                  animate={{ strokeDashoffset: circumference * (1 - progress) }}
-                  initial={false}
-                  transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-                />
-              </svg>
-
-              {/* Centre: the active stage */}
-              <div className="absolute inset-[18%] flex flex-col items-center justify-center rounded-full border border-cream/10 bg-wine-950/60 p-6 text-center backdrop-blur-sm">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={stage.key}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                    className="flex flex-col items-center"
-                  >
-                    <span className="text-eyebrow font-semibold tracking-[0.18em] text-cream-dim">
-                      {stage.index}
-                    </span>
-                    <span className="mt-2 text-h3 font-semibold text-cream">{stage.title}</span>
-                    <span className="mt-1 font-serif text-lg text-honey italic">
-                      {stage.headline}
-                    </span>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-
-              {/* Nodes */}
-              {methodStages.map((s, i) => {
-                const Icon = methodIcons[s.key];
-                const isActive = i === active;
-                return (
-                  <button
-                    key={s.key}
-                    type="button"
-                    onClick={() => {
-                      setActive(i);
-                      setPaused(true);
-                    }}
-                    aria-label={`${s.title} — ${s.headline}`}
-                    aria-current={isActive}
-                    style={nodePosition(i, total)}
-                    className="absolute grid h-14 w-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:h-16 sm:w-16"
-                  >
-                    <span
-                      className={`absolute inset-0 rounded-full border transition-all duration-500 ${
-                        isActive
-                          ? "scale-110 border-honey bg-honey text-wine-950"
-                          : "border-cream/20 bg-wine-950/80 text-cream-muted hover:border-honey/60 hover:text-honey"
-                      }`}
-                    />
-                    <Icon
-                      className={`relative h-6 w-6 transition-colors duration-500 ${
-                        isActive ? "text-wine-950" : "text-cream-muted"
-                      }`}
-                    />
-                  </button>
-                );
-              })}
-            </div>
+        {/* ================= 1 · The release ================= */}
+        <div className="max-w-4xl">
+          <Reveal>
+            <Eyebrow>{philosophy.eyebrow}</Eyebrow>
           </Reveal>
 
-          {/* ---------------- The written stage ---------------- */}
-          <div className="order-1 lg:order-2">
-            <ol className="flex flex-col">
-              {methodStages.map((s, i) => {
-                const isActive = i === active;
-                return (
-                  <li key={s.key}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActive(i);
-                        setPaused(true);
-                      }}
-                      aria-current={isActive}
-                      className="group w-full border-b border-cream/10 py-5 text-left"
-                    >
-                      <div className="flex items-baseline gap-4">
-                        <span
-                          className={`text-sm tabular-nums transition-colors duration-300 ${
-                            isActive ? "text-honey" : "text-cream-dim"
-                          }`}
-                        >
-                          {s.index}
-                        </span>
-                        <span
-                          className={`text-h3 font-medium transition-colors duration-300 ${
-                            isActive ? "text-cream" : "text-cream-dim group-hover:text-cream"
-                          }`}
-                        >
-                          {s.title}
-                        </span>
-                        <span
-                          className={`ml-auto font-serif text-base italic transition-colors duration-300 ${
-                            isActive ? "text-honey" : "text-cream-dim/70"
-                          }`}
-                        >
-                          {s.headline}
-                        </span>
-                      </div>
+          {/*
+            Two lines, deliberately unequal. The first lifts the weight off and
+            is set quiet; the second is the instruction — the most important
+            sentence in the section — and gets the display size and the honey.
+            Both live inside the one `h2` because they are one statement.
+          */}
+          <Reveal delay={0.05}>
+            <h2 id="method-heading" className="mt-5 font-semibold text-balance">
+              <span className="block text-h3 text-cream-muted">{philosophy.heading.release}</span>
+              <span className="mt-3 block text-h1 leading-[1.04] text-cream">
+                {philosophy.heading.instruction.before}
+                <span className="text-honey">{philosophy.heading.instruction.accent}</span>
+              </span>
+            </h2>
+          </Reveal>
+        </div>
 
-                      <AnimatePresence initial={false}>
-                        {isActive && (
-                          <motion.p
-                            initial={reduced ? false : { height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={reduced ? { opacity: 0 } : { height: 0, opacity: 0 }}
-                            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                            className="overflow-hidden text-body text-cream-muted"
-                          >
-                            <span className="mt-3 block max-w-md pl-9">{s.body}</span>
-                          </motion.p>
-                        )}
-                      </AnimatePresence>
-                    </button>
-                  </li>
-                );
-              })}
-            </ol>
+        {/* ================= 2 · The overwhelm ================= */}
+        <div className="mt-12 sm:mt-14">
+          <Reveal>
+            <p className="text-eyebrow font-semibold tracking-[0.18em] text-cream-dim uppercase">
+              {philosophy.wantsIntro}
+            </p>
+          </Reveal>
+
+          {/* Chips, not cards. Six of these as animated panels would outweigh
+              the sentence they exist to support. */}
+          <RevealGroup as="ul" className="mt-5 flex flex-wrap gap-2.5 sm:gap-3" stagger={0.04}>
+            {philosophy.wants.map((want) => (
+              <motion.li
+                key={want}
+                variants={revealChild}
+                className="rounded-pill border border-cream/15 bg-cream/[0.03] px-4 py-2 text-sm text-cream-muted sm:text-body"
+              >
+                {want}
+              </motion.li>
+            ))}
+          </RevealGroup>
+
+          <Reveal delay={0.06}>
+            <p className="mt-6 max-w-xl text-lead text-cream-muted">{philosophy.overwhelm}</p>
+          </Reveal>
+        </div>
+
+        {/* ================= 3 · The reframe ================= */}
+        {/*
+          The whole argument in two lines: the question that overwhelms, then
+          the question that does not. Set as a pair so the difference between
+          them is the thing being read — the first dimmed and struck through in
+          weight, the second full strength in honey.
+
+          Side by side from `md`, stacked below it, because two questions in a
+          160px column is not a comparison.
+        */}
+        <div className="mt-12 border-t border-cream/10 pt-10 sm:mt-16 sm:pt-12">
+          <Reveal>
+            <p className="text-lead font-medium text-cream">{philosophy.approach}</p>
+          </Reveal>
+
+          <div className="mt-7 grid gap-6 sm:gap-8 md:grid-cols-2 md:gap-12">
+            <Reveal delay={0.05}>
+              <p className="text-eyebrow font-semibold tracking-[0.18em] text-cream-dim uppercase">
+                {philosophy.insteadLabel}
+              </p>
+              <p className="mt-3 font-serif text-h3 text-cream-dim italic">
+                &ldquo;{philosophy.insteadQuestion}&rdquo;
+              </p>
+            </Reveal>
+
+            <Reveal delay={0.12}>
+              {/* The rule marks which of the two the page is actually
+                  recommending, without a badge or a tick. */}
+              <div className="border-cream/10 md:border-l md:pl-12">
+                <p className="text-eyebrow font-semibold tracking-[0.18em] text-honey uppercase">
+                  {philosophy.askLabel}
+                </p>
+                <p className="mt-3 font-serif text-h3 text-honey italic">
+                  &ldquo;{philosophy.askQuestion}&rdquo;
+                </p>
+              </div>
+            </Reveal>
           </div>
+
+          <Reveal delay={0.06}>
+            <p className="mt-8 max-w-2xl text-body text-cream-muted">{philosophy.compounding}</p>
+          </Reveal>
+        </div>
+
+        {/* ================= 4 · The model ================= */}
+        <div className="mt-14 sm:mt-20">
+          <Reveal>
+            <p className="text-eyebrow font-semibold tracking-[0.18em] text-cream-dim uppercase">
+              {philosophy.stagesHeading}
+            </p>
+          </Reveal>
+
+          {/*
+            All four at once — no timer, no active state, nothing to click.
+
+            One column on a phone, four across from `lg`. The connector is a
+            chevron that turns with the axis: pointing down between stacked
+            rows, and hidden from `lg` where the columns and their numbering
+            already read left to right. It is `aria-hidden`; the ordered list
+            carries the sequence for anyone not seeing it.
+          */}
+          <RevealGroup
+            as="ol"
+            className="mt-7 grid gap-5 sm:gap-6 lg:grid-cols-4 lg:gap-8"
+            stagger={0.07}
+          >
+            {philosophy.stages.map((stage, i) => {
+              const Icon = philosophyIcons[stage.key];
+              return (
+                <motion.li key={stage.key} variants={revealChild} className="relative">
+                  <div className="flex items-start gap-4 lg:block">
+                    <span
+                      aria-hidden
+                      className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-honey/30 bg-honey/[0.07] text-honey"
+                    >
+                      <Icon className="h-5 w-5" />
+                    </span>
+
+                    <div className="lg:mt-5">
+                      <p className="flex items-baseline gap-2.5">
+                        <span aria-hidden className="text-xs tabular-nums text-cream-dim">
+                          {stage.index}
+                        </span>
+                        <span className="text-h3 font-semibold text-cream">{stage.title}</span>
+                      </p>
+                      <p className="mt-1.5 text-body text-cream-muted">{stage.body}</p>
+                    </div>
+                  </div>
+
+                  {i < last && (
+                    <span
+                      aria-hidden
+                      className="mt-4 ml-[1.375rem] block h-4 w-px bg-honey/25 lg:hidden"
+                    />
+                  )}
+                </motion.li>
+              );
+            })}
+          </RevealGroup>
+        </div>
+
+        {/* ================= 5 · The close ================= */}
+        <div className="mt-14 border-t border-cream/10 pt-10 text-center sm:mt-20 sm:pt-12">
+          <Reveal>
+            <p className="text-h3 font-semibold text-cream">{philosophy.closing.heading}</p>
+          </Reveal>
+          <Reveal delay={0.06}>
+            <p className="mx-auto mt-4 max-w-xl text-body text-cream-dim">
+              {philosophy.closing.intro}{" "}
+              <span className="text-cream-muted">{philosophy.closing.items}</span>
+            </p>
+          </Reveal>
+          <Reveal delay={0.12}>
+            <p className="mt-7 text-h2 font-semibold text-cream">
+              {philosophy.closing.signature.before}
+              <span className="text-honey">{philosophy.closing.signature.accent}</span>
+              {philosophy.closing.signature.after}
+            </p>
+          </Reveal>
         </div>
       </div>
     </section>

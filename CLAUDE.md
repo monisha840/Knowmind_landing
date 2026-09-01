@@ -122,15 +122,18 @@ A **single-page marketing landing page** for one live program.
 | Time | 5:30 AM – 6:15 AM (45 min) | `programDetails.timeLabel` |
 | Platform | Live on Zoom | `programDetails.platform` |
 | Language | Tamil + English (natural Tanglish) | `programDetails.language` |
-| Cohort | 25 participants | `programDetails.seats` |
-| Founding price | ₹999 | `programDetails.price` |
-| Next batch price | ₹1,999 | `programDetails.nextBatchPrice` |
+| Cohort | 25 participants | `programDetails.seats` — **structured data only.** The approved deck states scarcity as "Limited Batch"; no seat count is advertised on the page. |
+| Price | ₹699 | `programDetails.price` — the **only** price constant; Razorpay charges `price * 100` |
 | Instructor | Kaleeswaran K, Counselling Psychologist | `kalee` in `content.ts` |
 | Website | www.kaleeswaran.com | `siteConfig.contact` |
 | Phone | +91 9688440032 | `siteConfig.contact` |
 | Email | kaleesemail@gmail.com | `siteConfig.contact` |
 
-**Core concept:** Awareness → Reflection → Action → Repetition → 1% Better.
+**Core concept:** Awareness → Choice → Repetition → Growth.
+
+This is the approved deck's four-stage philosophy, and it replaced an earlier
+five-stage model (Awareness → Reflection → Action → Repetition → 1% Better).
+Reflection and Action collapsed into "Choice"; "1% Better" became "Growth".
 
 ### 1.1 Content is data, and data is law
 
@@ -208,18 +211,21 @@ npm run icons              # regenerate favicon / app icons from public/knowmind
 npx tsc --noEmit           # TYPE CHECK — this is the type-check command
 ```
 
-**`npm run lint` is broken.** The script runs `next lint`, which Next 16
-removed. The CLI now parses `lint` as a directory argument and fails with
-`Invalid project directory provided, no such directory: …\lint`.
+**`npm run lint` runs, but ESLint cannot parse this project yet.**
 
-Therefore:
+The script is now `eslint .` against `eslint.config.mjs` (ESLint 9 flat config
++ `eslint-config-next`), which replaced the removed `next lint`. It fails for an
+upstream reason, not a configuration one:
 
-- Never report "Lint: PASS". Report **`Lint: NOT AVAILABLE`** until it is fixed.
-- Do not hide the problem by deleting the script or faking a pass.
-- **TODO / NEEDS CONFIRMATION:** repairing this means adding ESLint 9 flat
-  config (`eslint.config.mjs` + `eslint-config-next`) and repointing the script
-  at `eslint .`. That installs dependencies and changes the validation gate, so
-  it needs explicit human approval before an agent does it.
+```
+typescript-eslint does not support TS 7.0.
+https://github.com/typescript-eslint/typescript-eslint/issues/10940
+```
+
+`@typescript-eslint/parser` will not install alongside TypeScript 7 either.
+Downgrading TypeScript to make the linter run is a worse trade than having no
+linter, so nothing works around it. Report **`Lint: BLOCKED UPSTREAM`**. When
+support lands, `npm run lint` starts working with no further change.
 
 `npx tsc --noEmit` currently passes clean. **It is the only automated gate this
 project has — keep it green.**
@@ -279,16 +285,16 @@ one without approval is a scope violation.
     │   ├── manifest.ts · robots.ts · sitemap.ts
     │   └── favicon.ico · icon.png · apple-icon.png   # generated — see `npm run icons`
     ├── components/
-    │   ├── Navbar.tsx · Footer.tsx · StickyMobileCTA.tsx
-    │   ├── hero/              # the hero portrait's depth treatment
-    │   │   └── LivingPortrait.tsx   # layered 2.5D parallax + the two added lights
-    │   ├── sections/          # one file per page section (19 files)
-    │   ├── three/             # persistent background scene
+    │   ├── Navbar.tsx · Footer.tsx · StickyCTA.tsx
+    │   ├── hero/LivingPortrait.tsx    # the hero portrait's depth treatment
+    │   ├── sections/          # one file per page section (17 files)
+    │   ├── three/             # persistent background scene only
     │   │   ├── BackgroundMount.tsx · Background3D.tsx · Fallback2D.tsx
-    │   │   ├── GrowthObject.tsx · OrbitalField.tsx · CoreGlow.tsx
-    │   │   └── knowmind/      # the scroll-driven character (self-contained module)
-    │   └── ui/                # Accordion · CTAButton · Marquee · MethodIcons
-    │                          # Metric · Reveal · SectionHeading · TestimonialCard
+    │   │   └── GrowthObject.tsx · OrbitalField.tsx · CoreGlow.tsx
+    │   └── ui/                # Accordion · AnchorLanding · CTAButton · JourneyForm
+    │                          # LazyVideo · Marquee · MethodIcons · RefundEnvelope
+    │                          # Reveal · SectionHeading · TestimonialCard
+    │                          # TumblingMark · VideoPlayer
     └── lib/
         ├── config.ts          # program facts, anchors, money helpers
         ├── content.ts         # ALL repeatable copy as structured data
@@ -330,31 +336,33 @@ updating every reference.**
 | --- | --- | --- |
 | `#main` | `<main>` | skip link |
 | `#top` | Hero | navbar wordmark |
-| `#meet-kaleeswaran` | MeetKaleeswaranSection | **navLinks** |
-| `#mind-evolution` | MindEvolution | — |
+| `#vsl` | VSLSection | — **renders `null` until `vsl.src` is set** |
 | `#the-problem` | ProblemSection | — |
 | `#method` | CoreMethod | — |
 | `#journey` | JourneyTimeline | **navLinks** |
-| `#transformation` | TransformationSection | — |
+| `#explore` | ExploreSection | — |
+| `#how-it-works` | HowItWorksSection | — |
 | `#who-its-for` | AudienceSection | **navLinks** |
-| `#why-early` | EarlyMorningSection | — |
+| `#meet-kaleeswaran` | MeetKaleeswaranSection | **navLinks** |
 | `#media` | MediaSection | — |
 | `#testimonials` | Testimonials | **navLinks** |
 | `#whats-included` | OfferSection | — |
 | `#bonuses` | BonusSection | — |
-| `#session-flow` | SessionFlow | — |
-| `#register` | PricingSection | the pricing card (`PRICING_ANCHOR`) |
-| `#begin-journey` | BeginJourneySection | **every CTA on the page** (`REGISTER_ANCHOR`) — and therefore the single most load-bearing id in the file. Renaming it silently breaks registration. |
 | `#why-live` | LiveOnlySection | — |
 | `#guarantee` | GuaranteeSection | — |
 | `#faq` | FAQSection | **navLinks** |
 | `#begin` | FinalCTA | — |
+| `#register` | PricingSection | the pricing card (`PRICING_ANCHOR`) |
+| `#begin-journey` | BeginJourneySection | **every CTA on the page** (`REGISTER_ANCHOR`) — and therefore the single most load-bearing id in the file. Renaming it silently breaks registration. It is now the **last** section, so every CTA scrolls forward. |
+
+Removed in the pre-production remediation, along with their sections:
+`#mind-evolution`, `#transformation`, `#why-early`, `#session-flow`.
 
 `navLinks` lives in `content.ts`. If you add a nav link, the target ID must
 already exist.
 
 `html { scroll-padding-top: 6rem }` in `globals.css` keeps anchor targets clear
-of the fixed navbar. Do not remove it. Sections that need extra clearance add
+of the fixed navbar. Do not remove it, and do not cancel it per-section. Sections that need extra clearance add
 `scroll-mt-*` (PricingSection uses `scroll-mt-24`).
 
 ---
@@ -1354,24 +1362,24 @@ After changing a shared component, test **every** consumer:
 
 ## 21 · Known gaps
 
-Real, verified gaps. Do not "fix" any of these by fabricating content; several
-need assets or a human decision.
+Real, verified gaps as of the pre-production remediation. Do not "fix" any of
+these by fabricating content — most need an asset or a human decision.
 
 | Gap | Status |
 | --- | --- |
-| `npm run lint` broken (`next lint` removed in Next 16) | needs ESLint 9 flat config — **approval required** |
+| **No VSL recording.** `vsl.src` is `null`, so `VSLSection` renders `null` and `#vsl` is absent from the page. | **BLOCKER for launch.** Needs the approved 1.5–2 minute recording. Supplying it is a two-line change in `content.ts`; nothing else moves. |
+| **₹699 checkout never completed end to end.** Order creation, the 69900 amount, amount-tamper rejection, forged-signature rejection and non-existent-payment rejection are all verified. The accepting path — checkout → signature pass → capture → PAID → success panel — is not. | Needs one manual browser payment with a Razorpay test card. |
+| **Razorpay is in TEST mode** (`rzp_test_…`). | Live keys, a live webhook and a re-test are an owner's decision. |
+| **No webhook configured** (`RAZORPAY_WEBHOOK_SECRET` empty). | Deliberate. The endpoint refuses every delivery, and the flow does not depend on it: `registrationFromOrder` derives PAID from `order.status === "paid"`, which Razorpay sets on capture. `scripts/create-webhook.mjs` creates it in one command; test and live webhooks are separate. |
+| **Responsive behaviour never verified in a browser.** | No browser automation in the working environment. Needs a manual pass, or Playwright as a devDependency. |
+| **`npm run lint` blocked upstream** — typescript-eslint does not support TS 7 (§2.1). | Nothing to do until upstream ships. |
 | No test infrastructure | none planned — **decision required** |
-| No automated emailing / WhatsApp of the Zoom link after payment | a human reads the Razorpay dashboard — **decision required** |
-| Live mode not enabled — test credentials only | **owner's decision**; see §8 |
-| No rate limit on `/api/register` | an abandoned-order nuisance, not a money risk (nothing is charged). Needs the Redis mirror or a platform rule — **decision required** |
+| No automated emailing of the Zoom link after payment | a human reads the Razorpay dashboard — **decision required** |
+| No rate limit on `/api/register` | an abandoned-order nuisance, not a money risk. Needs the Redis mirror or a platform rule. |
 | Video testimonials are placeholders (`src: null`) | needs real recordings |
-| Client / media logos are typographic | needs real, licensed logo files |
-| Post-payment onboarding (email / WhatsApp automation) | backend work — **approval required** |
-| No analytics | **decision required**; if added, track CTA clicks, checkout start, FAQ opens, video plays — and never let analytics failure break the page |
+| Client / media logos are typographic | the deck carries real logo images, several scraped; shipping third-party marks is a licensing decision |
+| No analytics | **decision required** |
 | Mobile drawer has no focus trap | accessibility improvement, needs testing |
-| No webhook configured (`RAZORPAY_WEBHOOK_SECRET` unset) | **deliberate, not an oversight.** The endpoint refuses every delivery by design, and the flow does not depend on it: `registrationFromOrder` derives PAID from `order.status === "paid"`, which Razorpay sets itself on capture, so a browser that never returns still reads correctly. Fulfilment is manual from the dashboard, where the order's `notes` carry every answer. The only cost is that such a visitor sees the honest "payment received, still confirming" state instead of the success panel. `scripts/create-webhook.mjs` creates it in one command whenever that trade stops being acceptable — and must be re-run with live keys for live mode, since test and live webhooks are separate. |
-
----
 
 ## 22 · Definition of Done
 

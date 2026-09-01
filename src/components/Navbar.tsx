@@ -65,8 +65,12 @@ export function Navbar() {
                 scrolled ? "h-6 w-12" : "h-7 w-14 sm:h-8 sm:w-16"
               }`}
             />
-            <span className="hidden text-[0.7rem] font-semibold tracking-[0.2em] text-cream uppercase transition-colors group-hover:text-honey sm:block">
-              KnowMind Universe
+            {/* Visible at every width. The hero used to carry its own lockup
+                because there was no navbar; with one back, the wordmark lives
+                here and nowhere else — and hiding it on phones would have left
+                a mobile visitor with a mark and no name. */}
+            <span className="text-[0.62rem] font-semibold tracking-[0.18em] text-cream uppercase transition-colors group-hover:text-honey sm:text-[0.7rem] sm:tracking-[0.2em]">
+              {siteConfig.name}
             </span>
           </a>
 

@@ -51,7 +51,15 @@ export function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
             {testimonial.name.charAt(0)}
           </span>
         )}
-        <span className="text-sm font-medium text-ink">{testimonial.name}</span>
+        {/* Name, and what they do underneath it when the source gives it.
+            Their designation is context for the quote, not a credential, so it
+            sits quieter than the name rather than beside it. */}
+        <span className="min-w-0">
+          <span className="block text-sm font-medium text-ink">{testimonial.name}</span>
+          {testimonial.role && (
+            <span className="mt-0.5 block text-xs text-ink-muted">{testimonial.role}</span>
+          )}
+        </span>
       </figcaption>
     </figure>
   );

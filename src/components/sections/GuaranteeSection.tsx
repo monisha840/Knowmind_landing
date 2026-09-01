@@ -1,18 +1,21 @@
-"use client";
-
-import { AnimatePresence, motion } from "motion/react";
-import { useId, useState } from "react";
-
 import { RefundEnvelope } from "@/components/ui/RefundEnvelope";
 import { Reveal } from "@/components/ui/Reveal";
 import { guarantee } from "@/lib/content";
-import { usePrefersReducedMotion } from "@/lib/hooks";
 
+/**
+ * My promise to you.
+ *
+ * The refund conditions used to sit behind a "Refund conditions" disclosure.
+ * That was the right call when they ran to two sentences including a
+ * requirement to share a completed workbook — a requirement that appears
+ * nowhere in the approved source and has been removed. What is left is one
+ * sentence, and material refund terms that fit on one line should not need a
+ * click. They are stated in the open, quietly, directly under the promise.
+ *
+ * With the toggle went the component's only state, so this is now a server
+ * component; `RefundEnvelope` keeps its own client boundary for the drawing.
+ */
 export function GuaranteeSection() {
-  const [open, setOpen] = useState(false);
-  const reduced = usePrefersReducedMotion();
-  const panelId = useId();
-
   return (
     <section
       id="guarantee"
@@ -52,52 +55,20 @@ export function GuaranteeSection() {
           <p className="mt-8 font-serif text-h3 text-honey italic">{guarantee.emphasis}</p>
         </Reveal>
 
-        {/* The conditions are part of the promise, so they are one click away
-            and worded plainly — not buried in a footnote. */}
+        {/* Why he is willing to make the promise. Set quieter than the promise
+            itself — it is him speaking, not a second guarantee. */}
         <Reveal delay={0.36}>
-          <div className="mt-11">
-            <button
-              type="button"
-              onClick={() => setOpen((v) => !v)}
-              aria-expanded={open}
-              aria-controls={panelId}
-              className="inline-flex items-center gap-2.5 text-sm font-medium text-cream-muted transition-colors hover:text-honey"
-            >
-              Refund conditions
-              <svg
-                aria-hidden
-                viewBox="0 0 24 24"
-                fill="none"
-                className={`h-4 w-4 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
-              >
-                <path
-                  d="m6 9.5 6 6 6-6"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
+          <p className="mx-auto mt-5 max-w-md text-body text-cream-muted">
+            {guarantee.confidence}
+          </p>
+        </Reveal>
 
-            <AnimatePresence initial={false}>
-              {open && (
-                <motion.div
-                  id={panelId}
-                  role="region"
-                  initial={reduced ? false : { height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={reduced ? { opacity: 0 } : { height: 0, opacity: 0 }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="overflow-hidden"
-                >
-                  <p className="mx-auto mt-6 max-w-xl rounded-card border border-cream/10 bg-wine-950/60 p-6 text-body text-cream-muted">
-                    {guarantee.conditions}
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+        {/* Stated, not tucked away. Quieter than the promise it qualifies,
+            but on the page rather than behind a control. */}
+        <Reveal delay={0.42}>
+          <p className="mx-auto mt-10 max-w-xl border-t border-cream/10 pt-7 text-sm text-cream-dim">
+            {guarantee.conditions}
+          </p>
         </Reveal>
       </div>
     </section>
