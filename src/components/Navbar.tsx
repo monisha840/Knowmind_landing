@@ -54,7 +54,7 @@ export function Navbar() {
           <a
             href="#top"
             className="group flex items-center gap-3"
-            aria-label={`${siteConfig.name} — home`}
+            aria-label={`${siteConfig.name} – home`}
           >
             {/* Sized by utilities, not the `height` prop, so the shrink-on-
                 scroll keeps its `sm:` step. Width stays 2× height — the mark's

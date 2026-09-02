@@ -1,115 +1,96 @@
-"use client";
+import { REGISTER_ANCHOR, programDetails } from "@/lib/config";
+import { inr, refPrice } from "@/lib/reference-content";
 
-import { CTAButton } from "@/components/ui/CTAButton";
-import { Reveal } from "@/components/ui/Reveal";
-import { hero } from "@/lib/content";
-import { inr, programDetails, siteConfig } from "@/lib/config";
-
-const facts = [
-  { label: "Duration", value: `${programDetails.days} days` },
-  { label: "Format", value: programDetails.platform },
-  { label: "Time", value: programDetails.timeLabel },
-  { label: "Language", value: programDetails.language },
-];
-
+/**
+ * Band 15 — the price, the live-only note and the promise.
+ *
+ * One band, not three. `reference.css` groups `.no-rec` and `.guar-box` with
+ * the price under a single "PRICE + PROMISE" heading, and the deviation note on
+ * `.g-fine` fixes the promise's ground at #4B0082 — which is `.price-box`, not
+ * the #2D0060 band around it. So both sit inside the box: the objection
+ * ("there is no recording") and the answer to it ("attend all fourteen and I
+ * will return every rupee") are read without leaving the thing being bought.
+ *
+ * This replaced the old two-column offer card. `LiveOnlySection` and
+ * `GuaranteeSection` are the sections that used to carry those two blocks; they
+ * are left on disk untouched and simply no longer composed into the page
+ * (CLAUDE.md §19).
+ *
+ * ── The one thing in this file that spends money ──────────────────────────
+ *
+ * The reference points its button at a hardcoded `rzp.io` payment link. This
+ * one points at `#begin-journey`, because the six registration questions have
+ * to be answered before an order exists — the answers are the registration
+ * record (CLAUDE.md §8). The reference's button *appearance* is reproduced
+ * exactly; its destination is the application's own verified flow:
+ *
+ *   this button → #begin-journey → JourneyForm → POST /api/register
+ *   → Razorpay Checkout → POST /api/razorpay/verify → PAID
+ *
+ * Every figure on this card comes from `config.ts` through
+ * `reference-content.ts`, so the price printed here and the price the server
+ * charges are the same constant (CLAUDE.md §7.5).
+ */
 export function PricingSection() {
+  const { guarantee, noRecording } = refPrice;
+
   return (
-    <section
-      id="register"
-      data-three-window
-      aria-labelledby="pricing-heading"
-      className="section-y relative scroll-mt-24"
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-[1]"
-        style={{
-          background:
-            "radial-gradient(80% 60% at 50% 45%, rgba(90,35,72,0.55) 0%, rgba(12,4,16,0.9) 62%, rgba(12,4,16,1) 100%)",
-        }}
-      />
+    <section className="price-section" id="register" aria-labelledby="pricing-heading">
+      <div className="price-center">
+        <h2 id="pricing-heading">{refPrice.heading}</h2>
+        <p>{refPrice.sub}</p>
 
-      <div className="container-page">
-        <Reveal>
-          {/* The only light card in the closing act — the eye goes here. */}
-          <div className="mx-auto max-w-4xl overflow-hidden rounded-[1.75rem] bg-paper text-ink shadow-[0_40px_120px_-30px_rgba(0,0,0,0.85)]">
-            <div className="grid lg:grid-cols-12">
-              {/* ---- The offer ---- */}
-              {/* `min-w-0` is load-bearing, not tidiness. A grid item's
-                  automatic minimum size is the min-content width of what is
-                  inside it, and the setup note below holds a 33-character
-                  environment-variable name with nowhere to break. At 320px that
-                  one token sized this track to 300px inside a 280px container,
-                  so the whole registration card hung 20px past the page gutter
-                  and lost its right-hand margin and its rounded corner. */}
-              <div className="min-w-0 p-6 sm:p-12 lg:col-span-7">
-                <span className="text-eyebrow font-semibold tracking-[0.18em] text-amber-ink uppercase">
-                  Founding journey — {siteConfig.batch}
-                </span>
+        <div className="price-box">
+          <p className="p-lbl">{refPrice.label}</p>
+          <p className="p-main">{inr(programDetails.price)}</p>
+          <p className="p-was">{refPrice.was}</p>
+          <p className="p-incl">{refPrice.includes}</p>
 
-                <h2 id="pricing-heading" className="sr-only">
-                  Register for the {programDetails.days}-day journey
-                </h2>
+          <div className="p-bonus-list">
+            {refPrice.bonusLines.map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+            <p>{refPrice.bonusTotalLine}</p>
+          </div>
 
-                <div className="mt-7 flex items-baseline gap-4">
-                  <span className="text-[clamp(3.5rem,9vw,5.5rem)] leading-none font-semibold tracking-tight text-ink tabular-nums">
-                    {inr(programDetails.price)}
-                  </span>
-                  <span className="text-body text-ink-muted">one time</span>
-                </div>
+          <div className="p-badges">
+            {refPrice.badges.map((badge) => (
+              <span className="pb" key={badge}>
+                {badge}
+              </span>
+            ))}
+          </div>
 
-                {/* The deck states scarcity as a batch and gives no
-                    next-batch price. A "next batch is X" line beside ₹699
-                    would be a saving the approved source does not claim. */}
-                <p className="mt-4 text-body text-ink-muted">{hero.batchNote}</p>
+          <a href={REGISTER_ANCHOR} className="p-cta">
+            {refPrice.cta}
+          </a>
+          <p className="p-note">{refPrice.note}</p>
 
-                <div className="mt-9">
-                  <CTAButton className="w-full sm:w-auto">Yes, I want to begin</CTAButton>
-                </div>
+          <div className="no-rec">
+            <span className="dot" aria-hidden>
+              ●
+            </span>
+            <p className="no-rec-text">
+              <strong>{noRecording.strong}</strong>
+              {noRecording.rest}
+            </p>
+          </div>
 
-                <p className="mt-6 flex items-start gap-2.5 text-sm text-ink-muted">
-                  <svg
-                    aria-hidden
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="mt-0.5 h-4 w-4 shrink-0 text-amber-ink"
-                  >
-                    <path
-                      d="M12 3 4.5 6.2v5.1c0 4.5 3.2 8.7 7.5 9.7 4.3-1 7.5-5.2 7.5-9.7V6.2L12 3Z"
-                      stroke="currentColor"
-                      strokeWidth="1.4"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <span>
-                    Secure payment via Razorpay. Zoom link within 24 hours.
-                  </span>
-                </p>
-
-              </div>
-
-              {/* ---- The particulars ---- */}
-              <div className="min-w-0 border-t border-ink/10 bg-paper-2 p-6 sm:p-12 lg:col-span-5 lg:border-t-0 lg:border-l">
-                <p className="text-eyebrow font-semibold tracking-[0.18em] text-ink-muted uppercase">
-                  {programDetails.dateLabel}
-                </p>
-
-                <dl className="mt-7 flex flex-col">
-                  {facts.map((fact) => (
-                    <div
-                      key={fact.label}
-                      className="flex items-baseline justify-between gap-4 border-b border-ink/10 py-3.5 last:border-b-0"
-                    >
-                      <dt className="text-sm text-ink-muted">{fact.label}</dt>
-                      <dd className="text-right text-sm font-medium text-ink">{fact.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-
-              </div>
+          {/* The 🛡️ that used to open this box is gone. It was inferred rather
+              than transcribed — the reference records a 36px slot here with no
+              glyph in it — so it was never reference copy, and a colour emoji
+              shield above a refund promise read as clip-art on a page whose
+              whole argument is restraint. The heading carries it instead. */}
+          <div className="guar-box">
+            <div>
+              <p className="g-title">{guarantee.title}</p>
+              <p className="g-text">
+                {guarantee.body}
+                <span className="g-fine">{guarantee.fine}</span>
+              </p>
             </div>
           </div>
-        </Reveal>
+        </div>
       </div>
     </section>
   );

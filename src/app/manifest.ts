@@ -11,7 +11,7 @@ import { PROGRAM_PATH, programDetails, siteConfig } from "@/lib/config";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: `${siteConfig.name} — ${siteConfig.program}`,
+    name: `${siteConfig.name} – ${siteConfig.program}`,
     short_name: siteConfig.name,
     description: `${siteConfig.programSubtitle} · ${programDetails.dateLabel} · ${programDetails.timeLabel}`,
     start_url: PROGRAM_PATH,

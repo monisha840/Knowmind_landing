@@ -165,7 +165,7 @@ export function RefundEnvelope({ className = "" }: { className?: string }) {
             ENCLOSED IS THE REFUND YOU WERE
           </text>
           <text x="284" y="204" textAnchor="middle" className="font-sans" fontSize="7.2" fontWeight="700" fill="#5a2348" letterSpacing="0.9">
-            PROMISED — NO QUESTIONS ASKED
+            PROMISED – NO QUESTIONS ASKED
           </text>
         </g>
 

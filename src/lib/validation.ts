@@ -61,7 +61,7 @@ export function validateAnswer(key: AnswerKey, raw: string): string | null {
   switch (key) {
     case "name": {
       if (!value) return "Please enter your name.";
-      if (value.length < 2) return "That looks a little short — please enter your full name.";
+      if (value.length < 2) return "That looks a little short – please enter your full name.";
       if (value.length > 60) return "Please keep your name under 60 characters.";
       // A name has to contain a letter in some script; digits alone are a typo.
       if (!/\p{L}/u.test(value)) return "Please enter your name using letters.";

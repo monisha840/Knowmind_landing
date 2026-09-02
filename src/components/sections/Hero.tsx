@@ -72,17 +72,41 @@ export function Hero() {
         <div className="hero-right">
           {/*
             The reference frames a placeholder here — a 📸 glyph over "Kalee's
-            photo here". Specification §05 identifies the real asset that
-            belongs in it, and this is it, clipped to the frame's own
-            `20px 20px 0 0` radius so the stat bar still meets it flush.
+            photo here". What sits in it now is the credentials card, at the
+            owner's request, clipped to the frame's own `20px 20px 0 0` radius
+            so the stat bar still meets it flush.
+
+            The frame is landscape rather than the reference's upright box,
+            because the card is 1200x811 and its badges are baked-in lettering
+            that an upright crop would cut away — the reasoning is on
+            `.hero-photo` in `reference.css`, next to the rule that does it.
 
             No `priority`: the frame is `display:none` below 1000px, and
-            preloading a portrait that phones never show would take bandwidth
+            preloading an image that phones never show would take bandwidth
             from the LCP on exactly the widths that can least afford it
             (CLAUDE.md §14.1).
           */}
           <div className="hero-photo">
-            <Image src={refAssets.heroPhoto.src} alt={refAssets.heroPhoto.alt} fill sizes="380px" />
+            {/*
+              `sizes` traces `.hero-inner`'s `clamp(380px, 30vw, 470px)` track,
+              because `sizes` takes no `clamp()` and a stale number here is
+              invisible until you look at the pixels: at a flat "380px" the
+              browser fetched the 380-wide candidate and stretched it to 468 on
+              a 1920 screen, which on an asset whose whole content is small
+              lettering is exactly the softness this card cannot afford.
+
+              The breakpoints are where the clamp changes hands — 30vw reaches
+              the 380px floor at 1267px and the 470px ceiling at 1567px. Below
+              1000px the column stacks and the card is capped at 420px, so the
+              last two entries cover the phone and tablet widths where it is now
+              shown rather than hidden.
+            */}
+            <Image
+              src={refAssets.heroPhoto.src}
+              alt={refAssets.heroPhoto.alt}
+              fill
+              sizes="(min-width: 1567px) 470px, (min-width: 1267px) 30vw, (min-width: 1001px) 380px, (min-width: 540px) 420px, 92vw"
+            />
           </div>
 
           <div className="hero-stat-bar">

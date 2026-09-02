@@ -355,7 +355,7 @@ export function useCheckout(): UseCheckout {
           amount: order.amount,
           currency: order.currency,
           name: siteConfig.name,
-          description: `${siteConfig.program} — ${siteConfig.batch}`,
+          description: `${siteConfig.program} – ${siteConfig.batch}`,
           image: `${window.location.origin}/icons/icon-192.png`,
           prefill: order.prefill,
           notes: { registration_id: order.registrationId },

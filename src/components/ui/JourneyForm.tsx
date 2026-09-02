@@ -41,7 +41,7 @@ const answerLabel = (key: AnswerKey, answers: Answers) => {
   const step = journeySteps.find((s) => s.key === key);
   if (!step) return answers[key];
   if (step.field.kind === "choice") {
-    return step.field.options.find((o) => o.value === answers[key])?.label ?? "—";
+    return step.field.options.find((o) => o.value === answers[key])?.label ?? "–";
   }
   if (step.field.kind === "tel") return `${step.field.prefix} ${answers[key]}`;
   return answers[key];
@@ -243,7 +243,7 @@ export function JourneyForm() {
         </dl>
 
         <p className="mt-8 text-sm text-ink-muted">
-          Anything at all —{" "}
+          Anything at all –{" "}
           <a href={siteConfig.contact.phoneHref} className="link-underline font-medium text-amber-ink">
             {siteConfig.contact.phone}
           </a>

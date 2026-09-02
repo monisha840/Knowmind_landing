@@ -32,9 +32,6 @@ export function PhilosophySection() {
         <div className="phil-grid">
           {refPhilosophy.cards.map((card) => (
             <div className="phil-card" key={card.title}>
-              <div className="phil-icon" aria-hidden>
-                {card.icon}
-              </div>
               <h3 className="phil-title">{card.title}</h3>
               <p className="phil-desc">{card.body}</p>
             </div>

@@ -55,7 +55,7 @@ export default function NotFound() {
         </h1>
 
         <p className="mt-5 text-lead text-cream-muted">
-          The page you were looking for doesn&rsquo;t exist — but the journey does.
+          The page you were looking for doesn&rsquo;t exist – but the journey does.
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-x-7 gap-y-4">

@@ -3,7 +3,7 @@ import { ImageResponse } from "next/og";
 import { programDetails, siteConfig } from "@/lib/config";
 
 export const alt =
-  "1% Better. Every Day. — 14-Day Live Psychological Growth Journey by KnowMind Universe";
+  "1% Better. Every Day. – 14-Day Live Psychological Growth Journey by KnowMind Universe";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

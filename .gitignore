@@ -19,3 +19,18 @@ rzp-*.csv
 
 .vercel
 .env*
+
+# Source capture downloaded from the owner's Drive asset library for
+# scripts/optimize-video.mjs. Half a gigabyte of raw phone video; the
+# web-ready encodes in public/testimonials are what ship.
+media-source/
+
+# Scratch build output, so verifying a build cannot empty the directory a
+# running dev server is serving from. See distDir in next.config.ts.
+.next-verify/
+
+# The VSL master. `public/kalee/vsl.mp4` is a lossless `-c copy` remux of it
+# (identical video and audio streams, only the moov atom moved), so the served
+# file is the master for every practical purpose and committing both would
+# carry 8.9 MB twice. Keep this file locally; nothing needs it to rebuild.
+VSL_video.mp4

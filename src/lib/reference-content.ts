@@ -44,8 +44,8 @@ export const refSticky = {
   closesIn: "Closes in",
   /** The instant the countdown runs to — the first session, in IST. */
   deadline: "2026-09-14T05:30:00+05:30",
-  closed: "🔴 Closing",
-  cta: `🌱 Join — ${inr(programDetails.price)}`,
+  closed: "Closing",
+  cta: `Join – ${inr(programDetails.price)}`,
 } as const;
 
 /* -------------------------------------------------------------------------- */
@@ -56,7 +56,7 @@ export const refHero = {
   tag: `${siteConfig.batch} · Live on Zoom · ${programDetails.dateLabelShort}`,
   mark: "1% Better.",
   sub: "Every Day.",
-  tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாம். ❤️",
+  tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாம்.",
   tamilEnglish: "You don't have to be perfect. You just have to begin.",
   headline: "Are You Ready to Become 1% Better Every Day?",
   /** Two lines, set as two lines by a <br> in the reference. */
@@ -65,18 +65,18 @@ export const refHero = {
     "Let's Understand Yourself Better. Let's Notice Your Patterns. Let's Change, One Small Step at a Time.",
   ],
   badges: [
-    "🌅 5:30 AM Live",
-    `📅 ${programDetails.dateLabelShort}`,
-    "💻 Zoom",
-    "🗣 Tamil + English",
-    "👥 Limited Batch",
+    "5:30 AM Live",
+    `${programDetails.dateLabelShort}`,
+    "Zoom",
+    "Tamil + English",
+    "Limited Batch",
   ],
-  cta: "🌱 BEGIN MY 14-DAY JOURNEY",
+  cta: "BEGIN MY 14-DAY JOURNEY",
   ctaNote: `${inr(programDetails.price)} only · Includes ${inr(1097)} worth of bonuses free · Limited seats`,
   /** The placeholder the reference frames, kept for the no-photo path. */
   photoPlaceholder: "Kalee's photo here",
   stats: [
-    { n: "4.9 ⭐", l: "258 reviews" },
+    { n: "4.9", l: "258 reviews" },
     { n: "30,000+", l: "Impacted" },
     { n: "15+", l: "Years" },
   ],
@@ -87,7 +87,7 @@ export const refHero = {
 /* -------------------------------------------------------------------------- */
 
 export const refVsl = {
-  label: "🎥 Watch this first",
+  label: "Watch this first",
   placeholder: "Add VSL video here (1.5–2 minutes)",
   quote: '"Oru Chinna Kelvi Ungalukku..."',
 } as const;
@@ -97,36 +97,32 @@ export const refVsl = {
 /* -------------------------------------------------------------------------- */
 
 export const refPattern = {
-  tag: "Idhu Ungaloda Pattern-aa? 🤔",
+  tag: "Idhu Ungaloda Pattern-aa?",
   titleTamil: "நாம் எல்லாரும் change ஆகணும் என்று நினைக்கிறோம்…",
   titleTamilAccent: "ஆனால் journey ippadi dhaan போகுது.",
   steps: [
     {
-      icon: "🚀",
       title: '"Indha time kandippa consistent-aa iruppen!"',
       body: "Motivation irukkum. Energy irukkum. Strong start.",
     },
     {
-      icon: "🤯",
       title: "Overthink Pannuvom",
       body: '"Idha panna enna use?" "Naan correct direction-la dhaan porena?"',
     },
     {
-      icon: "👀",
       title: "Compare Pannuvom",
       body: '"Avanga evlo munnaadi poitaanga…"',
     },
     {
-      icon: "💔",
       title: "Oru Naal Miss Aagum",
       body: "Routine breaks. Guilt sets in. The cycle restarts.",
     },
   ],
   truth: {
     top: ["You don't need another motivational speech.", "You don't need more information."],
-    tamil: ["பரவால பார்த்துக்கலாம்…", "ஆரம்பிக்கலாம். ❤️"],
+    tamil: ["பரவால பார்த்துக்கலாம்…", "ஆரம்பிக்கலாம்."],
     english: "You don't have to be perfect. You just have to begin.",
-    quote: "🌱 You need Awareness + Choice + Repetition + Growth.",
+    quote: "You need Awareness + Choice + Repetition + Growth.",
     note: "Not perfection. Not pressure. Just progress.",
   },
 } as const;
@@ -141,22 +137,18 @@ export const refPhilosophy = {
   lead: "Real change doesn't always begin with a big decision. Sometimes it begins with one small step. One honest reflection. One promise you keep to yourself.",
   cards: [
     {
-      icon: "👀",
       title: "AWARENESS",
       body: "You cannot change what you don't notice. Become aware of what is running your life.",
     },
     {
-      icon: "🎯",
       title: "CHOICE",
       body: "Once you become aware, you can choose differently. Awareness opens the door.",
     },
     {
-      icon: "🔁",
       title: "REPETITION",
       body: "Small choices repeated create new patterns. Return again. Even after you miss.",
     },
     {
-      icon: "🌱",
       title: "GROWTH",
       body: "Over time, small changes become part of who you are. This is not perfection. It's intention.",
     },
@@ -189,7 +181,7 @@ export const refJourney = {
   lead: "This is not about learning more. It's about pausing, reflecting, and practicing. One day. One insight. One small practice.",
   weeks: [
     {
-      label: "Week 1 — Understand Yourself 🧠",
+      label: "Week 1 – Understand Yourself",
       tone: "w1" as const,
       days: [
         { n: "D1", title: "Awareness", body: "Notice what is within you." },
@@ -206,7 +198,7 @@ export const refJourney = {
       ] satisfies RefDay[],
     },
     {
-      label: "Week 2 — Move Forward 🌱",
+      label: "Week 2 – Move Forward",
       tone: "w2" as const,
       days: [
         { n: "D8", title: "Gratitude", body: "Notice what is already present in your life." },
@@ -253,7 +245,7 @@ export const refHow = {
     },
     {
       title: "Stay Connected",
-      body: "Be part of a community choosing to become better — one small step at a time.",
+      body: "Be part of a community choosing to become better – one small step at a time.",
     },
     {
       title: "Complete Your Journey",
@@ -261,14 +253,14 @@ export const refHow = {
     },
   ],
   clarity: [
-    { icon: "📅", label: "Duration", val: "14 Days" },
-    { icon: "💻", label: "Format", val: "Live Zoom" },
-    { icon: "⏰", label: "Time", val: programDetails.timeShort },
-    { icon: "🎯", label: "Focus", val: "Psychological Growth" },
+    { label: "Duration", val: "14 Days" },
+    { label: "Format", val: "Live Zoom" },
+    { label: "Time", val: programDetails.timeShort },
+    { label: "Focus", val: "Psychological Growth" },
   ],
   miss: {
     question: "Miss a day?",
-    tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாம். 🌱",
+    tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாம்.",
     after: "Don't disappear. The next morning is another opportunity.",
   },
 } as const;
@@ -282,31 +274,27 @@ export const refExplore = {
   title: { before: "What Will You ", accent: "Explore in 14 Days?" },
   cards: [
     {
-      icon: "🧠",
       title: "Your Mind",
-      body: "Awareness · Patterns · Inner Critic · Comparison — understand what is shaping your thoughts and decisions.",
+      body: "Awareness · Patterns · Inner Critic · Comparison – understand what is shaping your thoughts and decisions.",
     },
     {
-      icon: "❤️",
       title: "Your Relationship with Yourself",
-      body: "Self-Trust · Playfulness · Gratitude · Self-Love — rebuild how you speak to and feel about yourself.",
+      body: "Self-Trust · Playfulness · Gratitude · Self-Love – rebuild how you speak to and feel about yourself.",
     },
     {
-      icon: "🎯",
       title: "Your Direction",
-      body: "Dreams · Bucket List · Vision · Goals — give yourself permission to want more and move toward it.",
+      body: "Dreams · Bucket List · Vision · Goals – give yourself permission to want more and move toward it.",
     },
     {
-      icon: "🧘",
       title: "Your Inner Stability",
-      body: "Non-Reactivity · Repetition · Resilience · Reflection — learn to pause, return, and keep going.",
+      body: "Non-Reactivity · Repetition · Resilience · Reflection – learn to pause, return, and keep going.",
     },
   ],
   bottom: {
     first: "This is not about becoming someone else.",
     secondBefore: "It is about ",
     secondStrong: "understanding yourself better",
-    secondAfter: " — and becoming more intentional about the person you are becoming.",
+    secondAfter: " – and becoming more intentional about the person you are becoming.",
     third: "One day. One insight. One small step.",
     last: "1% Better. Every Day.",
   },
@@ -324,29 +312,28 @@ export const refKalee = {
   bio: { before: "That is one of the reasons behind creating: ", strong: "1% Better Every Day." },
   approach: {
     heading:
-      "My Approach — I don't believe transformation comes from simply telling you what to do. My role is to help you:",
+      "My Approach – I don't believe transformation comes from simply telling you what to do. My role is to help you:",
     points: [
-      "🧠 Understand yourself better",
-      "👀 Become aware of your patterns",
-      "💭 Ask better questions",
-      "🎯 Take meaningful action",
-      "🔁 Keep returning to the practice",
+      "Understand yourself better",
+      "Become aware of your patterns",
+      "Ask better questions",
+      "Take meaningful action",
+      "Keep returning to the practice",
     ],
     close:
       "Because ultimately, I cannot change your life for you. But I can walk with you, guide you, and help you understand the path better.",
   },
   badges: [
     {
-      icon: "🏛️",
       title: "McKinsey & Company",
       body: "Worked with one of the world's top consulting firms",
     },
-    { icon: "👮", title: "TN Police — NIMHANS", body: "1,200+ police personnel trained" },
-    { icon: "🌍", title: "International Trainer", body: "Programs across India and internationally" },
+    { title: "TN Police – NIMHANS", body: "1,200+ police personnel trained" },
+    { title: "International Trainer", body: "Programs across India and internationally" },
   ],
   card: {
     name: "Kaleeswaran Kamaraj",
-    roleLines: ["Transformational Psychologist & Leadership Trainer", "Founder — KnowMind Universe"],
+    roleLines: ["Transformational Psychologist & Leadership Trainer", "Founder – KnowMind Universe"],
     stats: [
       { n: "15+", l: "Years" },
       { n: "2,000+", l: "Coaching hours" },
@@ -356,7 +343,7 @@ export const refKalee = {
     google: {
       score: "4.9",
       stars: "★★★★★",
-      reviews: `258 Google reviews — ${siteConfig.name}`,
+      reviews: `258 Google reviews – ${siteConfig.name}`,
     },
   },
 } as const;
@@ -389,18 +376,36 @@ export const refCorpMarquee = {
   ],
 } as const;
 
+/**
+ * The nine outlets, now as their own marks rather than as set type.
+ *
+ * The wordmarks these replace were a deliberate hold, not an oversight —
+ * CLAUDE.md §21 recorded that the deck carried real logo images and that
+ * shipping third-party marks was a licensing decision nobody had made. The
+ * owner has now made it and asked for the logos, so they are here.
+ *
+ * `src` files are written by `scripts/extract-media-logos.mjs` straight out of
+ * `LP contents.pptx`. The dimensions are each mark's own, after the script trims
+ * the deck's surrounding background and scales it to 96px tall — they are
+ * carried here so the strip can reserve the exact box before anything loads,
+ * and they are reproduced in `public/media/logos.json` by the same run. If the
+ * deck changes, re-run the script and copy its printed sizes back here.
+ *
+ * `name` stays the outlet's name and is what a screen reader gets; the mark is
+ * the picture of it.
+ */
 export const refMediaMarquee = {
   label: "Featured in Tamil Nadu's leading media",
   items: [
-    "📺 Sun News",
-    "📺 Thanthi TV",
-    "📺 Vijay TV",
-    "📰 Vikatan",
-    "📻 Hello FM 106.4",
-    "📺 Puthiya Thalaimurai",
-    "📺 Puthu Yugam",
-    "📰 Maalai Malar",
-    "📰 The Federal",
+    { name: "Sun News", src: "/media/sun-news.webp", width: 132, height: 96 },
+    { name: "Thanthi TV", src: "/media/thanthi-tv.webp", width: 86, height: 96 },
+    { name: "Vijay TV", src: "/media/vijay-tv.webp", width: 72, height: 96 },
+    { name: "Vikatan", src: "/media/vikatan.webp", width: 375, height: 96 },
+    { name: "Hello FM 106.4", src: "/media/hello-fm.webp", width: 315, height: 96 },
+    { name: "Puthiya Thalaimurai", src: "/media/puthiya-thalaimurai.webp", width: 243, height: 96 },
+    { name: "Puthu Yugam", src: "/media/puthu-yugam.webp", width: 389, height: 96 },
+    { name: "Maalai Malar", src: "/media/maalai-malar.webp", width: 93, height: 96 },
+    { name: "The Federal", src: "/media/the-federal.webp", width: 178, height: 96 },
   ],
 } as const;
 
@@ -415,15 +420,57 @@ export const refTestimonials = {
     accent: "Hear from the People Who Experienced It.",
   },
   /**
-   * Three slots the reference labels rather than fills. No participant
-   * recordings exist in this repository, so the reference's own placeholder is
-   * reproduced rather than filled with something that is not a participant
-   * (specification §05 — "Gap, keep placeholder"; CLAUDE.md §0.4).
+   * The reference labels three slots rather than filling them. They are now
+   * filled — see `videos` — but the labels stay, because they are still what a
+   * slot renders when no recording is behind it. Remove a file from `videos`
+   * and its frame returns to the reference's own dashed placeholder rather
+   * than collapsing (CLAUDE.md §9.2, the empty state).
    */
   videoSlots: ["Participant Video 1", "Participant Video 2", "Participant Video 3"],
   videoPlaceholder: "Add video embed here",
+  /**
+   * Three participant recordings from the owner's Drive asset library, encoded
+   * for the web by `scripts/optimize-video.mjs` (which records the Drive file
+   * id each one came from, and why the other three in that folder are not
+   * here).
+   *
+   * `name` and `role` are transcribed from each recording's own burned-in
+   * lower third — read off the supplied asset, not authored here, exactly as
+   * `refAssets.heroPhoto.alt` reads the credentials card's badges off the
+   * image (CLAUDE.md §1.1). The spellings are the participants' own, "Coprate"
+   * included; correcting somebody's own caption would put the page and the
+   * footage it is captioning into disagreement, and it is not an agent's call
+   * to make. Flagged for the owner rather than fixed.
+   *
+   * They are also repeated here in HTML rather than left to the burned-in
+   * caption alone, because the caption is only legible for the first six
+   * seconds and is invisible to a screen reader either way (CLAUDE.md §13.3).
+   *
+   * These are not the six quotes below. Six different people, no overlap of
+   * evidence — nobody's words are being paired with somebody else's face.
+   */
+  videos: [
+    {
+      src: "/testimonials/gowri-shankar.mp4",
+      poster: "/testimonials/gowri-shankar.webp",
+      name: "Gowri shankar",
+      role: "Coprate trainer , Agency owner",
+    },
+    {
+      src: "/testimonials/sriraynu.mp4",
+      poster: "/testimonials/sriraynu.webp",
+      name: "Sriraynu",
+      role: "Psychologist and School counsellor",
+    },
+    {
+      src: "/testimonials/bhoopeshdhayalan.mp4",
+      poster: "/testimonials/bhoopeshdhayalan.webp",
+      name: "Dr A Bhoopeshdhayalan",
+      role: "BNYS",
+    },
+  ],
   /** All six carry five stars and the same role line in the reference. */
-  role: "1% Better Program — Founding Batch",
+  role: "1% Better Program – Founding Batch",
   quotes: [
     {
       name: "Anandha",
@@ -457,7 +504,7 @@ export const refTestimonials = {
     },
   ],
   closer: {
-    tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாமா? 🌱",
+    tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாமா?",
     english: "Your journey could be the next story.",
   },
 } as const;
@@ -467,45 +514,47 @@ export const refTestimonials = {
 /* -------------------------------------------------------------------------- */
 
 export const refWho = {
+  /* Not the reference's — ours. This band is the one place the reference's
+     outline skips a level: its two column heads are `h3` with no `h2` over
+     them, which specification §00 Finding 5 names as a defect to fix on
+     rebuild, noting it "costs nothing visually". This is the missing level, and
+     it is `sr-only`, so nothing visual changes. It names the band; it makes no
+     claim. */
+  srHeading: "Who this journey is for",
   forHeading: "This Journey Is For You If…",
   forItems: [
     {
-      icon: "🌱",
       title: "You want to work on yourself",
-      body: "Not because everything is wrong — but because you know there is more to understand and improve.",
+      body: "Not because everything is wrong – but because you know there is more to understand and improve.",
     },
     {
-      icon: "🔄",
       title: "You keep starting but struggle to continue",
       body: "You want to understand why certain patterns repeat in your life.",
     },
     {
-      icon: "🧠",
       title: "You are tired of only consuming motivational content",
       body: "You want to pause, reflect and actually apply something.",
     },
     {
-      icon: "🤝",
       title: "You want to rebuild self-trust",
       body: "By starting small and keeping promises to yourself.",
     },
     {
-      icon: "❤️",
       title: "You want a better relationship with yourself",
       body: "Less self-criticism. More awareness. More conscious growth.",
     },
   ],
-  afterHeading: "🌱 You may begin to notice…",
+  afterHeading: "You may begin to notice…",
   afterItems: [
     "Your thoughts, emotions and patterns more clearly.",
     "Why you repeatedly start and stop.",
     "Self-trust rebuilding through small kept promises.",
     "More focus on your journey instead of comparing.",
-    "The ability to return — even after missing a day — without guilt.",
+    "The ability to return – even after missing a day – without guilt.",
   ],
   notHeading: "This May NOT Be For You If…",
   notItems: [
-    "You are looking for a quick fix. 14 days can begin a journey — but it cannot magically solve everything overnight.",
+    "You are looking for a quick fix. 14 days can begin a journey – but it cannot magically solve everything overnight.",
     "You only want motivation and entertainment. This journey involves reflection, dedication and small actions.",
     "You expect someone else to change your life. Your participation matters.",
     "You are not willing to spend a few minutes reflecting on yourself.",
@@ -514,7 +563,7 @@ export const refWho = {
   notNote: {
     top: "You don't have to be highly disciplined to begin.",
     big: "You just need a willingness to start.",
-    tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாம். 🌱",
+    tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாம்.",
   },
 } as const;
 
@@ -523,33 +572,45 @@ export const refWho = {
 /* -------------------------------------------------------------------------- */
 
 export const refBonuses = {
-  tag: "🎁 Bonus Offer",
+  tag: "Bonus Offer",
   title: { before: "What Comes Free ", accent: "With Your Registration" },
   cards: [
     {
-      icon: "📘",
       name: "14-Day Reflection Workbook",
       body: "Reflect, learn and apply your daily insights. A structured companion for your 14-day journey.",
       value: 299,
     },
     {
-      icon: "🪞",
       name: "Self-Trust Assessment",
       body: "Understand your self-trust, consistency and ability to restart. Take on Day 1 and Day 14 to see your shift.",
       value: 499,
     },
     {
-      icon: "🌱",
       name: "30-Day Continuation Tracker",
       body: "Keep your 1% Better journey going beyond 14 days. Build the habit beyond the program.",
       value: 299,
     },
   ],
   totalLabel: "Total Bonus Value",
+  /* The reference sets the total as three lines, not two — specification §02
+     records them as "Total Bonus Value / ₹1,097 — Included FREE / With the
+     14-Day Journey at ₹699". The figure and the price are interpolated, the
+     words around them are the reference's. `.bonus-total .after` is the third
+     line's rule, and it had no text until now. */
+  totalValueSuffix: "– Included FREE",
+  totalAfter: `With the 14-Day Journey at ${inr(programDetails.price)}`,
 } as const;
 
 /** One fact, one place — the reference's ₹1,097 is this sum (CLAUDE.md §4.2). */
 export const refBonusTotal = refBonuses.cards.reduce((sum, b) => sum + b.value, 0);
+
+/**
+ * The bonus card's value line. The reference writes it "Worth ₹299 — Free" and
+ * sets it in italic; §03 names that line as one of the five places italic is
+ * used deliberately. It lived in JSX as "Worth {value}" with the "— Free" lost,
+ * which both dropped copy and put it outside `content` (CLAUDE.md §1.1).
+ */
+export const refBonusWorth = (value: number) => `Worth ${inr(value)} – Free`;
 
 /* -------------------------------------------------------------------------- */
 /*  Band 15 — price, live-only, promise                                       */
@@ -561,27 +622,27 @@ export const NEXT_BATCH_PRICE = 1999;
 export const refPrice = {
   heading: "Your Next 1% Starts Here.",
   sub: `${programDetails.dateLabel} · ${programDetails.timeShort} · Live on Zoom · ${programDetails.seats} participants only`,
-  label: `🌱 Join the Journey — Founding ${siteConfig.batch} Price`,
+  label: `Join the Journey – Founding ${siteConfig.batch} Price`,
   was: `Next batch: ${inr(NEXT_BATCH_PRICE)}`,
-  includes: `Includes all 3 bonuses worth ${inr(refBonusTotal)} — absolutely free`,
-  bonusLines: refBonuses.cards.map((b) => `${b.icon} ${b.name} — Worth ${inr(b.value)}`),
-  bonusTotalLine: `🎁 Total Bonus Value: ${inr(refBonusTotal)} — Included Free`,
+  includes: `Includes all 3 bonuses worth ${inr(refBonusTotal)} – absolutely free`,
+  bonusLines: refBonuses.cards.map((b) => `${b.name} – Worth ${inr(b.value)}`),
+  bonusTotalLine: `Total Bonus Value: ${inr(refBonusTotal)} – Included Free`,
   badges: [
-    `📅 ${programDetails.dateLabelShort}`,
-    `⏰ ${programDetails.timeShort} Live`,
-    "💻 Zoom",
-    "🗣 Tamil + English",
-    `👥 ${programDetails.seats} seats`,
+    `${programDetails.dateLabelShort}`,
+    `${programDetails.timeShort} Live`,
+    "Zoom",
+    "Tamil + English",
+    `${programDetails.seats} seats`,
   ],
   cta: "[ YES, I WANT TO GIVE MYSELF 14 DAYS → ]",
-  note: `📅 Limited registrations · 💻 Live on Zoom · ⏰ ${programDetails.timeShort} · A ${siteConfig.name} Initiative`,
+  note: `Limited registrations · Live on Zoom · ${programDetails.timeShort} · A ${siteConfig.name} Initiative`,
   noRecording: {
-    strong: "Live only — no recording",
+    strong: "Live only – no recording",
     rest: " for the first four batches. Because transformation doesn't happen when you collect more videos. It begins when you show up.",
   },
   guarantee: {
     title: "My Promise to You",
-    body: "Attend all 14 days. Do the daily reflection every night. If you feel no shift in your awareness, self-trust, or consistency — I will return every rupee. No questions asked. I am that confident in what these 14 days will do for you.",
+    body: "Attend all 14 days. Do the daily reflection every night. If you feel no shift in your awareness, self-trust, or consistency – I will return every rupee. No questions asked. I am that confident in what these 14 days will do for you.",
     fine: "Refund applies to participants who attend all 14 sessions and complete all 14 night reflections.",
   },
 } as const;
@@ -604,17 +665,17 @@ export const refFaq = {
     },
     {
       q: "2. What time are the sessions?",
-      a: "⏰ 5:30 AM. Each live session is designed to be around 45 minutes — focused, practical and complete before your day begins.",
+      a: "5:30 AM. Each live session is designed to be around 45 minutes – focused, practical and complete before your day begins.",
     },
     {
       q: "3. Do I need to attend all 14 days?",
-      a: "We strongly encourage it. But remember — progress, not perfection. ",
+      a: "We strongly encourage it. But remember – progress, not perfection. ",
       tamil: "பரவால பார்த்துக்கலாம்.",
       aAfter: " If you miss a session, don't give up. Return the next morning.",
     },
     {
       q: "4. What language will the sessions be in?",
-      a: "A simple mix of Tamil and English — Tanglish — making psychological concepts easy to understand and relate to. Everyone is comfortable.",
+      a: "A simple mix of Tamil and English – Tanglish – making psychological concepts easy to understand and relate to. Everyone is comfortable.",
     },
     {
       q: "5. Is this therapy?",
@@ -626,11 +687,11 @@ export const refFaq = {
     },
     {
       q: "7. Who can join?",
-      a: "Entrepreneurs, professionals, freelancers — and anyone genuinely interested in working on themselves and growing. If you are willing to start, you are welcome.",
+      a: "Entrepreneurs, professionals, freelancers – and anyone genuinely interested in working on themselves and growing. If you are willing to start, you are welcome.",
     },
     {
       q: "8. What if I complete everything but feel no value?",
-      a: "That is where My Promise to You applies. Attend all 14 sessions and complete all daily reflections. If you genuinely feel no shift in your awareness, self-trust or consistency — your payment will be refunded.",
+      a: "That is where My Promise to You applies. Attend all 14 sessions and complete all daily reflections. If you genuinely feel no shift in your awareness, self-trust or consistency – your payment will be refunded.",
     },
   ],
 } as const;
@@ -647,18 +708,25 @@ export const refFinal = {
     last: "Just Give Yourself 14 Days.",
   },
   checklist: [
-    "🌱 Pause for yourself.",
-    "🧠 Understand yourself better.",
-    "🪞 Reflect honestly.",
-    "🎯 Take one small step.",
-    "🔁 Keep returning.",
-    "📅 14 Days. 45 Minutes a Day.",
+    "Pause for yourself.",
+    "Understand yourself better.",
+    "Reflect honestly.",
+    "Take one small step.",
+    "Keep returning.",
+    "14 Days. 45 Minutes a Day.",
   ],
   tamil: "பரவால பார்த்துக்கலாம்…",
-  tamilSub: "ஆரம்பிக்கலாம். ❤️ — You don't have to be perfect. You just have to begin.",
+  /* One line in the reference, two scripts. It is kept as two fields only so
+     the Tamil clause can carry `lang="ta"` — without it this was the one Tamil
+     string of eleven on the page rendering in the platform's Tamil face while
+     the other ten rendered in Noto Sans Tamil, directly under `final-tamil`
+     where the two sit one above the other. Concatenated, the characters are
+     the reference's, unchanged (CLAUDE.md §1.1, §13.5). */
+     tamilSub: "ஆரம்பிக்கலாம்.",
+  tamilSubEnglish: " – You don't have to be perfect. You just have to begin.",
   cta: "[ YES, I WANT TO GIVE MYSELF 14 DAYS → ]",
   meta: `${inr(programDetails.price)} · Including All 3 Bonuses · Sep 14–27 · ${programDetails.timeShort} · Live on Zoom · A ${siteConfig.name} Initiative`,
-  sign: `— Kalee | Counselling Psychologist | ${siteConfig.name} | ${siteConfig.tagline}`,
+  sign: `– Kalee | Counselling Psychologist | ${siteConfig.name} | ${siteConfig.tagline}`,
 } as const;
 
 /* -------------------------------------------------------------------------- */
@@ -681,10 +749,26 @@ export const refFooter = {
 /* -------------------------------------------------------------------------- */
 
 export const refAssets = {
-  /** 380×440 frame, radius 20px 20px 0 0. Replaces "📸 Kalee's photo here". */
+  /**
+   * A frame at the image's own 1200:811, radius 20px 20px 0 0, filling a track
+   * that runs 380px to 470px with the viewport. Replaces "📸 Kalee's photo
+   * here".
+   *
+   * The credentials card, at the owner's request — it replaced the upright
+   * portrait, which is why the frame is landscape (see `.hero-photo`).
+   *
+   * The alt text transcribes the six badges and the name plate because in this
+   * image they are lettering, not decoration: drop them and a screen reader
+   * gets a photograph where a sighted visitor gets six credentials
+   * (CLAUDE.md §13.3, §14.1). The figures are the supplied image's own — they
+   * are read off it, not authored here (§1.1).
+   */
   heroPhoto: {
-    src: "/kalee/kaleeswaran-hero.webp",
-    alt: "Kaleeswaran Kamaraj, transformational psychologist and leadership trainer.",
+    src: "/kalee/kalee-hero-credentials.webp",
+    alt:
+      "Kaleeswaran Kamaraj, Transformations Psychologist and Leadership Trainer. " +
+      "15+ years experience · 100+ organizations trained · 300+ training programs delivered · " +
+      "15+ modalities of certifications · 2,000+ hours therapy and coaching · PhD scholar.",
   },
   /** 150px circle with a 3px amber ring. Replaces the 📸 glyph on the card. */
   portrait: {

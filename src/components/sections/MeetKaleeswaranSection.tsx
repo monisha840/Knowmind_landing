@@ -80,9 +80,6 @@ export function MeetKaleeswaranSection() {
           <div className="spec-badges">
             {refKalee.badges.map((badge) => (
               <div className="sb" key={badge.title}>
-                <span className="si" aria-hidden>
-                  {badge.icon}
-                </span>
                 <strong>{badge.title}</strong>
                 <p>{badge.body}</p>
               </div>

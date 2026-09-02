@@ -34,6 +34,37 @@ const JOBS = [
     op: (s) => s.png({ compressionLevel: 9, palette: true }),
   },
 
+  // ---- The KnowMind mark itself, for the programme page's pinned bar ----
+  //
+  // `logo.png` and `logo-white.png` above are flat, single-weight versions of
+  // the mark. The real one is the dimensional ribbon in `knowmind_logo.png` —
+  // the same artwork `generate-icons.mjs` turns into the favicon and the app
+  // icons — and that is what the bar should carry, so the tab icon and the
+  // wordmark beside it are recognisably the same logo.
+  //
+  // Not `palette: true`, unlike the flat marks: the ribbon is built out of
+  // gradients and specular highlights, and quantising it to 256 colours bands
+  // every one of them. Full colour costs ~20 kB here, and `next/image` re-encodes
+  // it to about 10 kB of WebP for anything that accepts it.
+  //
+  // PNG rather than WebP as the stored format, deliberately. The mark needs its
+  // transparent ground to sit on the bar's purple, and the optimiser falls back
+  // to the *source* format for a client that advertises neither WebP nor AVIF —
+  // from a PNG that is still a PNG with its alpha, where from a WebP it would be
+  // a JPEG with the transparency flattened to a visible box.
+  {
+    localFrom: "public/knowmind_logo.png",
+    to: "brand/logo-mark.png",
+    // Trimmed first: the source carries ~230px of empty margin, which would
+    // otherwise become padding baked into a 60px-wide element. 96 tall is 3x
+    // the 26px the bar renders it at.
+    op: (s) =>
+      s
+        .trim({ threshold: 1 })
+        .resize({ height: 96, withoutEnlargement: true })
+        .png({ compressionLevel: 9 }),
+  },
+
   // ---- Kaleeswaran cut-out (alpha preserved for the authority section) ----
   {
     from: "Knowmind-app-frontend/apps/web/public/kaleeswaran-cut.png",
@@ -186,6 +217,21 @@ const JOBS = [
     to: "kalee/kaleeswaran-hero.webp",
     op: (s) =>
       s.resize({ width: 1024, withoutEnlargement: true }).webp({ quality: 82, alphaQuality: 100 }),
+  },
+
+  // ---- Hero credentials card (the landscape infographic) ----
+  // A finished graphic, not a photograph: the six credential badges, the ring
+  // and the KALEESWARAN KAMARAJ plate are all lettering baked into the pixels.
+  // That is why it is resized rather than cropped — any crop eats a badge — and
+  // why the quality is 88 instead of the 76 the photographs get: text edges
+  // show WebP ringing far sooner than skin and cloth do.
+  //
+  // 1448x979 source, so 1200 wide is a genuine downscale that still leaves
+  // better than 3x the 380px the frame renders it at on a 2x screen.
+  {
+    localFrom: "kalee_hero_image.jpeg",
+    to: "kalee/kalee-hero-credentials.webp",
+    op: (s) => s.resize({ width: 1200, withoutEnlargement: true }).webp({ quality: 88 }),
   },
 
   // ---- Authentic training photography (proof, not stock) ----

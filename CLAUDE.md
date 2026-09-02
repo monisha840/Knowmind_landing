@@ -180,7 +180,7 @@ manipulation is off-brand as well as unethical.
 | 3D | **three 0.185.1** + `@react-three/fiber 9.7.0` + `@react-three/drei 10.7.8` |
 | Images | `next/image`; AVIF + WebP enabled in `next.config.ts` |
 | Fonts | `next/font/google` — Instrument Sans, Instrument Serif, Noto Sans Tamil |
-| Asset pipeline | `sharp` (devDependency) via `scripts/optimize-assets.mjs` |
+| Asset pipeline | `sharp` (devDependency) via `scripts/optimize-assets.mjs`; `ffmpeg-static` (devDependency) via `scripts/optimize-video.mjs` — both build-time only, neither in the client bundle |
 | Package manager | **npm** (`package-lock.json`) |
 | Version control | **git** — branch `master`, remote-less as of this writing |
 | ESLint | **Not configured** (no config file anywhere) |
@@ -207,6 +207,8 @@ npm run dev                # next dev
 npm run build              # next build  — production build
 npm start                  # next start  — serve the production build
 npm run optimize:assets    # regenerate /public brand + photo assets with sharp
+npm run optimize:video     # transcode the participant testimonials + cut posters
+npm run media:logos        # media outlets' logos out of LP contents.pptx
 npm run icons              # regenerate favicon / app icons from public/knowmind_logo.png
 npx tsc --noEmit           # TYPE CHECK — this is the type-check command
 ```
@@ -260,15 +262,25 @@ one without approval is a scope violation.
 ├── .env.example               # documents the two public env vars
 ├── scripts/
 │   ├── optimize-assets.mjs    # sharp → public/brand, public/kalee, public/photos
+│   ├── extract-media-logos.mjs # reads LP contents.pptx (a zip) → public/media
+│   ├── optimize-video.mjs     # ffmpeg → public/testimonials (video + poster).
+│   │                          # Reads VIDEO_SOURCE_DIR; sources are NOT committed
 │   └── generate-icons.mjs     # sharp → src/app icons + public/icons
 ├── public/
-│   ├── brand/logo.png · logo-white.png
+│   ├── brand/logo.png · logo-white.png   # flat, simplified marks
+│   ├── brand/logo-mark.png    # the real dimensional mark, from knowmind_logo.png
+│   │                          # — the pinned bar's logo, same artwork as the favicon
 │   ├── icons/icon-192.png · icon-512.png      # referenced by manifest.ts
 │   ├── kalee/kaleeswaran.webp
+│   ├── kalee/vsl.mp4 · vsl-poster.webp   # band 3, written by optimize-video.mjs
 │   ├── kalee/hero-growth.webp · hero-growth-rim.png   # the hero portrait and
 │   │                          # the gold rim matte DERIVED from it — both are
 │   │                          # written by optimize-assets.mjs, never by hand
+│   ├── media/ nine outlet logos (.webp) + logos.json  # extract-media-logos.mjs
 │   ├── photos/experiential-circle.webp · leadership-program.webp · experiential-activity.webp
+│   ├── testimonials/gowri-shankar · sriraynu · bhoopeshdhayalan  (.mp4 + .webp)
+│   │                          # participant recordings + their poster frames,
+│   │                          # written by optimize-video.mjs, never by hand
 │   ├── knowmind_logo.png      # SOURCE for generate-icons.mjs — not for page use
 │   └── kaleeswaran_image.png  # SOURCE original — not for page use
 └── src/
@@ -336,7 +348,7 @@ updating every reference.**
 | --- | --- | --- |
 | `#main` | `<main>` | skip link |
 | `#top` | Hero | navbar wordmark |
-| `#vsl` | VSLSection | — **renders `null` until `vsl.src` is set** |
+| `#vsl` | VSLSection | — the recording is live; the section falls back to the reference's labelled placeholder if `vsl.src` is ever unset |
 | `#the-problem` | ProblemSection | — |
 | `#method` | CoreMethod | — |
 | `#journey` | JourneyTimeline | **navLinks** |
@@ -1062,11 +1074,19 @@ screen readers switch pronunciation and the Tamil font applies.
 
 ### 14.2 Video
 
-There is no video on the page yet: `videoTestimonials` all have `src: null` and
-render an honest placeholder.
+The programme page's testimonial band carries three real participant
+recordings (`refTestimonials.videos` → `public/testimonials/`), played through
+`VideoPlayer`, and band 3 carries the VSL (`/kalee/vsl.mp4`) through the same
+primitive. `content.ts`'s
+`videoTestimonials` — which belong to the deck page, not the reference one —
+all still have `src: null` and render an honest placeholder.
 
-When real recordings arrive, the existing markup already encodes the rules —
-keep them:
+Every recording that ships goes through `scripts/optimize-video.mjs` first. The
+sources are ~12 Mbps phone capture at 93–110 MB a minute; none of them may be
+served as supplied, and none of them are committed (`media-source/` is
+gitignored).
+
+The existing markup encodes the rules — keep them:
 
 - `preload="none"` — **never** `auto` or `metadata` for below-the-fold video
 - a real `poster` image
@@ -1367,7 +1387,7 @@ these by fabricating content — most need an asset or a human decision.
 
 | Gap | Status |
 | --- | --- |
-| **No VSL recording.** `vsl.src` is `null`, so `VSLSection` renders `null` and `#vsl` is absent from the page. | **BLOCKER for launch.** Needs the approved 1.5–2 minute recording. Supplying it is a two-line change in `content.ts`; nothing else moves. |
+| ~~No VSL recording~~ — **resolved.** Kaleeswaran to camera, 1:16, live in band 3. Built from `VSL_video.mp4` in the project root by `npm run optimize:video` (remuxed for `+faststart`, never re-encoded) | the master `VSL_video.mp4` is gitignored, deliberately: the shipped file is a `-c copy` remux of it, so the streams are identical and committing both would carry 8.9 MB twice. Nothing needs the master to rebuild — a new poster can be cut from `public/kalee/vsl.mp4` |
 | **₹699 checkout never completed end to end.** Order creation, the 69900 amount, amount-tamper rejection, forged-signature rejection and non-existent-payment rejection are all verified. The accepting path — checkout → signature pass → capture → PAID → success panel — is not. | Needs one manual browser payment with a Razorpay test card. |
 | **Razorpay is in TEST mode** (`rzp_test_…`). | Live keys, a live webhook and a re-test are an owner's decision. |
 | **No webhook configured** (`RAZORPAY_WEBHOOK_SECRET` empty). | Deliberate. The endpoint refuses every delivery, and the flow does not depend on it: `registrationFromOrder` derives PAID from `order.status === "paid"`, which Razorpay sets on capture. `scripts/create-webhook.mjs` creates it in one command; test and live webhooks are separate. |
@@ -1376,8 +1396,8 @@ these by fabricating content — most need an asset or a human decision.
 | No test infrastructure | none planned — **decision required** |
 | No automated emailing of the Zoom link after payment | a human reads the Razorpay dashboard — **decision required** |
 | No rate limit on `/api/register` | an abandoned-order nuisance, not a money risk. Needs the Redis mirror or a platform rule. |
-| Video testimonials are placeholders (`src: null`) | needs real recordings |
-| Client / media logos are typographic | the deck carries real logo images, several scraped; shipping third-party marks is a licensing decision |
+| Video testimonials: the programme page's three slots are filled from the Drive asset library. `content.ts`'s `videoTestimonials` (the deck page) are still `src: null` | three more participant recordings exist in Drive, unused — see the foot of `scripts/optimize-video.mjs` |
+| **Media** logos are the outlets' own marks, at the owner's instruction — the licensing decision this row used to hold open has been made for those nine. **Client** logos are still typographic wordmarks | the deck's only copy of the eighteen client marks is one flattened grid image (`image14.png`), which cannot be cut into individual marks anyone would be entitled to ship. Still a decision, still open |
 | No analytics | **decision required** |
 | Mobile drawer has no focus trap | accessibility improvement, needs testing |
 

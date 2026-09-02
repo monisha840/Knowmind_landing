@@ -66,7 +66,7 @@ const offer = {
 const course = {
   "@type": "Course",
   "@id": `${siteConfig.url}/#course`,
-  name: `${siteConfig.program} — ${siteConfig.programSubtitle}`,
+  name: `${siteConfig.program} – ${siteConfig.programSubtitle}`,
   description:
     "A 14-day live psychological growth journey. Forty-five guided minutes every morning at 5:30 AM, built around awareness, reflection, one small daily action and repetition.",
   provider: { "@id": `${siteConfig.url}/#organization` },
@@ -75,7 +75,7 @@ const course = {
   offers: offer,
   hasCourseInstance: {
     "@type": "CourseInstance",
-    name: `${siteConfig.program} — ${siteConfig.batch}`,
+    name: `${siteConfig.program} – ${siteConfig.batch}`,
     courseMode: "Online",
     courseWorkload: `PT${programDetails.durationMinutes}M`,
     startDate: programDetails.startDate,
@@ -92,7 +92,7 @@ const course = {
 const event = {
   "@type": "EducationEvent",
   "@id": `${siteConfig.url}/#event`,
-  name: `${siteConfig.program} — ${siteConfig.batch}`,
+  name: `${siteConfig.program} – ${siteConfig.batch}`,
   description:
     "Fourteen consecutive live morning sessions on Zoom, 5:30 AM – 6:15 AM IST, in Tamil and English. Limited batch.",
   startDate: `${programDetails.startDate}T05:30:00+05:30`,

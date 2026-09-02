@@ -39,14 +39,14 @@ export const hero = {
    * Every Day?"
    */
   headline: {
-    before: "Are You Ready to Understand Yourself Better—and Become ",
+    before: "Are You Ready to Understand Yourself Better–and Become ",
     accent: "1% Better",
     after: " Every Day?",
   },
 
   lead:
     "A 14-Day Live Psychological Growth Journey to help you notice your patterns, " +
-    "build self-trust, and create meaningful change—one small step at a time.",
+    "build self-trust, and create meaningful change–one small step at a time.",
 
   /** The four things the journey is actually about. */
   points: [
@@ -110,17 +110,15 @@ export type Vsl = {
   /**
    * The recording itself.
    *
-   * `null` until the real 1.5–2 minute video is supplied, and the section
-   * renders a plainly-labelled placeholder in its place — the same honest
-   * boundary the video testimonials use (CLAUDE.md §0.4, §9.2).
+   * Supplied, and live. It stays nullable because the section still has to
+   * render something honest if it is ever unset — `VSLSection` falls back to
+   * the reference's labelled placeholder rather than an empty frame
+   * (CLAUDE.md §9.2).
    *
    * The ten-second clip at `/kalee/kalee-intro.mp4` is NOT this video. It is a
    * silent, looping background plate used behind the registration questions,
    * and presenting it as Kaleeswaran's introduction would be exactly the fake
-   * implementation that rule forbids.
-   *
-   * To go live: drop the file in `public/kalee/`, set `src` and `poster`, and
-   * correct `aspect` to the footage's real shape. Nothing else changes.
+   * implementation §0.4 forbids. That is still true; this is the real one.
    */
   src: string | null;
   /** Required whenever `src` is set — the frame shown before it plays. */
@@ -133,10 +131,16 @@ export type Vsl = {
 
 export const vsl: Vsl = {
   heading: "Oru Chinna Kelvi Ungalukku…",
-  src: null,
-  poster: null,
+  /* Both files are written by `npm run optimize:video` from `VSL_video.mp4` in
+     the project root — the video remuxed for streaming, the poster cut from it
+     at one second. */
+  src: "/kalee/vsl.mp4",
+  poster: "/kalee/vsl-poster.webp",
   label: "Kaleeswaran K introduces the 14-day 1% Better Every Day journey.",
-  aspect: "16 / 9",
+  /* The footage's own 832x464, not the 16/9 this defaulted to while it was
+     empty. They are close but not equal, and the difference is the difference
+     between a frame that fits the picture and one that letterboxes it. */
+  aspect: "832 / 464",
 };
 
 /* -------------------------------------------------------------------------- */
@@ -313,7 +317,7 @@ export type JourneyDay = {
 export const journeyDays: JourneyDay[] = [
   { day: 1, week: 1, title: "Awareness", description: "What’s really going on within you?" },
   { day: 2, week: 1, title: "Patterns", description: "Recognising the loops you keep repeating." },
-  { day: 3, week: 1, title: "Self-Trust", description: "Why you stop trusting yourself — and how to rebuild it." },
+  { day: 3, week: 1, title: "Self-Trust", description: "Why you stop trusting yourself – and how to rebuild it." },
   { day: 4, week: 1, title: "Playfulness", description: "Rediscovering curiosity, lightness and possibility." },
   { day: 5, week: 1, title: "Comparison", description: "How comparison quietly affects your confidence." },
   { day: 6, week: 1, title: "Inner Coach", description: "Learning to speak to yourself differently." },
@@ -466,7 +470,7 @@ export const howItWorks = {
  */
 export const forYouIf = [
   "You feel stuck even though you know you can do better.",
-  "You want to understand yourself—not just improve your productivity.",
+  "You want to understand yourself–not just improve your productivity.",
   "You keep starting things but struggle to stay consistent.",
   "You overthink decisions or compare yourself with others.",
   "You want to rebuild self-trust and confidence.",
@@ -479,7 +483,7 @@ export const outcomes = [
   "Understand why you repeatedly start and stop.",
   "Rebuild trust in yourself through small kept promises.",
   "Focus on your own journey instead of constantly comparing.",
-  "Return — even after you miss a day — without guilt.",
+  "Return – even after you miss a day – without guilt.",
 ];
 
 export const notForYouHeading = "This may not be for you if…";
@@ -635,13 +639,13 @@ export const authorityHighlights: AuthorityHighlight[] = [
 ];
 
 export const credentials = [
-  "Dual MSc — Counselling and Psychotherapy",
+  "Dual MSc – Counselling and Psychotherapy",
   "MSc Applied Psychology in Clinical",
   "PG Diploma in Yoga",
   "NIMHANS Trained",
   "NLP Practitioner",
   "Clinical Hypnotherapist",
-  "Corporate Master Trainer — IATD",
+  "Corporate Master Trainer – IATD",
   "CBT and REBT Certified",
   "Expressive Arts Therapist",
   "Playback Theatre Artist",
@@ -974,7 +978,7 @@ export const faqItems: FaqItem[] = [
   {
     question: "Who can join?",
     answer:
-      "Entrepreneurs, professionals, freelancers—and anyone genuinely interested in working " +
+      "Entrepreneurs, professionals, freelancers–and anyone genuinely interested in working " +
       "on themselves and growing.",
   },
   {
@@ -995,7 +999,7 @@ export const guarantee = {
   body: [
     "Attend all 14 days.",
     "Complete the daily reflection every night.",
-    "If you feel no shift in your awareness, self-trust, or 1% Better on any habits — " +
+    "If you feel no shift in your awareness, self-trust, or 1% Better on any habits – " +
       "I will return every rupee.",
   ],
   emphasis: "No questions asked.",
@@ -1107,7 +1111,7 @@ export const journeySteps: readonly JourneyStep[] = [
   {
     key: "occupation",
     question: "What do you do?",
-    note: "Occupation or business — a word or two is plenty.",
+    note: "Occupation or business – a word or two is plenty.",
     placeholder: "Occupation / Business",
     field: { kind: "text", autoComplete: "organization-title" },
   },
@@ -1135,7 +1139,7 @@ export const journeyForm = {
     heading: "You're ready.",
     lines: ["A few details.", "One meaningful step forward."],
     /** The price is appended with `inr()`; never write the number here. */
-    cta: "Pay and begin —",
+    cta: "Pay and begin –",
   },
 
   /**
@@ -1163,7 +1167,7 @@ export const journeyForm = {
     /** Nothing was charged. Said plainly, with the way back. */
     failed: {
       heading: "Payment wasn't completed.",
-      line: "Nothing has been charged. Your details are still here — you can try again.",
+      line: "Nothing has been charged. Your details are still here – you can try again.",
       retry: "Try again",
     },
     /**
@@ -1172,7 +1176,7 @@ export const journeyForm = {
      */
     unconfirmed: {
       heading: "Payment received.",
-      line: "We're still confirming it at our end. You don't need to pay again — if you don't hear from us, get in touch and we'll sort it out.",
+      line: "We're still confirming it at our end. You don't need to pay again – if you don't hear from us, get in touch and we'll sort it out.",
     },
   },
 } as const;

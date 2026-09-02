@@ -34,9 +34,6 @@ export function PatternSection() {
             {refPattern.steps.map((step, i) => (
               <div key={step.title} className="contents">
                 <div className="pf-step">
-                  <span className="pf-icon" aria-hidden>
-                    {step.icon}
-                  </span>
                   <div className="pf-text">
                     <strong>{step.title}</strong>
                     <p>{step.body}</p>

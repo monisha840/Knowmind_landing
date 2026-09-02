@@ -37,9 +37,10 @@ export function VSLSection() {
             </div>
           ) : (
             <>
-              <span className="vsl-play" aria-hidden>
-                ▶️
-              </span>
+              {/* Empty on purpose: the play mark is drawn in CSS (ring +
+                  border triangle) rather than set as the ▶️ emoji, which
+                  rendered as a blue system glyph on the purple ground. */}
+              <span className="vsl-play" aria-hidden />
               <p className="vsl-text">{refVsl.placeholder}</p>
             </>
           )}

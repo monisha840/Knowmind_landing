@@ -25,9 +25,6 @@ export function ExploreSection() {
         <div className="explore-grid">
           {refExplore.cards.map((card) => (
             <div className="explore-card" key={card.title}>
-              <div className="ec-icon" aria-hidden>
-                {card.icon}
-              </div>
               <h3>{card.title}</h3>
               <p>{card.body}</p>
             </div>

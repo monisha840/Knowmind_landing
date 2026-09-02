@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
       return fail(
         402,
         "payment_incomplete",
-        "That payment didn't go through. You can try again — nothing has been charged.",
+        "That payment didn't go through. You can try again – nothing has been charged.",
       );
     }
 

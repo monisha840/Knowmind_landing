@@ -1,50 +1,50 @@
-import { Accordion } from "@/components/ui/Accordion";
-import { Reveal } from "@/components/ui/Reveal";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { faqItems } from "@/lib/content";
-import { siteConfig } from "@/lib/config";
+import { RefSectionIntro } from "@/components/ui/RefSectionIntro";
+import { refFaq } from "@/lib/reference-content";
 
+/**
+ * Band 16 — the questions.
+ *
+ * Eight cards in a 2×2×2×2 on white, numbered in the copy itself because the
+ * reference numbers them there rather than by counter. Not a disclosure list:
+ * the reference sets every answer open, and a page whose whole argument is
+ * "you already know what to do" should not make somebody click eight times to
+ * find the refund terms. So `Accordion` is not used here, and the band ships no
+ * client JavaScript at all.
+ *
+ * Answer 3 sets one clause in Tamil mid-sentence. It is the only place on the
+ * page where a language switch happens inside a paragraph, which is exactly
+ * what `lang` is for (CLAUDE.md §13.5) — and `.faq-tamil` is why the clause is
+ * split out in the transcription rather than concatenated into the answer.
+ */
 export function FAQSection() {
   return (
-    <section
-      id="faq"
-      aria-labelledby="faq-heading"
-      className="section-y relative bg-wine-950"
-    >
-      <div className="container-page">
-        <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
-          <div className="lg:col-span-4">
-            <div className="lg:sticky lg:top-32">
-              <SectionHeading eyebrow="Questions" title="Before you decide" />
+    <section className="faq-section" id="faq" aria-labelledby="faq-heading">
+      <div className="faq-inner">
+        <div className="faq-top">
+          <RefSectionIntro
+            tag={refFaq.tag}
+            title={{ before: refFaq.title }}
+            headingId="faq-heading"
+          />
+        </div>
 
-              <Reveal delay={0.12}>
-                <p className="mt-8 text-body text-cream-muted">
-                  Still unsure about something? Write to{" "}
-                  <a
-                    href={siteConfig.contact.emailHref}
-                    className="link-underline text-honey"
-                  >
-                    {siteConfig.contact.email}
-                  </a>{" "}
-                  or call{" "}
-                  <a
-                    href={siteConfig.contact.phoneHref}
-                    className="link-underline text-honey"
-                  >
-                    {siteConfig.contact.phone}
-                  </a>
-                  .
-                </p>
-              </Reveal>
+        <div className="faq-grid">
+          {refFaq.items.map((item) => (
+            <div className="faq-card" key={item.q}>
+              <h3 className="faq-q">{item.q}</h3>
+              <p className="faq-a">
+                {item.a}
+                {"tamil" in item && (
+                  <>
+                    <span className="faq-tamil" lang="ta">
+                      {item.tamil}
+                    </span>
+                    {item.aAfter}
+                  </>
+                )}
+              </p>
             </div>
-          </div>
-
-          <div className="lg:col-span-8">
-            <h2 id="faq-heading" className="sr-only">
-              Frequently asked questions
-            </h2>
-            <Accordion items={faqItems} tone="dark" defaultOpen={0} />
-          </div>
+          ))}
         </div>
       </div>
     </section>

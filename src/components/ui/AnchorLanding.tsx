@@ -12,10 +12,11 @@ import { useEffect } from "react";
  * re-checks, so the section comes to rest short of the top of the screen.
  *
  * So this waits for the scroll to stop and, if the target is off by more than a
- * pixel, closes the gap. That finishes the navigation rather than taking it
- * over: the correction is abandoned the moment somebody touches the wheel, the
- * screen or the keyboard, because a page that yanks itself out from under a
- * reader is worse than one that lands a few pixels low.
+ * pixel from where `scroll-padding-top` says it belongs, closes the gap. That
+ * finishes the navigation rather than taking it over: the correction is
+ * abandoned the moment somebody touches the wheel, the screen or the keyboard,
+ * because a page that yanks itself out from under a reader is worse than one
+ * that lands a few pixels low.
  *
  * Rendered once, by the section it belongs to. It draws nothing.
  */
@@ -52,7 +53,17 @@ export function AnchorLanding({ target }: { target: string }) {
 
         const el = document.getElementById(target);
         if (!el) return;
-        const off = el.getBoundingClientRect().top;
+
+        /* Where the browser would have put it: `scroll-padding-top` on the
+           scrolling element, which is what clears the pinned bar — 96px at
+           desktop, 120px under 700px where the bar wraps to two rows. Closing
+           to a bare 0 instead is what this used to do, and it undid the very
+           clearance it was written to protect: the browser landed the section
+           correctly and this then pulled it up under the bar, by 64px at 1440,
+           98px at 390 and 131px at 320. `auto` computes to a length here; the
+           `|| 0` covers a UA that leaves it as a keyword. */
+        const clearance = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+        const off = el.getBoundingClientRect().top - clearance;
         if (Math.abs(off) > 1) window.scrollBy({ top: off, behavior: "auto" });
       };
 

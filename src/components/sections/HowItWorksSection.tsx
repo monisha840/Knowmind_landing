@@ -39,9 +39,6 @@ export function HowItWorksSection() {
         <div className="how-clarity">
           {refHow.clarity.map((item) => (
             <div className="hc-item" key={item.label}>
-              <span className="icon" aria-hidden>
-                {item.icon}
-              </span>
               <div className="label">{item.label}</div>
               <div className="val">{item.val}</div>
             </div>

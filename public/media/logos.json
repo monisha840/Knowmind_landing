@@ -1,0 +1,56 @@
+[
+  {
+    "name": "Sun News",
+    "slug": "sun-news",
+    "width": 132,
+    "height": 96
+  },
+  {
+    "name": "Thanthi TV",
+    "slug": "thanthi-tv",
+    "width": 86,
+    "height": 96
+  },
+  {
+    "name": "Vijay TV",
+    "slug": "vijay-tv",
+    "width": 72,
+    "height": 96
+  },
+  {
+    "name": "Vikatan",
+    "slug": "vikatan",
+    "width": 375,
+    "height": 96
+  },
+  {
+    "name": "Hello FM 106.4",
+    "slug": "hello-fm",
+    "width": 315,
+    "height": 96
+  },
+  {
+    "name": "Puthiya Thalaimurai",
+    "slug": "puthiya-thalaimurai",
+    "width": 243,
+    "height": 96
+  },
+  {
+    "name": "Puthu Yugam",
+    "slug": "puthu-yugam",
+    "width": 389,
+    "height": 96
+  },
+  {
+    "name": "Maalai Malar",
+    "slug": "maalai-malar",
+    "width": 93,
+    "height": 96
+  },
+  {
+    "name": "The Federal",
+    "slug": "the-federal",
+    "width": 178,
+    "height": 96
+  }
+]

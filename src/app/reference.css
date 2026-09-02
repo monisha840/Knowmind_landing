@@ -7,9 +7,9 @@
 
    Values are the reference's own, read from the live document rather than
    estimated (Master Reproduction Specification §03). Where a rule departs from
-   the reference it carries a comment saying why — there are six such places,
-   and they are the four defects the specification names plus two legibility
-   restorations:
+   the reference it carries a comment saying why — there are eight such places:
+   the four defects the specification names, two legibility restorations, one
+   overflow fix, and one typeface change made at the owner's instruction:
 
      1. `.price-center > p` is a child selector, not a descendant one. In the
         reference it is `.price-center p`, whose (0,1,1) specificity silently
@@ -22,13 +22,74 @@
      4. The sticky bar and footer respect the safe-area insets.
      5. `:focus-visible` rings exist.
      6. Both infinite animations stop under `prefers-reduced-motion`.
+     7. `.s-title` and `.tb-tamil` scale below ~400px, so the pattern band's
+        two Tamil display lines cannot push the page sideways at 320px.
+     8. The body face is Instrument Sans, not the reference's `"Segoe UI",
+        Arial` system stack — asked for, and the one departure here that is a
+        preference rather than a fix. It is the project's own UI face (CLAUDE.md
+        §5.2) and the root layout already self-hosts it, so it costs this route
+        nothing. Two consequences worth knowing:
+
+          · Weights 800 and 900 are used by 36 rules in this file and Instrument
+            Sans's axis stops at 700, so both clamp there. Display lines read
+            lighter than the reference's. The declarations are deliberately left
+            as written rather than rewritten to 700 — they record the intended
+            hierarchy, and they would come back to life under any face that
+            carries the weight.
+          · The `font-size: 16px / line-height: normal` calibration below was
+            swept against Segoe UI's metrics. It still holds as the reference's
+            implicit base, but the band heights it was tuned to have shifted by
+            up to ~50px; see the note on that rule.
    ========================================================================== */
 
 @layer components {
   .ref-page {
-    font-family: "Segoe UI", "Arial", sans-serif;
+    /* The reference sets `"Segoe UI", Arial` — a system stack, which means the
+       page rendered in whatever the visitor's OS supplies: Segoe UI on Windows,
+       Helvetica on a Mac, Roboto on Android. Three different pages.
+
+       Instrument Sans instead, at the owner's instruction. It is the project's
+       own UI face (CLAUDE.md §5.2) and it costs this route nothing: the root
+       layout already self-hosts it through `next/font`, so it was being
+       downloaded and preloaded on every visit here and then thrown away for a
+       system font — which is exactly what the browser's four "preloaded but not
+       used" console warnings were reporting. Using it makes them correct rather
+       than silencing them.
+
+       Falls back through the token's own stack, so a failed webfont lands on
+       the platform UI face rather than on Times. */
+    font-family: var(--font-sans);
     color: #1a0030;
     background: #fff;
+    /* The reference sets no base size and no base leading, so every element it
+       does not size explicitly falls to the browser's own 16px / `normal`. This
+       project's base layer sets `body { font-size: var(--text-body); line-height:
+       1.65 }` — 18px/1.65 at desktop — and that inherits straight through the
+       scope, inflating every unsized element on the page.
+
+       These two lines restore the reference's implicit base. They were not an
+       estimate: sweeping both properties against the eighteen band heights
+       measured off the live reference (§01) put nine bands at a zero-pixel
+       delta — vsl, phil, journey, how, explore, kalee, both marquees and who —
+       and no other pairing came close.
+
+       That sweep was run against Segoe UI's metrics, so changing the family
+       above necessarily moves those numbers: Instrument Sans sets a little
+       narrower, and the measured effect is that copy-heavy bands lose height as
+       lines stop wrapping. 16px/`normal` is still the right base — it is the
+       reference's own implicit one, and it is what keeps the project's 18px/1.65
+       from leaking in — but the nine-band zero-delta claim belongs to the old
+       face and is recorded here as history rather than as a live measurement. */
+    font-size: 16px;
+    line-height: normal;
+  }
+
+  /* The one block inside this scope that is not the reference's. The
+     registration questions keep the project's design system (see page.tsx), so
+     they keep the project's base type with it. */
+  .ref-page #begin-journey {
+    font-size: var(--text-body);
+    line-height: 1.65;
   }
 
   /* The project's base layer sets `font-weight:600` and `text-wrap:balance` on
@@ -44,8 +105,22 @@
      there is no Tamil face at all. The project already loads Noto Sans Tamil
      for exactly this reason; keeping it is a fix, not a deviation. */
   .ref-page :lang(ta) {
-    font-family: var(--font-tamil), "Segoe UI", "Arial", sans-serif;
-    line-height: 1.7;
+    /* The token already falls back through Instrument Sans and the platform UI
+       stack, so the explicit Segoe UI tail this used to carry is redundant now
+       that the scope's own family is no longer a system font. */
+    font-family: var(--font-tamil);
+    /* The family is the fix; the leading is not. The project's base layer adds
+       `line-height: 1.7` to every `:lang(ta)` element because the brand pages
+       set Tamil in a Latin type scale that is too tight for it. Here the
+       reference sets no leading at all, and Noto Sans Tamil's own `normal`
+       already resolves to ~1.48 — enough for every mark to clear. Forcing 1.7
+       inside this scope cost the pattern band 76px against the measured
+       reference and the hero 13px. `normal` puts them at +2 and +8.
+
+       This has to be stated rather than omitted: the base-layer rule still
+       matches these elements, so deleting the declaration would restore 1.7
+       rather than remove it. */
+    line-height: normal;
   }
 
   .ref-page a {
@@ -57,6 +132,46 @@
     outline: 3px solid #ffb300;
     outline-offset: 3px;
     border-radius: 4px;
+  }
+
+  /* -- AMBER CTA SURFACE -------------------------------------------------- */
+  /* One rule for every amber button on the page, so the hero, the price card,
+     the close, the journey band and the pinned bar cannot drift apart.
+
+     The reference gives these buttons no hover state at all — a 20px amber
+     slab that does not acknowledge the pointer reads as an image rather than a
+     control. This is the "crisp" half of removing the glow: instead of a halo
+     that is always on, the surface darkens one step on hover and settles on
+     press. Colour and geometry at rest are untouched. */
+  .ref-page :is(.h-cta, .p-cta, .final-cta, .cta-btn, .s-cta) {
+    transition:
+      background-color 140ms ease,
+      box-shadow 140ms ease,
+      transform 140ms ease;
+  }
+  .ref-page :is(.h-cta, .p-cta, .final-cta, .cta-btn, .s-cta):hover {
+    background-color: #f0a800;
+  }
+  .ref-page :is(.h-cta, .p-cta, .final-cta, .cta-btn):hover {
+    box-shadow:
+      0 1px 2px rgba(26, 0, 48, 0.24),
+      0 5px 16px rgba(26, 0, 48, 0.18);
+    transform: translateY(-1px);
+  }
+  .ref-page :is(.h-cta, .p-cta, .final-cta, .cta-btn, .s-cta):active {
+    background-color: #e5a000;
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(26, 0, 48, 0.24);
+  }
+  /* The 1px lift is motion; under a reduced-motion preference the colour change
+     carries the affordance on its own (CLAUDE.md §11.1). */
+  @media (prefers-reduced-motion: reduce) {
+    .ref-page :is(.h-cta, .p-cta, .final-cta, .cta-btn, .s-cta) {
+      transition: background-color 140ms ease;
+    }
+    .ref-page :is(.h-cta, .p-cta, .final-cta, .cta-btn):hover {
+      transform: none;
+    }
   }
 
   /* -- STICKY ------------------------------------------------------------ */
@@ -75,6 +190,20 @@
     color: #ffb300;
     font-size: 15px;
     font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* The bar is a flex row and this is the growing half; without it the
+       wordmark can push the CTA past the right gutter at 320px instead of
+       giving way itself. */
+    min-width: 0;
+  }
+  /* Stated in both axes so the row cannot reflow while the file decodes. 60x26
+     is the mark's own 220:96 at the height of the two lines beside it. */
+  .ref-page .s-mark {
+    width: 60px;
+    height: 26px;
+    flex-shrink: 0;
   }
   .ref-page .s-logo span {
     color: #d8b8f5;
@@ -95,6 +224,24 @@
     align-items: center;
     min-height: 44px;
     white-space: nowrap;
+  }
+  /* --- The countdown's own pinned bar, at the foot of the screen ----------
+     `sticky`, not `fixed`, and the last child of `.ref-page`: it reserves its
+     own height in normal flow, so it can never cover the footer and nothing has
+     to be padded by hand to match whatever it measures. See CountdownBar. */
+  .ref-page .countdown-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 998;
+    background: #2d0060;
+    border-top: 1px solid rgba(255, 179, 0, 0.25);
+    padding: 10px 16px;
+    /* The reference has no safe-area handling anywhere; a pinned bar over the
+       home indicator is a defect, not a design (specification §07). */
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.4);
   }
   .ref-page .timer {
     display: flex;
@@ -154,7 +301,21 @@
     max-width: 1200px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 1fr 400px;
+    /* The reference's second track is a flat 400px, sized for the upright photo
+       placeholder it drew. What sits there now is the credentials card, whose
+       six badges and name plate are lettering — it is the one asset on the page
+       that gets harder to read as it gets smaller, and at 380px on a 1440+
+       screen it read as a thumbnail against a 52px headline.
+
+       Fluid rather than a bigger flat number, because the track has to give way
+       before the copy does. `30vw` grows the card on the wide screens that have
+       room to spare and hands the space back below ~1270px, where the left
+       column needs every pixel to keep "Are You Ready to Become 1% Better Every
+       Day?" on one line. The 380px floor is the reference's own card width, so
+       nothing between 1000 and ~1270px moves at all; the 470px ceiling is what
+       still leaves that headline its line at the widest layout the 1200px
+       container ever reaches. */
+    grid-template-columns: 1fr clamp(380px, 30vw, 470px);
     gap: 60px;
     align-items: flex-end;
     position: relative;
@@ -252,7 +413,13 @@
     padding: 20px 48px;
     border-radius: 12px;
     display: inline-block;
-    box-shadow: 0 4px 24px rgba(255, 179, 0, 0.4);
+    /* Was `0 4px 24px rgba(255,179,0,0.4)` — a 24px amber halo that made the
+       button luminous rather than solid. The replacement is a neutral
+       plum-black elevation: the amber now reads as a printed surface with a
+       crisp edge instead of a light source. Colour unchanged. */
+    box-shadow:
+      0 1px 2px rgba(26, 0, 48, 0.2),
+      0 3px 10px rgba(26, 0, 48, 0.14);
     margin-bottom: 10px;
   }
   .ref-page .h-cta-note {
@@ -263,10 +430,47 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    /* `.hero-inner` bottom-aligns its two columns, which parked the card on the
+       hero's floor while the copy beside it ran from the top — the column read
+       as bottom-heavy. Centred in the grid row instead, then biased upward.
+
+       The bias is a bottom margin rather than a transform because `align-self:
+       center` counts margins as part of what it centres, so the box settles
+       half the margin above centre and still reserves its own space. A
+       transform would have moved the paint and left the box where it was, which
+       is how a card ends up overlapping the row below it. The left column keeps
+       its own `padding-bottom`, so only the card moves.
+
+       112px = 56px of lift, measured rather than guessed. `.hero` runs 683px at
+       every width from ~1100 up, and a plain centre put the card six pixels
+       *below* centre, because the hero pads 70px at the top and nothing at the
+       bottom.
+
+       The card is fluid now, so the lift has to hold across its whole range
+       rather than at one size. Measured: 329px tall at 1100 sitting 156/198
+       top/bottom, and 390px tall at 1920 sitting 126/168. The same 30px bias
+       above centre at both ends — because a constant margin biases a centred
+       box by a constant, whatever its height — and 126px of clearance at the
+       tightest end, so a taller card never crowds the band. */
+    align-self: center;
+    margin-bottom: 112px;
   }
+  /* Landscape, not portrait. The reference frames a 380x440 upright box for a
+     photograph; the asset that now sits in it is the credentials card, which is
+     1200x811 — and every one of its six badges plus the name plate is lettering
+     baked into the pixels. In an upright box `cover` scaled it to 440 tall and
+     clipped it to 380 wide, which is 42% of the width gone: all six badges and
+     the plate outside the frame, leaving a torso on white. So the frame takes
+     the image's own ratio instead and nothing is cropped.
+
+     `width: 100%` rather than the reference's 380px: the card and the stat bar
+     below it both fill the same fluid grid track, so they meet flush by
+     construction at every width instead of by two magic numbers that have to be
+     kept equal by hand. The track is what carries the sizing — see
+     `.hero-inner`. */
   .ref-page .hero-photo {
-    width: 380px;
-    min-height: 440px;
+    width: 100%;
+    aspect-ratio: 1200 / 811;
     background: rgba(255, 255, 255, 0.04);
     border-radius: 20px 20px 0 0;
     border: 1px solid rgba(255, 179, 0, 0.15);
@@ -283,13 +487,19 @@
     position: relative;
     overflow: hidden;
   }
+  /* `contain`, not `cover`. The frame carries the image's own ratio, so the two
+     agree and neither would crop — but `contain` is the one that still cannot
+     clip a badge if the box ever rounds a fraction the other way, and a clipped
+     badge here is lost lettering rather than a lost sliver of background. The
+     `object-position` that used to hold a face high in an upright crop is gone
+     with the crop it existed for. */
   .ref-page .hero-photo img {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: 50% 16%;
+    object-fit: contain;
+    object-position: center;
   }
   .ref-page .hero-photo .ph-icon {
     font-size: 52px;
@@ -300,7 +510,8 @@
     padding: 14px 20px;
     display: flex;
     justify-content: space-around;
-    width: 380px;
+    /* Fills the same track as the card above it — see `.hero-photo`. */
+    width: 100%;
     position: relative;
   }
   .ref-page .hstat {
@@ -347,8 +558,26 @@
     gap: 12px;
     min-height: 220px;
   }
+  /* Was the ▶️ emoji at 52px — a blue-and-white system glyph on a purple ground,
+     and the single most off-palette mark on the page. Drawn instead: a hairline
+     ring with a triangle made from borders. No dependency, no icon font, and it
+     inherits the band's own amber. The 3px nudge is optical — a triangle centred
+     by its bounding box reads left of centre inside a circle. */
   .ref-page .vsl-play {
-    font-size: 52px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 179, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ref-page .vsl-play::before {
+    content: "";
+    border-style: solid;
+    border-width: 9px 0 9px 15px;
+    border-color: transparent transparent transparent #ffb300;
+    margin-left: 3px;
   }
   .ref-page .vsl-text {
     color: rgba(255, 255, 255, 0.4);
@@ -424,11 +653,6 @@
     border-left: 4px solid #4b0082;
     border-radius: 0 10px 10px 0;
     padding: 14px 18px;
-  }
-  .ref-page .pf-icon {
-    font-size: 20px;
-    flex-shrink: 0;
-    margin-top: 2px;
   }
   .ref-page .pf-text strong {
     font-size: 14px;
@@ -524,10 +748,6 @@
   }
   .ref-page .phil-card:last-child::after {
     display: none;
-  }
-  .ref-page .phil-icon {
-    font-size: 32px;
-    margin-bottom: 12px;
   }
   .ref-page .phil-title {
     font-size: 14px;
@@ -730,11 +950,6 @@
     gap: 16px;
     text-align: center;
   }
-  .ref-page .hc-item .icon {
-    font-size: 20px;
-    margin-bottom: 6px;
-    display: block;
-  }
   .ref-page .hc-item .label {
     color: #d8b8f5;
     font-size: 11px;
@@ -793,10 +1008,6 @@
     border-radius: 12px;
     padding: 22px 24px;
     border-left: 4px solid #4b0082;
-  }
-  .ref-page .explore-card .ec-icon {
-    font-size: 24px;
-    margin-bottom: 8px;
   }
   .ref-page .explore-card :is(h3, h4) {
     font-size: 15px;
@@ -986,11 +1197,6 @@
     padding: 12px;
     text-align: center;
   }
-  .ref-page .sb .si {
-    font-size: 20px;
-    margin-bottom: 4px;
-    display: block;
-  }
   .ref-page .sb strong {
     color: #4b0082;
     font-size: 11px;
@@ -1107,6 +1313,50 @@
     background: rgba(255, 255, 255, 0.1);
     border-color: #ffb300;
   }
+  /* --- A pill holding a real mark ----------------------------------------
+     White ground, whatever the band. Six of the nine marks were drawn for
+     white and arrive with it baked in; the other three are transparent. On the
+     band's own #2D0060 that mixture reads as three logos and six white
+     rectangles, so every one of them gets the same white chip and the set
+     looks deliberate.
+
+     The reference's `grayscale(100%)` and `opacity: .55`, restored on hover,
+     are dropped here on purpose. These are press credentials rather than
+     decoration, and the strip is a marquee: hover lands on a moving target on
+     a desktop and does not exist at all on a phone, which is where most of
+     this page is read. A treatment only reversible by hovering would leave
+     most visitors looking at nine grey smudges (CLAUDE.md §12.4). */
+  .ref-page .logo-pill-mark {
+    background: #fff;
+    /* 4px, not the 10px the type pills use: it is what lets a near-square mark
+       stand 40px tall inside the reference's own 48px pill, so the strip keeps
+       its 145px height. */
+    padding: 4px 14px;
+    filter: none;
+    opacity: 1;
+  }
+  .ref-page .media-feat-section .logo-pill-mark {
+    background: #fff;
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+  .ref-page .media-feat-section .logo-pill-mark:hover {
+    background: #fff;
+  }
+  /* One box for every mark, and `contain` inside it: a masthead four times as
+     wide as it is tall meets the width first, a lighthouse meets the height,
+     and neither is cropped or stretched to match the other.
+
+     A stated 104x40 rather than `max-*` with `width: auto`. These images are
+     lazy — the strip sits about 5,800px down — and an auto-sized image that has
+     not loaded has no intrinsic size to be auto about, so the pills would stand
+     collapsed until a visitor scrolled to them and then snap open. Definite
+     numbers mean the strip is 145px tall from first paint whether the marks
+     have arrived or not (CLAUDE.md §15 — no shift on load). */
+  .ref-page .logo-pill-mark img {
+    width: 104px;
+    height: 40px;
+    object-fit: contain;
+  }
 
   /* -- TESTIMONIALS ------------------------------------------------------ */
   .ref-page .test-section {
@@ -1172,13 +1422,72 @@
     flex-direction: column;
     gap: 8px;
   }
+  /* The same drawn play mark as `.vsl-play`, one size down. These slots are
+     placeholders for testimonials that do not exist yet, so the mark is set in
+     the muted white the copy beneath it uses rather than in amber — it should
+     read as an empty frame, not as something to click (CLAUDE.md §9.2). */
   .ref-page .video-ph .vplay {
-    font-size: 36px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ref-page .video-ph .vplay::before {
+    content: "";
+    border-style: solid;
+    border-width: 6px 0 6px 10px;
+    border-color: transparent transparent transparent rgba(255, 255, 255, 0.4);
+    margin-left: 2px;
   }
   .ref-page .video-ph p {
     color: rgba(255, 255, 255, 0.4);
     font-size: 12px;
     text-align: center;
+  }
+  /* --- A slot with a real recording in it ---------------------------------
+     The reference never drew this state, because it had no footage. It is
+     built to occupy the placeholder's grid cell exactly, so filling a slot
+     moves nothing around it.
+
+     `max-width` rather than a bare column fill: three 9:16 frames across a
+     1120px content box would stand 644px tall and turn one band into most of
+     a screen. 300px caps them at 533px, which is the height of the six quote
+     cards below them, and `margin-inline: auto` keeps each one centred in a
+     column that is wider than it is. */
+  .ref-page .test-video {
+    max-width: 300px;
+    margin-inline: auto;
+    width: 100%;
+  }
+  .ref-page .test-video-frame {
+    position: relative;
+    /* The footage's own ratio, declared rather than measured, so the row holds
+       its full height from first paint (CLAUDE.md §15 — no shift on load). */
+    aspect-ratio: 9 / 16;
+    background: #1a0030;
+    border-radius: 12px;
+    /* The player's poster and video are both absolutely positioned children;
+       this is what clips them to the rounded frame. */
+    overflow: hidden;
+  }
+  .ref-page .test-video-cap {
+    padding: 10px 2px 0;
+    text-align: center;
+  }
+  .ref-page .test-video-name {
+    display: block;
+    color: #1a0030;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .ref-page .test-video-role {
+    display: block;
+    color: #666;
+    font-size: 11px;
+    margin-top: 2px;
   }
   .ref-page .test-cta {
     background: #ede7f6;
@@ -1219,11 +1528,6 @@
     padding: 16px 18px;
     margin-bottom: 12px;
     align-items: flex-start;
-  }
-  .ref-page .fi-icon {
-    font-size: 22px;
-    flex-shrink: 0;
-    margin-top: 2px;
   }
   .ref-page .fi-text strong {
     font-size: 14px;
@@ -1281,6 +1585,25 @@
     font-weight: 900;
     flex-shrink: 0;
   }
+  /* The ✓ that balances that ✕.
+
+     Each "for you" row used to open with its own emoji; the "not for you" rows
+     opposite open with a monochrome ✕, and removing the emoji left the positive
+     column with no marker at all while the negative column kept one — the two
+     halves of a deliberate comparison stopped reading as a pair. This restores
+     the marker in the page's own idiom: the same glyph the `.after-box` list
+     already uses, in the band's purple rather than a colour of its own.
+
+     Drawn as `::before` rather than added back to the markup, because it is
+     presentational and the row is already a flex container — the pseudo-element
+     becomes its first child and picks up the existing 14px gap for free. */
+  .ref-page .for-item::before {
+    content: "✓";
+    color: #4b0082;
+    font-weight: 900;
+    line-height: 1.5;
+    flex-shrink: 0;
+  }
   .ref-page .not-note {
     background: #2d0060;
     border-radius: 12px;
@@ -1332,10 +1655,6 @@
     border-radius: 0 0 12px 12px;
     padding: 24px 20px;
     text-align: center;
-  }
-  .ref-page .bc-icon {
-    font-size: 32px;
-    margin-bottom: 12px;
   }
   .ref-page .bc-name {
     font-size: 15px;
@@ -1462,7 +1781,13 @@
     padding: 22px 40px;
     border-radius: 12px;
     margin-bottom: 10px;
-    box-shadow: 0 4px 24px rgba(255, 179, 0, 0.4);
+    /* Was `0 4px 24px rgba(255,179,0,0.4)` — a 24px amber halo that made the
+       button luminous rather than solid. The replacement is a neutral
+       plum-black elevation: the amber now reads as a printed surface with a
+       crisp edge instead of a light source. Colour unchanged. */
+    box-shadow:
+      0 1px 2px rgba(26, 0, 48, 0.2),
+      0 3px 10px rgba(26, 0, 48, 0.14);
     text-align: center;
     border: 0;
     font-family: inherit;
@@ -1521,10 +1846,6 @@
     align-items: flex-start;
     text-align: left;
     margin-top: 20px;
-  }
-  .ref-page .g-icon {
-    font-size: 36px;
-    flex-shrink: 0;
   }
   .ref-page .g-title {
     color: #fff;
@@ -1648,7 +1969,13 @@
     padding: 22px 44px;
     border-radius: 12px;
     display: inline-block;
-    box-shadow: 0 4px 24px rgba(255, 179, 0, 0.4);
+    /* Was `0 4px 24px rgba(255,179,0,0.4)` — a 24px amber halo that made the
+       button luminous rather than solid. The replacement is a neutral
+       plum-black elevation: the amber now reads as a printed surface with a
+       crisp edge instead of a light source. Colour unchanged. */
+    box-shadow:
+      0 1px 2px rgba(26, 0, 48, 0.2),
+      0 3px 10px rgba(26, 0, 48, 0.14);
   }
   .ref-page .final-meta {
     color: rgba(255, 255, 255, 0.4);
@@ -1663,12 +1990,20 @@
   }
 
   /* -- FOOTER ------------------------------------------------------------ */
+  /* The reference sets this as two blocks pushed to opposite edges — brand
+     left, contact right. Centred instead, at the owner's request: one stacked
+     column, brand over contact, everything on the page's centre line. That is
+     also why `.f-right` below is centred rather than right-aligned, and why the
+     ≤700px override no longer has to restate the direction — it is already a
+     centred column at every width, so only the safe-area padding is left. */
   .ref-page .ref-footer {
     background: #0d0020;
     padding: 20px 40px;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    text-align: center;
     flex-wrap: wrap;
     gap: 10px;
   }
@@ -1688,7 +2023,7 @@
     margin-top: 4px;
   }
   .ref-page .f-right {
-    text-align: right;
+    text-align: center;
   }
   .ref-page .f-contact {
     color: #555;
@@ -1742,8 +2077,26 @@
   .ref-page .explore-grid {
     grid-template-columns: 1fr;
   }
+  /* The reference hides the whole right column below 1000px, which drops both
+     the credentials card and the three headline figures on exactly the widths
+     carrying most of this page's traffic — the one place the reproduction was
+     flagged as reproducing a defect rather than a decision. It is shown here
+     instead.
+
+     It stacks under the copy in source order rather than being reordered above
+     it: the band's argument is the headline and the CTA, and pushing a 420px
+     card between the two would put the thing a visitor came to read below the
+     fold on a 320px screen.
+
+     `margin-bottom` is the desktop lift (see the base rule) and means nothing
+     in a single column — left in place it would open 112px of dead purple under
+     the stat bar. `align-self` goes with it. */
   .ref-page .hero-right {
-    display: none;
+    align-self: auto;
+    margin-bottom: 0;
+    max-width: 420px;
+    width: 100%;
+    margin-inline: auto;
   }
   .ref-page .how-steps {
     grid-template-columns: repeat(3, 1fr);
@@ -1774,6 +2127,53 @@
   .ref-page .h-main {
     font-size: 40px;
   }
+  /*
+   * DEVIATION 7 of 7 — see the file header.
+   *
+   * The pattern band's heading is Tamil, and `நினைக்கிறோம்…` is one word that
+   * sets 334px wide at the reference's 34px. A 320px screen offers it 280px
+   * after the gutters, so the reference overflows the page sideways there —
+   * measured at 354px against a 320px viewport.
+   *
+   * Breaking the word is not an option: splitting a Tamil grapheme cluster
+   * mid-word is worse typography than the overflow, and the project does not
+   * alter Tamil copy (CLAUDE.md §1.1). `overflow-x` on a wrapper is explicitly
+   * forbidden (§12). So the type scales instead, and only where it must —
+   * `min()` yields the reference's own 34px at every width from ~400px up, and
+   * bends only on the narrow screens that cannot hold it.
+   */
+  .ref-page .s-title {
+    font-size: min(34px, 8.6vw);
+  }
+  /*
+   * Same defect, same band, one layer in: `.truth-box` pads 32px a side, so its
+   * min-content is 64px plus the widest word in `பரவால பார்த்துக்கலாம்…` — 309px
+   * at the reference's 26px, against the 280px a 320px screen has. Because the
+   * box shares the grid track with the heading above, its minimum was what
+   * actually sized the column, and the heading rule alone could not clear it.
+   */
+  .ref-page .tb-tamil {
+    font-size: min(26px, 6.9vw);
+  }
+  /*
+   * Third of the same defect, in the closing band. `பரவால பார்த்துக்கலாம்…`
+   * sets 282px wide at the reference's 30px, against the 240px a 320px screen
+   * leaves inside the 40px gutters — and unlike the two above it, this one is
+   * the last element on the page wide enough to push the document sideways:
+   * measured at 322px against a 320px viewport, it was the whole of the
+   * overflow. 7.9vw holds the reference's own 30px at every width from ~380px
+   * up, so 390 — the width the reference was measured at — is untouched.
+   */
+  .ref-page .final-tamil {
+    font-size: min(30px, 7.9vw);
+  }
+  /* This block used to raise `scroll-padding-top` to 7.5rem, and a second one
+     below 356px to 9rem, because the bar wrapped to two and then three rows and
+     stood 98px and 131px tall. It no longer wraps at all — the countdown has
+     its own bar at the foot of the screen — so it is 64px at every width and
+     the brand layer's own 96px clears it. Both steps are gone; the single
+     `6rem` restatement lives with the rest of the bar's small-width rules near
+     the foot of this file. */
   .ref-page .sticky {
     padding: 10px 16px;
     /* The reference has no safe-area handling anywhere; a pinned bar under a
@@ -1781,7 +2181,6 @@
     padding-top: max(10px, env(safe-area-inset-top));
     padding-left: max(16px, env(safe-area-inset-left));
     padding-right: max(16px, env(safe-area-inset-right));
-    flex-wrap: wrap;
   }
   .ref-page .s-cta {
     /* Reference: 8px 14px at 12px — roughly 30px tall, under the 44px floor
@@ -1790,37 +2189,22 @@
     padding: 8px 14px;
     font-size: 12px;
   }
-  /* The reference keeps its 40px inline gutter at every width, which is more
-     than a 320px screen can spare on both sides of a card. */
-  .ref-page .hero,
-  .ref-page .vsl-section,
-  .ref-page .pattern-section,
-  .ref-page .phil-section,
-  .ref-page .journey-section,
-  .ref-page .how-section,
-  .ref-page .explore-section,
-  .ref-page .kalee-section,
-  .ref-page .test-section,
-  .ref-page .who-section,
-  .ref-page .bonus-section,
-  .ref-page .price-section,
-  .ref-page .faq-section,
-  .ref-page .final-section {
-    padding-left: 20px;
-    padding-right: 20px;
-  }
+  /* The reference keeps its 40px inline gutter at every width, and it is named
+     as a non-negotiable in §10. An earlier pass narrowed it to 20px below
+     700px to buy room at 320px; measured against the reference's own 390px
+     column that cost 1,001px of height across ten bands — phil −63, journey
+     −150, how −128, explore −153, faq −127 — because every line of copy was
+     being given 40px more to wrap in than the reference gives it. The 320px
+     squeeze is answered where it actually occurs instead, in the two Tamil
+     display lines below. */
   .ref-page .ref-footer {
-    padding-left: 20px;
-    padding-right: 20px;
+    /* The reference has no safe-area handling anywhere; a pinned bar under a
+       notch is a defect, not a design (specification §07).
+
+       The direction and alignment that used to be restated here are gone: the
+       base rule is now a centred column at every width, so repeating it only
+       risked the two drifting apart. */
     padding-bottom: max(20px, env(safe-area-inset-bottom));
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .ref-page .f-right {
-    text-align: left;
-  }
-  .ref-page .marquee-pad {
-    padding: 0 20px;
   }
   .ref-page .price-box {
     padding: 32px 20px;
@@ -1853,11 +2237,102 @@
   }
 }
 
+/* The pinned bar, below 600px.
+   --------------------------------------------------------------------------
+   Nothing to wrap any more. With the countdown moved to its own bar at the foot
+   of the screen, this one holds a mark, a wordmark and a button, and those fit
+   one line all the way down to 320px — so the reference's own single row is
+   what runs at every width and the bar is 64px tall throughout.
+
+   The wordmark is what gives way when the room runs out, rather than the
+   button: the button is the only thing in the bar a visitor can act on, and it
+   holds the 44px touch target the project commits to (CLAUDE.md §12.1). */
+@media (max-width: 600px) {
+  .ref-page .s-logo {
+    font-size: 14px;
+    gap: 8px;
+  }
+  .ref-page .s-mark {
+    width: 46px;
+    height: 20px;
+  }
+  .ref-page .s-logo span {
+    letter-spacing: 0.5px;
+  }
+  /* The reference frames the VSL with 40px of inner padding, which was drawn
+     around a one-line placeholder. Now that the recording fills it, that
+     padding is coming straight off the picture: 40px a side leaves the video
+     228px wide on a 390px screen, inside a band the page labels "Watch this
+     first". The frame keeps a visible inset, the video gets the width back. */
+  .ref-page .vsl-frame {
+    padding: 20px 14px;
+  }
+  /* The countdown is the whole width of its own bar now, so it can breathe
+     rather than being squeezed between two other things. */
+  .ref-page .countdown-bar {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+}
+
+/* The bar's own floor, at 360px and below.
+   --------------------------------------------------------------------------
+   The real mark is 2.29:1 where the flat one it replaced was 1.85:1, so at the
+   same height it is 6px wider — and at 320px that took the space between the
+   wordmark and the button from 7px down to 2px. Nothing overlapped, but 2px is
+   inside the range that font rendering and sub-pixel rounding move things by,
+   which makes it a coincidence rather than a gap.
+
+   Scoped to 360px because that is the only width where it is tight: 390px has
+   72px of slack and 414px has 96px, and shrinking the mark there would be a
+   downgrade paid for nothing. Measured at 320px, this puts the gap back to
+   10px. */
+@media (max-width: 360px) {
+  .ref-page .s-mark {
+    width: 40px;
+    height: 17px;
+  }
+  .ref-page .s-logo {
+    gap: 6px;
+  }
+}
+
+/* One row at every width means one clearance. The reference's 96px covers the
+   64px bar with room to spare, so the 7.5rem and 9rem steps this file used to
+   carry for the two- and three-row bar are gone with the rows that needed them.
+   `:has()` scoping so the 404 and anything later built at `/` are unaffected
+   (CLAUDE.md §12.2). */
+@media (max-width: 700px) {
+  html:has(.ref-page) {
+    scroll-padding-top: 6rem;
+  }
+}
+
 /* Both of the page's infinite animations, stopped. The reference runs them
    regardless of preference; the project does not (CLAUDE.md §11.1). */
 @media (prefers-reduced-motion: reduce) {
   .ref-page .h-dot,
   .ref-page .marquee-track {
     animation: none !important;
+  }
+
+  /* Stopping the marquee is not enough on its own. The track is `max-content`
+     wide — 4,781px for the eighteen organisations — inside a wrapper that
+     clips, so a track frozen at translateX(0) shows the first eleven pills at
+     1440 and about three at 390, and the rest become unreachable: no scroll
+     reaches them, and the animation that used to bring them round is the thing
+     that was just switched off. §11.1 already settles what to do, because the
+     brand `Marquee` answers the same question the same way — it degrades to a
+     static wrapped list. This does that, and drops the seam copy, which exists
+     only so the loop has no visible join and is `aria-hidden` for the same
+     reason. Both strips grow taller than the reference's 146/145px here; that
+     is the point of the trade. */
+  .ref-page .marquee-track {
+    width: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .ref-page .marquee-track > [aria-hidden="true"] {
+    display: none;
   }
 }

@@ -499,7 +499,7 @@ export function LivingPortrait({ className }: { className?: string }) {
           first paint nothing. */}
       <img
         src={PORTRAIT}
-        alt={kalee.name + " — Growth"}
+        alt={kalee.name + " – Growth"}
         fetchPriority="high"
         decoding="async"
         style={{ ...portraitEdge, ...plane(DEPTH.figure) }}
