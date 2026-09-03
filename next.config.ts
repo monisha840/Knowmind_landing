@@ -30,6 +30,27 @@ const nextConfig: NextConfig = {
   },
   // three.js ships untranspiled ESM examples; keep the transpile hint explicit.
   transpilePackages: ["three"],
+  /**
+   * The programme is the only page, and it lives at `/1percentagebetter` so the
+   * path reads correctly wherever it is hosted. On its own subdomain that
+   * leaves the bare origin with nothing to serve, so the root would answer with
+   * the not-found page — the first thing anyone typing the domain would see.
+   *
+   * This forwards it. `permanent: false` (307) on purpose: a 308 is cached by
+   * the browser indefinitely, and if the programme ever moves back to a path on
+   * a larger site, a permanent redirect already in visitors' caches is very
+   * hard to take back. The canonical URL is unaffected — it is still
+   * PROGRAM_URL, built from `siteConfig.url` in `src/lib/config.ts`.
+   */
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/1percentagebetter",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

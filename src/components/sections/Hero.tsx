@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { PRICING_ANCHOR } from "@/lib/config";
+import { REGISTER_ANCHOR } from "@/lib/config";
 import { refAssets, refHero } from "@/lib/reference-content";
 
 /**
@@ -62,7 +62,7 @@ export function Hero() {
             ))}
           </div>
 
-          <a href={PRICING_ANCHOR} className="h-cta">
+          <a href={REGISTER_ANCHOR} className="h-cta">
             {refHero.cta}
           </a>
           <br />

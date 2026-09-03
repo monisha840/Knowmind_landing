@@ -1159,10 +1159,19 @@ export const journeyForm = {
       heading: "Registration successful.",
       /** `₹699 received.` — the amount comes from `inr()`, never a literal. */
       receivedSuffix: "received.",
-      lines: [
-        "Zoom link within 24 hours.",
-        "Keep an eye on your email.",
-      ],
+      /**
+       * Deliberately empty.
+       *
+       * This used to read "Zoom link within 24 hours." / "Keep an eye on your
+       * email." Removed at the owner's request on 2026-09-03. Nothing in this
+       * repository sends that email — fulfilment is a human reading the
+       * Razorpay dashboard (CLAUDE.md §8) — so the success panel no longer
+       * makes a delivery promise it cannot keep by itself.
+       *
+       * `JourneyForm` skips the wrapper while this is empty, so removing the
+       * lines leaves no stray gap. Put strings back here to restore them.
+       */
+      lines: [] as readonly string[],
     },
     /** Nothing was charged. Said plainly, with the way back. */
     failed: {

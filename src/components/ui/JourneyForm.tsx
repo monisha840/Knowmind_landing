@@ -220,13 +220,17 @@ export function JourneyForm() {
           {success.heading}
         </h3>
 
-        <div className="mt-6 flex flex-col gap-1.5">
-          {success.lines.map((line) => (
-            <p key={line} className="text-lead text-ink-muted">
-              {line}
-            </p>
-          ))}
-        </div>
+        {/* Skipped entirely when there are no lines, so an empty list leaves
+            no orphaned top margin above the details block. */}
+        {success.lines.length > 0 && (
+          <div className="mt-6 flex flex-col gap-1.5">
+            {success.lines.map((line) => (
+              <p key={line} className="text-lead text-ink-muted">
+                {line}
+              </p>
+            ))}
+          </div>
+        )}
 
         {/* Their details, once more — the receipt for what they just signed up
             for. Razorpay's own ids are not shown: they mean nothing to a

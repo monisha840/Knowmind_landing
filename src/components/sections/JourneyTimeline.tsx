@@ -1,5 +1,5 @@
 import { RefSectionIntro } from "@/components/ui/RefSectionIntro";
-import { PRICING_ANCHOR } from "@/lib/config";
+import { REGISTER_ANCHOR } from "@/lib/config";
 import { refJourney } from "@/lib/reference-content";
 
 /**
@@ -55,7 +55,7 @@ export function JourneyTimeline() {
         </div>
 
         <div className="cta-center">
-          <a href={PRICING_ANCHOR} className="cta-btn">
+          <a href={REGISTER_ANCHOR} className="cta-btn">
             {refJourney.cta}
           </a>
         </div>

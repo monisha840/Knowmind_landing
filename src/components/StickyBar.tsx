@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { PRICING_ANCHOR } from "@/lib/config";
+import { REGISTER_ANCHOR } from "@/lib/config";
 import { refSticky } from "@/lib/reference-content";
 
 /**
@@ -58,9 +58,10 @@ export function StickyBar() {
         </div>
       </div>
 
-      {/* The reference points this at the price band, and so does this. The
-          band's own button is what starts registration — see PricingSection. */}
-      <a href={PRICING_ANCHOR} className="s-cta">
+      {/* Straight to the questions, not the price band. This used to stop at
+          PricingSection and make the visitor find a second button; every call
+          to action on the page now lands on the same form. */}
+      <a href={REGISTER_ANCHOR} className="s-cta">
         {refSticky.cta}
       </a>
     </header>
