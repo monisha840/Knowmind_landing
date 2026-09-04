@@ -675,8 +675,8 @@
      `.pattern-left .s-tag` in the eighth; the values are identical. */
   .ref-page .s-tag {
     display: inline-block;
-    background: rgba(255, 179, 0, 0.22);
-    border: 1px solid rgba(255, 179, 0, 0.45);
+    background: rgba(255, 179, 0, 0.55);
+    border: 1px solid rgba(255, 179, 0, 0.75);
     color: #3c3489;
     font-size: 11px;
     font-weight: 700;
@@ -753,7 +753,7 @@
     display: flex;
     align-items: flex-start;
     gap: 14px;
-    background: rgba(255, 179, 0, 0.18);
+    background: rgba(255, 179, 0, 0.55);
     border-left: 4px solid #3a1a5c;
     border-radius: 0 10px 10px 0;
     padding: 14px 18px;
@@ -835,8 +835,8 @@
     gap: 16px;
   }
   .ref-page .phil-card {
-    background: rgba(255, 179, 0, 0.18);
-    border: 1px solid rgba(255, 179, 0, 0.35);
+    background: rgba(255, 179, 0, 0.55);
+    border: 1px solid rgba(255, 179, 0, 0.7);
     border-radius: 14px;
     padding: 24px 20px;
     text-align: center;
@@ -1328,8 +1328,8 @@
     margin-bottom: 16px;
   }
   .ref-page .sb {
-    background: rgba(255, 179, 0, 0.2);
-    border: 1px solid rgba(255, 179, 0, 0.4);
+    background: rgba(255, 179, 0, 0.55);
+    border: 1px solid rgba(255, 179, 0, 0.7);
     border-radius: 10px;
     padding: 12px;
     text-align: center;
