@@ -37,6 +37,22 @@ export function Hero() {
     <section className="hero" aria-labelledby="hero-heading">
       <div className="hero-inner">
         <div className="hero-left">
+          {/* The attention bar, added at the owner's request — a call-out
+              naming who the programme is for, with its own compact entry
+              point into registration. Solid amber rather than the dark
+              pill with just a glowing border it was sketched as: every
+              other "make this yellow" request this session meant a visible
+              amber fill, not a border treatment, so this stays consistent
+              with `.hb`, `.phil-card`, `.sb` and the rest. */}
+          <div className="h-attention">
+            <span aria-hidden>{refHero.attention.icon}</span>
+            <span className="ha-text">
+              <strong>{refHero.attention.label}</strong>{" "}
+              {refHero.attention.audiences.join(" · ")}
+            </span>
+            <OpenRegistration className="ha-cta">{refHero.attention.cta}</OpenRegistration>
+          </div>
+
           <div className="h-tag">
             <span className="h-dot" />
             {refHero.tag}

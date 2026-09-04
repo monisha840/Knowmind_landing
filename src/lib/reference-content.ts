@@ -53,6 +53,13 @@ export const refSticky = {
 /* -------------------------------------------------------------------------- */
 
 export const refHero = {
+  /** The amber attention bar above the batch tag, added at the owner's request. */
+  attention: {
+    icon: "⚠️",
+    label: "Attention:",
+    audiences: ["Entrepreneurs", "Working Professionals", "Freelancers", "Homemakers"],
+    cta: refSticky.cta,
+  },
   tag: `${siteConfig.batch} · Live on Zoom · ${programDetails.dateLabelShort}`,
   mark: "1% Better.",
   sub: "Every Day.",
