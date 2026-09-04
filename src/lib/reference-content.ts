@@ -58,7 +58,6 @@ export const refHero = {
     icon: "⚠️",
     label: "Attention:",
     audiences: ["Entrepreneurs", "Working Professionals", "Freelancers", "Homemakers"],
-    cta: refSticky.cta,
   },
   tag: `${siteConfig.batch} · Live on Zoom · ${programDetails.dateLabelShort}`,
   mark: "1% Better.",
