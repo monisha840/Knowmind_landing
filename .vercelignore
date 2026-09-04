@@ -1,0 +1,37 @@
+# Vercel uses this file INSTEAD of .gitignore, not in addition to it — so
+# everything .gitignore excludes has to be repeated here too, or it gets
+# uploaded. Keep the two in sync.
+
+node_modules
+.next
+out
+build
+.DS_Store
+*.pem
+npm-debug.log*
+.env
+.env.local
+.env*.local
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+rzp-*.csv
+*key*.csv
+
+# Source capture for scripts/optimize-video.mjs — half a gigabyte of raw
+# phone video; the web-ready encodes in public/testimonials are what ship.
+media-source
+
+.next-verify
+
+# Raw masters and generator inputs, gitignored for the same reason: the
+# optimized outputs already live in public/, and nothing needs these to
+# build. updated_video.MP4 is 142 MB — over Vercel's 100 MB upload limit on
+# its own.
+updated_video.MP4
+VSL_video.mp4
+LP_corrections.pptx
+updated_hero.png
+
+.git
