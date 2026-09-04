@@ -344,23 +344,21 @@
   /* The attention bar — a small signpost naming who the programme is for,
      not a second CTA. No button (removed after review: it made the bar
      read as a competing call to action, three elements above the real
-     one). Dark ground with a glowing green border, matched from the
-     owner's own reference image rather than the page's usual amber
-     system — the one deliberate exception to the wine/purple/honey/gold
-     palette, asked for explicitly rather than substituted for brand
-     consistency (CLAUDE.md §5.1 normally forbids this). */
+     one). Dark ground with a glowing border — green in the owner's first
+     reference image, moved to the brand's own amber on review so the glow
+     matches the rest of the page instead of being a one-off hue. */
   .ref-page .h-attention {
     display: flex;
     align-items: center;
     gap: 8px;
     background: #25133c;
-    border: 1px solid #39ff14;
+    border: 1px solid #ffb300;
     border-radius: 8px;
     padding: 8px 12px;
     margin-bottom: 12px;
     box-shadow:
-      0 0 6px rgba(57, 255, 20, 0.85),
-      0 0 16px rgba(57, 255, 20, 0.5);
+      0 0 6px rgba(255, 179, 0, 0.85),
+      0 0 16px rgba(255, 179, 0, 0.5);
   }
   .ref-page .ha-icon {
     color: #ffb300;

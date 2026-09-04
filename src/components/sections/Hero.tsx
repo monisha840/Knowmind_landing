@@ -40,10 +40,10 @@ export function Hero() {
           {/* The attention bar, added at the owner's request — a small,
               precise call-out naming who the programme is for. No button:
               the bar is a signpost, not a second CTA competing with the
-              one three elements below it. Colour matched from the owner's
-              own reference image — dark ground, glowing green border —
-              rather than the page's usual amber system; see the note on
-              `.h-attention` in reference.css. */}
+              one three elements below it. Dark ground with a glowing
+              amber border; see the note on `.h-attention` in
+              reference.css for why the border isn't the green it started
+              as. */}
           <div className="h-attention">
             <span className="ha-icon" aria-hidden>
               {refHero.attention.icon}
