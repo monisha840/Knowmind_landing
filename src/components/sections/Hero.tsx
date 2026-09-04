@@ -40,10 +40,14 @@ export function Hero() {
           {/* The attention bar, added at the owner's request — a small,
               precise call-out naming who the programme is for. No button:
               the bar is a signpost, not a second CTA competing with the
-              one three elements below it. Solid amber, matching `.hb`,
-              `.phil-card` and `.sb` rather than introducing a new treatment. */}
+              one three elements below it. Colour matched from the owner's
+              own reference image — dark ground, glowing green border —
+              rather than the page's usual amber system; see the note on
+              `.h-attention` in reference.css. */}
           <div className="h-attention">
-            <span aria-hidden>{refHero.attention.icon}</span>
+            <span className="ha-icon" aria-hidden>
+              {refHero.attention.icon}
+            </span>
             <span className="ha-text">
               <strong>{refHero.attention.label}</strong>{" "}
               {refHero.attention.audiences.join(" · ")}

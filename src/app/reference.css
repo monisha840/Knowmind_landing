@@ -344,23 +344,36 @@
   /* The attention bar — a small signpost naming who the programme is for,
      not a second CTA. No button (removed after review: it made the bar
      read as a competing call to action, three elements above the real
-     one). Solid amber, matching `.hb`/`.phil-card`/`.sb`; dark text for
-     contrast, the same choice `.h-cta` makes on the same fill. */
+     one). Dark ground with a glowing green border, matched from the
+     owner's own reference image rather than the page's usual amber
+     system — the one deliberate exception to the wine/purple/honey/gold
+     palette, asked for explicitly rather than substituted for brand
+     consistency (CLAUDE.md §5.1 normally forbids this). */
   .ref-page .h-attention {
     display: flex;
     align-items: center;
-    gap: 6px;
-    background: #ffb300;
+    gap: 8px;
+    background: #25133c;
+    border: 1px solid #39ff14;
     border-radius: 8px;
-    padding: 6px 10px;
+    padding: 8px 12px;
     margin-bottom: 12px;
+    box-shadow:
+      0 0 6px rgba(57, 255, 20, 0.85),
+      0 0 16px rgba(57, 255, 20, 0.5);
+  }
+  .ref-page .ha-icon {
+    color: #ffb300;
+    font-size: 13px;
+    flex-shrink: 0;
   }
   .ref-page .ha-text {
-    color: #1a0030;
-    font-size: 11px;
-    line-height: 1.3;
+    color: #fff;
+    font-size: 13px;
+    line-height: 1.4;
   }
   .ref-page .ha-text strong {
+    color: #ffb300;
     font-weight: 800;
   }
   .ref-page .h-tag {
