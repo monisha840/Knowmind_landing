@@ -32,8 +32,8 @@ export type GenderValue = (typeof GENDER_VALUES)[number];
 export const AGE_MIN = 13;
 export const AGE_MAX = 100;
 
-/** Digits only, after the +91 the field displays. */
-const INDIAN_MOBILE = /^[6-9]\d{9}$/;
+/** Digits only, after the +91 the field displays. Exported for `lib/whatsapp`. */
+export const INDIAN_MOBILE = /^[6-9]\d{9}$/;
 
 /** Intentionally loose: one @, a dot in the domain, no spaces. */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -68,15 +68,19 @@ export function validateAnswer(key: AnswerKey, raw: string): string | null {
       return null;
     }
 
+    /* Optional since the registration modal replaced the six-question page.
+       The owner's decision: the modal asks name, email and WhatsApp only. Left
+       in the schema and still validated *when supplied*, so re-enabling the
+       question is a UI change and nothing more. */
     case "gender": {
-      if (!value) return "Please choose one.";
+      if (!value) return null;
       return (GENDER_VALUES as readonly string[]).includes(value)
         ? null
         : "Please choose one of the options.";
     }
 
     case "age": {
-      if (!value) return "Please enter your age.";
+      if (!value) return null;
       if (!/^\d{1,3}$/.test(value)) return "Please enter your age in numbers.";
       const age = Number(value);
       if (age < AGE_MIN) return `This journey is for ages ${AGE_MIN} and above.`;
@@ -85,7 +89,7 @@ export function validateAnswer(key: AnswerKey, raw: string): string | null {
     }
 
     case "occupation": {
-      if (!value) return "Please tell us what you do.";
+      if (!value) return null;
       if (value.length < 2) return "That looks a little short.";
       if (value.length > 80) return "Please keep this under 80 characters.";
       return null;
@@ -108,7 +112,15 @@ export function validateAnswer(key: AnswerKey, raw: string): string | null {
   }
 }
 
-/** Every field at once. Empty object means the set is complete and valid. */
+/**
+ * Every field at once. Empty object means the set is complete and valid.
+ *
+ * "Complete" now means name, email and mobile. Gender, age and occupation are
+ * optional (see above) and validate only when they carry a value. Nothing about
+ * how the *payment* is validated changed: the amount is still the server's
+ * (`REGISTRATION_AMOUNT_PAISE`), the signature is still checked, and this
+ * function still runs authoritatively inside `/api/register`.
+ */
 export function validateAnswers(answers: Answers): Partial<Record<AnswerKey, string>> {
   const errors: Partial<Record<AnswerKey, string>> = {};
   for (const key of Object.keys(emptyAnswers) as AnswerKey[]) {

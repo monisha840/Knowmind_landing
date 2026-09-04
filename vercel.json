@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/whatsapp/retry",
+      "schedule": "30 3 * * *"
+    }
+  ]
+}

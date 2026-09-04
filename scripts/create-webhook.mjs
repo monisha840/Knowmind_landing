@@ -22,7 +22,6 @@ import { readFileSync, appendFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 
 const ENV_FILE = ".env.local";
-const WEBHOOK_URL = "https://www.knowminduniverse.com/api/razorpay/webhook";
 const EVENTS = ["payment.captured", "payment.failed", "order.paid"];
 
 /* ------------------------------------------------------------------ env -- */
@@ -44,6 +43,27 @@ function readEnv() {
 }
 
 const env = readEnv();
+
+/**
+ * Which origin Razorpay delivers to.
+ *
+ * A webhook points at one fixed URL, so this has to be the origin the site is
+ * actually served from rather than whichever one was true when the script was
+ * written. Resolution order: an argument you pass, then NEXT_PUBLIC_SITE_URL
+ * from .env.local, then the original default.
+ *
+ * Pass it explicitly when the programme is on its own subdomain:
+ *
+ *   npm run webhook:create -- https://1percentagebetter.kaleeswaran.com
+ *
+ * Getting this wrong is silent: Razorpay accepts the webhook, delivers to a URL
+ * that answers 404, and the payments that depended on it are never confirmed
+ * out of band.
+ */
+const rawOrigin =
+  process.argv[2] || env.NEXT_PUBLIC_SITE_URL || "https://www.knowminduniverse.com";
+const origin = rawOrigin.endsWith("/") ? rawOrigin.slice(0, -1) : rawOrigin;
+const WEBHOOK_URL = `${origin}/api/razorpay/webhook`;
 const keyId = env.RAZORPAY_KEY_ID;
 const keySecret = env.RAZORPAY_KEY_SECRET;
 

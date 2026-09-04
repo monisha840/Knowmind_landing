@@ -1,11 +1,12 @@
-import { REGISTER_ANCHOR } from "@/lib/config";
+import { OpenRegistration } from "@/components/ui/OpenRegistration";
 import { refFinal } from "@/lib/reference-content";
 
 /**
  * Band 17 — the close.
  *
- * A 680px column on #4B0082: four lines, the six-item checklist, the Tamil
- * line at 30px amber, the button, and Kaleeswaran's signature. It is the last
+ * A 680px column on the deep purple: four lines, the six-item checklist, the
+ * Tanglish line in amber with its English gloss, the button, and Kaleeswaran's
+ * signature. It is the last
  * argument the page makes, and it makes it by repeating the smallest promise
  * rather than the largest — "just give yourself 14 days".
  *
@@ -44,21 +45,12 @@ export function FinalCTA() {
           ))}
         </ul>
 
-        <span className="final-tamil" lang="ta">
-          {refFinal.tamil}
-        </span>
-        {/* One line, two scripts. The reference sets them as a single line and
-            this keeps it one line; only the Tamil clause is marked, so it takes
-            the same face as the ten other Tamil strings on the page instead of
-            the platform fallback. */}
-        <span className="final-sub">
-          <span lang="ta">{refFinal.tamilSub}</span>
-          {refFinal.tamilSubEnglish}
-        </span>
+        {/* Tanglish display line, English gloss under it. Roman script, so no
+            `lang="ta"` (CLAUDE.md §13.5). */}
+        <span className="final-tanglish">{refFinal.tanglish}</span>
+        <span className="final-sub">{refFinal.tanglishEnglish}</span>
 
-        <a href={REGISTER_ANCHOR} className="final-cta">
-          {refFinal.cta}
-        </a>
+        <OpenRegistration className="final-cta">{refFinal.cta}</OpenRegistration>
 
         <p className="final-meta">{refFinal.meta}</p>
         <p className="final-sign">{refFinal.sign}</p>

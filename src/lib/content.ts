@@ -131,16 +131,14 @@ export type Vsl = {
 
 export const vsl: Vsl = {
   heading: "Oru Chinna Kelvi Ungalukku…",
-  /* Both files are written by `npm run optimize:video` from `VSL_video.mp4` in
-     the project root — the video remuxed for streaming, the poster cut from it
-     at one second. */
+  /* Both files are written by `npm run optimize:video` from `updated_video.MP4`
+     in the project root — the video scaled and re-encoded for streaming, the
+     poster cut from it half a second in. */
   src: "/kalee/vsl.mp4",
   poster: "/kalee/vsl-poster.webp",
   label: "Kaleeswaran K introduces the 14-day 1% Better Every Day journey.",
-  /* The footage's own 832x464, not the 16/9 this defaulted to while it was
-     empty. They are close but not equal, and the difference is the difference
-     between a frame that fits the picture and one that letterboxes it. */
-  aspect: "832 / 464",
+  /* The footage's own 16:9, scaled to 960x540. */
+  aspect: "960 / 540",
 };
 
 /* -------------------------------------------------------------------------- */

@@ -1,17 +1,17 @@
 import { Footer } from "@/components/Footer";
 import { CountdownBar } from "@/components/CountdownBar";
+import { RegistrationModal } from "@/components/ui/RegistrationModal";
 import { StickyBar } from "@/components/StickyBar";
 
 import { AudienceSection } from "@/components/sections/AudienceSection";
-import { BeginJourneySection } from "@/components/sections/BeginJourneySection";
 import { BonusSection } from "@/components/sections/BonusSection";
-import { ExploreSection } from "@/components/sections/ExploreSection";
 import { FAQSection } from "@/components/sections/FAQSection";
 import { FinalCTA } from "@/components/sections/FinalCTA";
 import { Hero } from "@/components/sections/Hero";
-import { HowItWorksSection } from "@/components/sections/HowItWorksSection";
+import { JourneyReelSection } from "@/components/sections/JourneyReelSection";
 import { JourneyTimeline } from "@/components/sections/JourneyTimeline";
 import { MediaSection } from "@/components/sections/MediaSection";
+import { MissADaySection } from "@/components/sections/MissADaySection";
 import { MeetKaleeswaranSection } from "@/components/sections/MeetKaleeswaranSection";
 import { PatternSection } from "@/components/sections/PatternSection";
 import { PhilosophySection } from "@/components/sections/PhilosophySection";
@@ -23,7 +23,7 @@ import { VSLSection } from "@/components/sections/VSLSection";
  * The programme page — the reference design, in the reference's own order.
  *
  * Eighteen bands, numbered here as the Master Reproduction Specification
- * numbers them, with one insertion that is not the reference's:
+ * numbers them, with two insertions that are not the reference's:
  *
  *    1  sticky bar          10  organisations marquee
  *    2  hero                11  media marquee
@@ -36,14 +36,21 @@ import { VSLSection } from "@/components/sections/VSLSection";
  *    8  what you explore     —  the registration questions
  *    9  meet Kaleeswaran    18  footer
  *
- * ── The insertion ─────────────────────────────────────────────────────────
+ * ── The insertions ─────────────────────────────────────────────────────────
  *
- * `BeginJourneySection` has no counterpart in the reference, which sends its
- * buttons straight to a hosted `rzp.io` link. This application does not: the
- * six answers *are* the registration record, and the order cannot be created
- * without them (CLAUDE.md §8). So the questions sit between the close and the
- * footer — after the last argument, and forward of every button that points at
- * them, so no call to action ever scrolls somebody backwards.
+ * The reference sends its buttons straight to a hosted `rzp.io` link. This
+ * application does not: answers *are* the registration record, and the order
+ * cannot be created without them (CLAUDE.md §8). They used to be collected by
+ * `BeginJourneySection`, a six-question band between the close and the footer.
+ * At the owner's request they are now three questions in `RegistrationModal`,
+ * which every call to action opens in place. `BeginJourneySection` and its
+ * `JourneyForm` are left on disk, uncomposed (CLAUDE.md §19).
+ *
+ * The second is `JourneyReelSection` — band 15.5 above, two rows of
+ * photographs drifting in opposite directions between the price and the
+ * questions. Asked for, and placed immediately above the FAQ because that is
+ * where the request put it, twice. See that file for the placement reasoning
+ * and `PhotoReel` for how the rows move without fighting a swipe.
  *
  * ── What is deliberately absent ───────────────────────────────────────────
  *
@@ -60,6 +67,13 @@ import { VSLSection } from "@/components/sections/VSLSection";
  * `GuaranteeSection` — the first three have no band in the reference, and the
  * last two are blocks *inside* band 15 rather than sections of their own (see
  * `PricingSection`). All five files remain on disk, uncomposed.
+ *
+ * `HowItWorksSection` (band 7, "How Does the 14-Day Journey Work?") and
+ * `ExploreSection` (band 8, "What Will You Explore in 14 Days?") — dropped at
+ * the owner's request. Both files stay on disk with their content, uncomposed,
+ * the same way the five above do; nothing else imported them, and the bands
+ * either side close up on their own because every band owns its vertical
+ * padding rather than relying on a neighbour's margin.
  */
 export default function Page() {
   /* `ref-page` is the scope every rule in `reference.css` is written under. It
@@ -80,10 +94,9 @@ export default function Page() {
         <PatternSection />
         <PhilosophySection />
 
-        {/* ---- 6 · 7 · 8 ---- */}
+        {/* ---- 6 · 6.5 ---- */}
         <JourneyTimeline />
-        <HowItWorksSection />
-        <ExploreSection />
+        <MissADaySection />
 
         {/* ---- 9 · 10 · 11 ---- */}
         <MeetKaleeswaranSection />
@@ -94,17 +107,21 @@ export default function Page() {
         <AudienceSection />
         <BonusSection />
 
-        {/* ---- 15 · 16 · 17 ---- */}
+        {/* ---- 15 · 15.5 · 16 · 17 ---- */}
         <PricingSection />
+        <JourneyReelSection />
         <FAQSection />
         <FinalCTA />
 
-        {/* ---- the questions, and the only route to a Razorpay order ---- */}
-        <BeginJourneySection />
       </main>
 
       {/* ---- 18 ---- */}
       <Footer />
+
+      {/* The registration dialog. Mounted once, outside `main`, and rendered
+          only while open — every call to action on the page opens this rather
+          than scrolling anywhere. It is the only route to a Razorpay order. */}
+      <RegistrationModal />
 
       {/* Pinned to the foot of the screen, and last in the document so its
           sticky positioning reserves its own height instead of hanging over

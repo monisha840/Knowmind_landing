@@ -1,6 +1,6 @@
+import { OpenRegistration } from "@/components/ui/OpenRegistration";
 import Image from "next/image";
 
-import { REGISTER_ANCHOR } from "@/lib/config";
 import { refSticky } from "@/lib/reference-content";
 
 /**
@@ -61,9 +61,7 @@ export function StickyBar() {
       {/* Straight to the questions, not the price band. This used to stop at
           PricingSection and make the visitor find a second button; every call
           to action on the page now lands on the same form. */}
-      <a href={REGISTER_ANCHOR} className="s-cta">
-        {refSticky.cta}
-      </a>
+      <OpenRegistration className="s-cta">{refSticky.cta}</OpenRegistration>
     </header>
   );
 }

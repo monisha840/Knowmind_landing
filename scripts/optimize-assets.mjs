@@ -234,6 +234,18 @@ const JOBS = [
     op: (s) => s.resize({ width: 1200, withoutEnlargement: true }).webp({ quality: 88 }),
   },
 
+  // ---- The hero visual, supplied by the owner ----
+  // `localFrom` because this one is dropped into the project root rather than
+  // pulled from the sibling asset library. 1448x1086 PNG at 1.3 MB as supplied,
+  // which is not a thing to put at the top of a phone page (CLAUDE.md §14.1);
+  // quality 88 rather than the photographs' 76 because the artwork carries
+  // lettering and flat colour, where 76 shows banding around the type.
+  {
+    localFrom: "updated_hero.png",
+    to: "kalee/hero-updated.webp",
+    op: (s) => s.resize({ width: 1448, withoutEnlargement: true }).webp({ quality: 88 }),
+  },
+
   // ---- Authentic training photography (proof, not stock) ----
   {
     from: "landing_images/IMG20260218173107.jpg",
@@ -250,6 +262,61 @@ const JOBS = [
     to: "photos/experiential-activity.webp",
     op: (s) => s.resize({ width: 1600, withoutEnlargement: true }).webp({ quality: 76 }),
   },
+  // ---- The journey reel (band 16.5) ------------------------------------
+  //
+  // Seven photographs out of the nine in the owner's "LP images" Drive folder
+  // (id 1tTAMh9NML75oEfe-yi-BWuCihuHQOYUU), downloaded into `media-source/`,
+  // which is gitignored the same way the testimonial video capture is: these
+  // are 1.2-3.7 MB phone originals and only the encodes below ship.
+  //
+  // The Drive file id is recorded against each one, the way optimize-video.mjs
+  // records its own, so the source of any frame on the page can be traced back
+  // to the asset library without going through a person.
+  //
+  // The two that are NOT here, and why. Both are judgement calls the owner can
+  // reverse by adding a job, not defects:
+  //
+  //   - 1eIG2ZJefamfagp_gt6i010D2plDzgynB (IMG_20230705_...) - a certificate
+  //     being handed over by a uniformed senior police officer in an office.
+  //     Not a moment from a programme, and putting a government uniform in a
+  //     marketing strip reads as an endorsement the page cannot substantiate
+  //     (CLAUDE.md §1.1).
+  //   - 1-1FVMv0iYLJUdY-zF4Honn5oDxk4Ei6i (d49cfb80-...) - a speaker at a
+  //     "Kaleeswari Foundation" backdrop. The photograph is strong, but the
+  //     frame is mostly another organisation's logo wall.
+  //
+  // -- Why `height`, not `width` --
+  // The reel gives every photograph the same height and lets its width follow
+  // its own aspect ratio (see `.reel-item` in reference.css), so height is the
+  // dimension that decides how many real pixels each one needs. 560 is 3.5x the
+  // 162px the rows render at, which covers a DPR 3 screen with room over.
+  //
+  // -- Why `.rotate()` --
+  // These are phone captures, and several carry an EXIF orientation flag. sharp
+  // does not apply it unless asked, and `metadata()` reports the stored
+  // dimensions rather than the displayed ones - so without this, a portrait
+  // photograph encodes as landscape and the width/height pair recorded in
+  // `reference-content.ts` describes a picture nobody sees. `.rotate()` with no
+  // argument means "honour the EXIF flag", and it has to come first in the
+  // chain, before any resize reads the dimensions.
+  //
+  // Quality 78 rather than the 76 the training photographs get: these render
+  // small and side by side, where banding in a flat wall or a projector screen
+  // is easier to catch than it is in a full-width hero.
+  ...[
+    ["1MlbA6VXVCTZQL1asOJ5sDEp8sFf98xcQ", "IMG_2480.jpg", "cohort-group"],
+    ["1xdZdK65ZvTyNEjJC-54711dtirD3RWak", "de599be7.jpg", "session-hall"],
+    ["1XvMUbmdHQdXSxzY2heliYnh-B_RaoYyd", "IMG20251212083052.jpg", "leadership-room"],
+    ["1LN_WOO9eUmwh5-n8qabku8Uxw_bZWcii", "IMG20251212160811.jpg", "centre-steps"],
+    ["1FPsJRVJY099dFUYwZKWoiH4KASvKAy7_", "WhatsApp-2025-02-12.jpg", "team-collage"],
+    ["1hOpsFFhaFGjofZkvzS4-xHRMCBaRWmuk", "IMG_3111.jpg", "book-handover"],
+    ["1tJIPTQc4WwdXQ2plXtoMrNFWSLogU7vm", "IMG-20250804-WA0020.jpg", "full-hall"],
+  ].map(([, file, slug]) => ({
+    localFrom: `media-source/lp-images/${file}`,
+    to: `journey/${slug}.webp`,
+    op: (s) =>
+      s.rotate().resize({ height: 560, withoutEnlargement: true }).webp({ quality: 78 }),
+  })),
 ];
 
 const kb = (n) => `${(n / 1024).toFixed(0)} kB`;

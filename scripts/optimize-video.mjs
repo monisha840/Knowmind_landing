@@ -91,8 +91,10 @@ const OUT = path.resolve(process.cwd(), "public/testimonials");
  * spelling is theirs, including "Coprate"; correcting somebody's own caption is
  * not this script's call.
  *
- * Three more recordings exist in the same Drive folder and are deliberately not
- * built. They are listed at the foot of this file with the reason.
+ * All six recordings in the Drive folder are built. Three of them were held
+ * back until the owner asked for a six-slot band; the note at the foot of this
+ * file records what each one is, and one of them still needs reading before it
+ * is trusted as a talking head.
  *
  * @type {Array<{from: string, driveId: string, to: string, poster: number,
  *               name: string, role: string}>}
@@ -113,6 +115,40 @@ const JOBS = [
     poster: 4.2,
     name: "Sriraynu",
     role: "Psychologist and School counsellor",
+  },
+  /* The three that used to be held back. The owner asked for all six on the
+     page, so they are built now. Each `name`/`role` is transcribed from the
+     recording's own burned-in lower third, the same as the first three — except
+     Vinoth's, whose card carries only his name (see the note at the foot). */
+  {
+    from: "1% better Testimonial video -6 (2) (1).mp4",
+    driveId: "1jmAhldlJ8Xy8RCt85SxFn5hzXy_kAxpV",
+    to: "shahul-hameed",
+    poster: 3.2,
+    name: "Shahul Hameed",
+    role: "Behavioural and performance development trainer",
+  },
+  {
+    from: "1% better Testimonial video -2-_2.mp4",
+    driveId: "1DpYp6tKQsoyRPeSBxFghecD1njl-bn7w",
+    to: "anandh",
+    /* 3s is where his lower third is up and his eyes are most open — the clip
+       is shot into hard sun and he squints through most of it. */
+    poster: 3.0,
+    name: "Anandh",
+    role: "Customer success  Tamilpreneur",
+  },
+  {
+    from: "1% better Testimonial video -4_4.mp4",
+    driveId: "1MvG_RK4JiAGGbIXDa2Py6QsdaHKiLyE8",
+    to: "vinoth",
+    /* Any second gives the same frame — the whole clip is one static card. */
+    poster: 10,
+    name: "Vinoth",
+    /* His card gives a name and nothing else, so the role says what the asset
+       actually is rather than asserting a job title the recording never
+       claims (CLAUDE.md §1.1). */
+    role: "Audio testimonial",
   },
   {
     from: "1% better Testimonial video -5.mp4",
@@ -202,25 +238,29 @@ console.log(`\n  ${built} of ${JOBS.length} built into ${path.relative(process.c
 /* -------------------------------------------------------------------------- */
 /*  Band 3 — the VSL                                                          */
 /*                                                                            */
-/*  Kaleeswaran to camera, 1:16. It arrived as `VSL_video.mp4` in the project  */
-/*  root rather than through the Drive folder, so it is read from there.       */
+/*  Kaleeswaran to camera, 1:08. It arrived as `updated_video.MP4` in the      */
+/*  project root rather than through the Drive folder, so it is read from      */
+/*  there — replacing an earlier, shorter recording under the same name        */
+/*  `VSL_video.mp4` used to have.                                              */
 /*                                                                            */
-/*  Remuxed, not re-encoded. It is already 832x464 H.264 + AAC at about        */
-/*  980 kbps, which is a reasonable web encode on its own; putting it through  */
-/*  libx264 again would spend quality to save very little. `-c copy` passes    */
-/*  both streams through byte for byte, so the picture is bit-identical to     */
-/*  what was supplied.                                                        */
+/*  Re-encoded, unlike that earlier file: this one is raw phone capture,       */
+/*  2688x1512 at ~16.5 Mbps, 142 MB for 68 seconds — the same shape as the      */
+/*  testimonial sources above, and it gets the same treatment. Scaled to       */
+/*  960x540 (its own 16:9, halved), which still covers the ~800px frame        */
+/*  `VSLSection` renders at on a phone-class display, and audio downmixed to   */
+/*  mono — one person talking, no stereo image to preserve.                    */
 /*                                                                            */
-/*  What it does need is `+faststart`. As supplied its `moov` atom sits after  */
-/*  `mdat`, which means a browser cannot show a single frame until all 8.9 MB  */
-/*  have downloaded — on the one band the page labels "Watch this first".      */
-/*  Moving the index to the front is the whole point of this step.             */
+/*  `-movflags +faststart` still applies: a browser must not need the whole     */
+/*  file before it can show a frame, on the one band the page labels "Watch    */
+/*  this first".                                                              */
 /* -------------------------------------------------------------------------- */
 
-const VSL_SRC = path.resolve(process.cwd(), "VSL_video.mp4");
+const VSL_SRC = path.resolve(process.cwd(), "updated_video.MP4");
 const VSL_DIR = path.resolve(process.cwd(), "public/kalee");
-/** Hands together, looking at camera, before the first gesture. */
-const VSL_POSTER_AT = 1.0;
+/** Standing at rest, looking at camera, before the first gesture — the caption
+    burned in at this point ("What is 1% better every day?") also works as a
+    teaser under a still poster. */
+const VSL_POSTER_AT = 0.5;
 
 try {
   const before = await stat(VSL_SRC);
@@ -229,20 +269,38 @@ try {
   const video = path.join(VSL_DIR, "vsl.mp4");
   const poster = path.join(VSL_DIR, "vsl-poster.webp");
 
-  run(["-y", "-loglevel", "error", "-i", VSL_SRC, "-c", "copy", "-movflags", "+faststart", video]);
+  run([
+    "-y", "-loglevel", "error",
+    "-i", VSL_SRC,
+    "-vf", "scale=960:-2",
+    "-c:v", "libx264", "-profile:v", "high", "-level", "4.0",
+    "-preset", "slow", "-crf", "26",
+    "-pix_fmt", "yuv420p",
+    "-c:a", "aac", "-ac", "1", "-b:a", "80k",
+    "-movflags", "+faststart",
+    "-metadata:s:v", "rotate=0",
+    video,
+  ]);
 
   const tmp = path.join(os.tmpdir(), `poster-vsl-${process.pid}.png`);
-  run(["-y", "-loglevel", "error", "-ss", String(VSL_POSTER_AT), "-i", VSL_SRC, "-frames:v", "1", tmp]);
+  run([
+    "-y", "-loglevel", "error",
+    "-ss", String(VSL_POSTER_AT),
+    "-i", VSL_SRC,
+    "-frames:v", "1",
+    "-vf", "scale=960:-2",
+    tmp,
+  ]);
   await sharp(await readFile(tmp)).webp({ quality: 82 }).toFile(poster);
   await unlink(tmp);
 
   const after = await stat(video);
   const posterStat = await stat(poster);
-  console.log(`\n  ok    kalee/vsl.mp4          ${mb(before.size)} -> ${mb(after.size)}  (remux, +faststart)`);
+  console.log(`\n  ok    kalee/vsl.mp4          ${mb(before.size)} -> ${mb(after.size)}`);
   console.log(`        kalee/vsl-poster.webp  frame at ${VSL_POSTER_AT}s, ${kb(posterStat.size)}`);
 } catch (err) {
   if (err && err.code === "ENOENT") {
-    console.log("\n  skip  VSL_video.mp4 is not in the project root — band 3 keeps its placeholder.");
+    console.log("\n  skip  updated_video.MP4 is not in the project root — band 3 keeps its placeholder.");
   } else {
     throw err;
   }

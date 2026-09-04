@@ -1,15 +1,24 @@
-import { RefSectionIntro } from "@/components/ui/RefSectionIntro";
-import { VideoPlayer } from "@/components/ui/VideoPlayer";
+import { TestimonialFeature } from "@/components/ui/TestimonialFeature";
+import { TestimonialQuoteFeature } from "@/components/ui/TestimonialQuoteFeature";
 import { refTestimonials } from "@/lib/reference-content";
 
 /**
  * Band 12 — what participants say.
  *
- * Three video slots over six quote cards on white, all six five-star, all six
- * from the founding batch. The cards are the left-rail shape again, at the
- * `0 12px 12px 0` radius.
+ * One featured recording, then the six written quotes as one featured quote at
+ * a time. All six quotes are five-star and from the founding batch.
  *
- * ── On the three video slots ──────────────────────────────────────────────
+ * The quotes used to be the reference's three-up grid of cards, which on a
+ * phone stacked six of them directly under the recordings. They are
+ * "Voices of the Journey" now — see `TestimonialQuoteFeature` for why, and for
+ * how it avoids becoming a second copy of the video half above it.
+ *
+ * The six recordings used to sit here as a grid and then as a running row.
+ * They are now one featured player with the other five reachable by name —
+ * see `TestimonialFeature` for why, and for what happens to the five that are
+ * not on screen.
+ *
+ * ── On the six recordings ─────────────────────────────────────────────────
  *
  * The reference labels these rather than filling them, and this file used to
  * reproduce that placeholder because no participant recordings existed here.
@@ -36,74 +45,34 @@ export function Testimonials() {
   return (
     <section className="test-section" id="testimonials" aria-labelledby="test-heading">
       <div className="test-inner">
-        <div className="test-top">
-          <RefSectionIntro
-            tag={refTestimonials.tag}
-            title={refTestimonials.title}
-            headingId="test-heading"
-          />
+        <div className="tf-head">
+          <span className="s-tag">{refTestimonials.tag}</span>
+          <h2 className="tf-headline" id="test-heading">
+            {refTestimonials.feature.headline[0]}
+            <br />
+            <span>{refTestimonials.feature.headline[1]}</span>
+          </h2>
+          <p className="tf-lead">{refTestimonials.feature.lead}</p>
         </div>
 
-        <div className="videos-grid">
-          {refTestimonials.videoSlots.map((slot, i) => {
-            const video = refTestimonials.videos[i];
+        {/* One participant at a time — see `TestimonialFeature`. One of this
+            band's two client components; the heading above and the closer below
+            stay on the server. */}
+        <TestimonialFeature videos={refTestimonials.videos} />
 
-            if (!video) {
-              return (
-                <div className="video-ph" key={slot}>
-                  {/* Empty on purpose — the play mark is drawn in CSS. See
-                      `.video-ph .vplay` in reference.css. */}
-                  <span className="vplay" aria-hidden />
-                  <p>
-                    {slot}
-                    <br />
-                    {refTestimonials.videoPlaceholder}
-                  </p>
-                </div>
-              );
-            }
-
-            return (
-              <figure className="test-video" key={slot}>
-                {/* The frame declares the footage's own 9:16 and `VideoPlayer`
-                    fills it absolutely, so the row reserves its full height
-                    before a byte of media arrives — nothing shifts when the
-                    poster decodes, and nothing shifts when the video replaces
-                    it (CLAUDE.md §9.2, §15). */}
-                <div className="test-video-frame">
-                  <VideoPlayer
-                    src={video.src}
-                    poster={video.poster}
-                    label={`${video.name}, ${video.role}, on the 1% Better programme.`}
-                  />
-                </div>
-                <figcaption className="test-video-cap">
-                  <span className="test-video-name">{video.name}</span>
-                  <span className="test-video-role">{video.role}</span>
-                </figcaption>
-              </figure>
-            );
-          })}
-        </div>
-
-        <div className="test-grid">
-          {refTestimonials.quotes.map((t) => (
-            <figure className="test-card" key={t.name}>
-              <div className="test-stars" aria-label="Rated 5 out of 5">
-                <span aria-hidden>★★★★★</span>
-              </div>
-              <blockquote className="test-q">{t.quote}</blockquote>
-              <figcaption>
-                <p className="test-name">{t.name}</p>
-                <p className="test-role">{refTestimonials.role}</p>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
+        {/* The six written quotes, one at a time — see
+            `TestimonialQuoteFeature`. The second client component in this band,
+            and deliberately nothing like the first: the recordings are a face
+            on white, this is a voice set in type on deep purple. */}
+        <TestimonialQuoteFeature
+          quotes={refTestimonials.quotes}
+          eyebrow={refTestimonials.quotesHeading.eyebrow}
+          lead={refTestimonials.quotesHeading.lead}
+        />
 
         <div className="test-cta">
           <p>
-            <span lang="ta">{refTestimonials.closer.tamil}</span>
+            <span className="test-tanglish">{refTestimonials.closer.tanglish}</span>
             <br />
             {refTestimonials.closer.english}
           </p>

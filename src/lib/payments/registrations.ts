@@ -37,6 +37,7 @@ import {
   fetchOrder,
   updateOrderNotes,
 } from "@/lib/payments/razorpay";
+import { recordRegistration } from "@/lib/db/registrations";
 
 if (typeof window !== "undefined") {
   throw new Error(
@@ -278,9 +279,29 @@ async function kv(...command: (string | number)[]): Promise<unknown> {
 /** Ninety days: long enough to answer "did this person register?" after the batch. */
 const MIRROR_TTL_SECONDS = 90 * 24 * 60 * 60;
 
-/** Best-effort mirror, indexed by both registration id and order id. */
+/**
+ * Best-effort mirror, indexed by both registration id and order id.
+ *
+ * Never downgrades a PAID entry — the same rule `markFailed` applies to the
+ * order notes, extended here: a `payment.failed` webhook for an abandoned
+ * first attempt can still arrive after a successful second one, and this is
+ * the only write path to the mirror that does not already re-check Razorpay
+ * before writing (unlike `markPaid`/`markFailed`, which own the order).
+ */
 export async function mirror(registration: Registration): Promise<void> {
   if (!kvConfig()) return;
+
+  if (registration.status !== "PAID") {
+    const existingRaw = await kv("GET", `knowmind:registration:${registration.id}`);
+    if (typeof existingRaw === "string") {
+      try {
+        if ((JSON.parse(existingRaw) as Registration).status === "PAID") return;
+      } catch {
+        // Malformed mirror entry — fall through and overwrite it below.
+      }
+    }
+  }
+
   const payload = JSON.stringify(registration);
   await kv("SET", `knowmind:registration:${registration.id}`, payload, "EX", MIRROR_TTL_SECONDS);
   if (registration.razorpayOrderId) {
@@ -323,4 +344,38 @@ export function logPaymentEvent(event: string, fields: Record<string, unknown> =
     safe[key] = typeof value === "string" && value.length > 200 ? `${value.slice(0, 200)}…` : value;
   }
   console.info(`[payments] ${event}`, safe);
+}
+
+/* -------------------------------------------------- the registration store -- */
+
+/**
+ * Write a registration down everywhere it belongs.
+ *
+ * Replaces the bare `mirror()` call at the three points a registration changes
+ * — order created, payment verified, webhook confirmed — so those three routes
+ * gained a lead store without gaining a single line of new payment logic.
+ *
+ * Order matters only in that neither step may break the other, and neither may
+ * break the caller: `mirror` already swallows everything, `recordRegistration`
+ * returns false rather than throwing, and both are awaited so a serverless
+ * function is not killed mid-write.
+ *
+ * This is the fail-open policy in one place. A database that is unconfigured,
+ * unreachable or rejecting produces a log line and nothing else — never a
+ * failed registration, and never a person told their payment did not work
+ * because a bookkeeping row could not be written (CLAUDE.md §9.3). What is lost
+ * in that case is only the *row*: the Razorpay order's notes still hold the
+ * complete record, and `/api/admin/reconcile` rebuilds it from there.
+ */
+export async function saveRegistration(registration: Registration): Promise<void> {
+  await mirror(registration);
+
+  const written = await recordRegistration(registration);
+  if (!written) {
+    logPaymentEvent("registration_not_stored", {
+      registrationId: registration.id,
+      orderId: registration.razorpayOrderId,
+      status: registration.status,
+    });
+  }
 }

@@ -14,9 +14,11 @@
  * call after a refresh. See `markPaid` for why.
  */
 
+import { after } from "next/server";
 import type { NextRequest } from "next/server";
 
 import type { ApiErrorResponse, VerifyResponse } from "@/lib/payments/types";
+import { notifyPaymentConfirmed } from "@/lib/whatsapp/notify";
 import {
   REGISTRATION_AMOUNT_PAISE,
   REGISTRATION_CURRENCY,
@@ -24,7 +26,7 @@ import {
   loadFromOrder,
   logPaymentEvent,
   markPaid,
-  mirror,
+  saveRegistration,
 } from "@/lib/payments/registrations";
 import {
   RazorpayApiError,
@@ -179,6 +181,12 @@ export async function POST(request: NextRequest) {
         status: payment.status,
         errorCode: payment.error_code ?? null,
       });
+      /* A real attempt that produced no money. Written down so the dashboard
+         shows it as PAYMENT_FAILED rather than leaving the person looking like
+         somebody who never tried. It cannot disturb a paid record: the store
+         refuses to move a PAID row, in code and again in SQL. */
+      await saveRegistration({ ...registration, status: "FAILED", razorpayPaymentId: paymentId });
+
       return fail(
         402,
         "payment_incomplete",
@@ -189,18 +197,26 @@ export async function POST(request: NextRequest) {
     /* ---- 8. PAID ---- */
 
     await markPaid(credentials, order.id, paymentId);
-    await mirror({
+    const paidRegistration = {
       ...registration,
-      status: "PAID",
+      status: "PAID" as const,
       razorpayPaymentId: paymentId,
       paidAt: Date.now(),
-    });
+    };
+    await saveRegistration(paidRegistration);
 
     logPaymentEvent("registration_paid", {
       registrationId: registration.id,
       orderId: order.id,
       paymentId,
     });
+
+    /* Runs after this response is already on its way to the browser — see
+       CLAUDE.md's "payment must not depend on WhatsApp" requirement and the
+       header comment in `lib/whatsapp/notify.ts`. A slow or unreachable
+       Evolution Go can therefore never add latency here, let alone turn a
+       confirmed payment into an error response. */
+    after(() => notifyPaymentConfirmed(paidRegistration));
 
     return Response.json(
       {

@@ -74,9 +74,7 @@ export function AudienceSection() {
           <div className="not-note">
             <p>{notNote.top}</p>
             <p className="big">{notNote.big}</p>
-            <p className="tamil" lang="ta">
-              {notNote.tamil}
-            </p>
+            <p className="not-close">{notNote.close}</p>
           </div>
         </div>
       </div>

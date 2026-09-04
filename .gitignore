@@ -29,8 +29,15 @@ media-source/
 # running dev server is serving from. See distDir in next.config.ts.
 .next-verify/
 
-# The VSL master. `public/kalee/vsl.mp4` is a lossless `-c copy` remux of it
-# (identical video and audio streams, only the moov atom moved), so the served
-# file is the master for every practical purpose and committing both would
-# carry 8.9 MB twice. Keep this file locally; nothing needs it to rebuild.
+# The VSL master — raw phone capture (2688x1512, ~16.5 Mbps, 142 MB), so unlike
+# the file this replaced it is re-encoded rather than remuxed; `public/kalee/vsl.mp4`
+# is the web-ready result and is what ships. Keep this file locally; nothing
+# needs it to rebuild.
+updated_video.MP4
 VSL_video.mp4
+
+# Generator-script inputs at the project root, same rule as the VSL master
+# above: the optimized output they produce is already committed under
+# public/, so the raw source only bloats history. Keep these files locally.
+LP_corrections.pptx
+updated_hero.png

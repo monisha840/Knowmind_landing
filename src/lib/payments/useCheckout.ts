@@ -25,7 +25,7 @@ import type {
   CreateOrderResponse,
   VerifyResponse,
 } from "@/lib/payments/types";
-import { siteConfig } from "@/lib/config";
+import { programDetails, siteConfig } from "@/lib/config";
 import { journeyForm } from "@/lib/content";
 import type { AnswerKey, Answers } from "@/lib/validation";
 
@@ -132,6 +132,17 @@ function loadCheckoutScript(): Promise<void> {
 
 /* ------------------------------------------------------------------ state -- */
 
+/** What a verified payment is able to prove. */
+export type PaidReceipt = {
+  registrationId: string;
+  razorpayPaymentId: string;
+  razorpayOrderId: string;
+  /** Paise, from the one price constant the server also uses. */
+  amountPaise: number;
+  /** When this browser saw verification succeed. */
+  confirmedAt: string;
+};
+
 export type CheckoutPhase =
   /** Nothing in flight. The pay button is live. */
   | { kind: "idle" }
@@ -141,8 +152,18 @@ export type CheckoutPhase =
   | { kind: "open" }
   /** Money moved. Our server is checking the signature. Never "success" yet. */
   | { kind: "confirming" }
-  /** Verified server-side. The only honest success. */
-  | { kind: "paid" }
+  /**
+   * Verified server-side. The only honest success.
+   *
+   * Carries the receipt so the success panel can show what was actually
+   * confirmed rather than restating what the browser hoped. Every field here
+   * comes from a verified source: `registrationId` from `/api/razorpay/verify`'s
+   * own 200 response, the two ids from what Razorpay handed back and the server
+   * then checked the signature of, and the amount from `programDetails.price` —
+   * the same constant the server derived its own expected amount from. Nothing
+   * here is taken on the browser's word (CLAUDE.md §0.4, §8).
+   */
+  | { kind: "paid"; receipt: PaidReceipt }
   /** Nothing was charged, or the attempt failed. Retry is offered. */
   | { kind: "error"; message: string }
   /**
@@ -387,7 +408,16 @@ export function useCheckout(): UseCheckout {
               if (!alive.current) return;
 
               if (verified.ok) {
-                settle({ kind: "paid" });
+                settle({
+                  kind: "paid",
+                  receipt: {
+                    registrationId: verified.body.registrationId,
+                    razorpayPaymentId: result.razorpay_payment_id,
+                    razorpayOrderId: result.razorpay_order_id,
+                    amountPaise: programDetails.price * 100,
+                    confirmedAt: new Date().toISOString(),
+                  },
+                });
                 return;
               }
 

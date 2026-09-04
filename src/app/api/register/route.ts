@@ -19,9 +19,9 @@ import {
   REGISTRATION_CURRENCY,
   initialNotes,
   logPaymentEvent,
-  mirror,
   newRegistrationId,
   pendingRegistration,
+  saveRegistration,
 } from "@/lib/payments/registrations";
 import { RazorpayApiError, createOrder, razorpayCredentials } from "@/lib/payments/razorpay";
 import { siteConfig } from "@/lib/config";
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
     });
 
     registration.razorpayOrderId = order.id;
-    await mirror(registration);
+    await saveRegistration(registration);
 
     logPaymentEvent("order_created", {
       registrationId: registration.id,

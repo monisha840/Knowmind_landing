@@ -10,10 +10,16 @@
     "optimize:assets": "node scripts/optimize-assets.mjs",
     "optimize:video": "node scripts/optimize-video.mjs",
     "media:logos": "node scripts/extract-media-logos.mjs",
+    "client:logos": "node scripts/extract-client-logos.mjs",
     "video": "node scripts/strip-audio.mjs",
-    "icons": "node scripts/generate-icons.mjs"
+    "icons": "node scripts/generate-icons.mjs",
+    "db:migrate": "node scripts/db-migrate.mjs",
+    "admin:password": "node scripts/admin-password.mjs",
+    "webhook:create": "node scripts/create-webhook.mjs",
+    "whatsapp:test": "node scripts/test-whatsapp-send.mjs"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
     "motion": "^13.1.1",

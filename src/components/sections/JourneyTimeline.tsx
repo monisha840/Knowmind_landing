@@ -1,5 +1,5 @@
+import { OpenRegistration } from "@/components/ui/OpenRegistration";
 import { RefSectionIntro } from "@/components/ui/RefSectionIntro";
-import { REGISTER_ANCHOR } from "@/lib/config";
 import { refJourney } from "@/lib/reference-content";
 
 /**
@@ -55,9 +55,7 @@ export function JourneyTimeline() {
         </div>
 
         <div className="cta-center">
-          <a href={REGISTER_ANCHOR} className="cta-btn">
-            {refJourney.cta}
-          </a>
+          <OpenRegistration className="cta-btn">{refJourney.cta}</OpenRegistration>
         </div>
       </div>
     </section>

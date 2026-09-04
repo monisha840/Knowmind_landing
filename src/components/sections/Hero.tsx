@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { REGISTER_ANCHOR } from "@/lib/config";
+import { OpenRegistration } from "@/components/ui/OpenRegistration";
 import { refAssets, refHero } from "@/lib/reference-content";
 
 /**
@@ -36,17 +36,24 @@ export function Hero() {
             {refHero.tag}
           </div>
 
-          <span className="h-main">{refHero.mark}</span>
-          <span className="h-sub">{refHero.sub}</span>
-
-          <div className="h-tamil" lang="ta">
-            {refHero.tamil}
-          </div>
-          <div className="h-tamil-eng">{refHero.tamilEnglish}</div>
-
+          {/* The question leads and the mark answers it. This is the reverse of
+              the reference, at the owner's request: "Are You Ready to Become 1%
+              Better Every Day?" is the primary line and "1% Better. Every Day."
+              sits under it as the secondary. The type scale in `reference.css`
+              was swapped to match — the h1 carries the weight now, and `.h-main`
+              keeps the brand's amber italic at a subordinate size. */}
           <h1 className="h-headline" id="hero-heading">
             {refHero.headline}
           </h1>
+
+          <span className="h-main">{refHero.mark}</span>
+          <span className="h-sub">{refHero.sub}</span>
+
+          {/* Roman script, so no `lang="ta"` — that attribute would put a
+              screen reader into Tamil pronunciation and the type into a Tamil
+              face, and both are wrong for Latin letters (CLAUDE.md §13.5). */}
+          <div className="h-tanglish">{refHero.tanglish}</div>
+          <div className="h-tamil-eng">{refHero.tanglishEnglish}</div>
 
           <p className="h-sub2">
             {refHero.subLines[0]}
@@ -62,45 +69,25 @@ export function Hero() {
             ))}
           </div>
 
-          <a href={REGISTER_ANCHOR} className="h-cta">
-            {refHero.cta}
-          </a>
+          <OpenRegistration className="h-cta">{refHero.cta}</OpenRegistration>
           <br />
           <span className="h-cta-note">{refHero.ctaNote}</span>
         </div>
 
         <div className="hero-right">
           {/*
-            The reference frames a placeholder here — a 📸 glyph over "Kalee's
-            photo here". What sits in it now is the credentials card, at the
-            owner's request, clipped to the frame's own `20px 20px 0 0` radius
-            so the stat bar still meets it flush.
+            The owner's updated credentials card. The introduction video that
+            briefly sat here has gone back to band 3, where its own line
+            ("A Small Question for You...") introduces it; neither asset is
+            duplicated and both are the supplied files.
 
-            The frame is landscape rather than the reference's upright box,
-            because the card is 1200x811 and its badges are baked-in lettering
-            that an upright crop would cut away — the reasoning is on
-            `.hero-photo` in `reference.css`, next to the rule that does it.
-
-            No `priority`: the frame is `display:none` below 1000px, and
-            preloading an image that phones never show would take bandwidth
-            from the LCP on exactly the widths that can least afford it
-            (CLAUDE.md §14.1).
+            `contain` on the image and a light frame ground, because every badge
+            on this card is lettering baked into the pixels — `cover` would clip
+            words, and a dark frame would show as bars around the card's own
+            white. The frame carries the artwork's own 1448x1086 so the two
+            agree and nothing has to crop.
           */}
           <div className="hero-photo">
-            {/*
-              `sizes` traces `.hero-inner`'s `clamp(380px, 30vw, 470px)` track,
-              because `sizes` takes no `clamp()` and a stale number here is
-              invisible until you look at the pixels: at a flat "380px" the
-              browser fetched the 380-wide candidate and stretched it to 468 on
-              a 1920 screen, which on an asset whose whole content is small
-              lettering is exactly the softness this card cannot afford.
-
-              The breakpoints are where the clamp changes hands — 30vw reaches
-              the 380px floor at 1267px and the 470px ceiling at 1567px. Below
-              1000px the column stacks and the card is capped at 420px, so the
-              last two entries cover the phone and tablet widths where it is now
-              shown rather than hidden.
-            */}
             <Image
               src={refAssets.heroPhoto.src}
               alt={refAssets.heroPhoto.alt}

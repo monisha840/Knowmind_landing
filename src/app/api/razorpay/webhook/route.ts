@@ -20,6 +20,7 @@
  * asking us to mark a registration paid, and there is no safe way to guess.
  */
 
+import { after } from "next/server";
 import type { NextRequest } from "next/server";
 
 import {
@@ -28,7 +29,7 @@ import {
   logPaymentEvent,
   markFailed,
   markPaid,
-  mirror,
+  saveRegistration,
   REGISTRATION_AMOUNT_PAISE,
   REGISTRATION_CURRENCY,
 } from "@/lib/payments/registrations";
@@ -37,6 +38,7 @@ import {
   razorpayCredentials,
   razorpayWebhookSecret,
 } from "@/lib/payments/razorpay";
+import { notifyPaymentConfirmed } from "@/lib/whatsapp/notify";
 
 /** The events this endpoint acts on. Anything else is acknowledged and ignored. */
 const HANDLED = new Set(["payment.captured", "payment.failed", "order.paid"]);
@@ -142,6 +144,11 @@ export async function POST(request: NextRequest) {
       /* `markFailed` refuses to downgrade a PAID record — a failed first
          attempt can be delivered after a successful second one. */
       await markFailed(credentials, orderId, paymentId);
+      /* Same refusal to downgrade applies here — `markFailed` checks the order,
+         and the store checks the row — so a late `payment.failed` for an
+         abandoned first attempt cannot un-register somebody who paid on the
+         second, nor overwrite the payment id that proves it. */
+      await saveRegistration({ ...registration, status: "FAILED", razorpayPaymentId: paymentId });
       logPaymentEvent("webhook_payment_failed", { orderId, paymentId });
       return Response.json({ received: true, handled: true }, { status: 200 });
     }
@@ -176,12 +183,13 @@ export async function POST(request: NextRequest) {
     }
 
     await markPaid(credentials, orderId, confirmedPaymentId);
-    await mirror({
+    const paidRegistration = {
       ...registration,
-      status: "PAID",
+      status: "PAID" as const,
       razorpayPaymentId: confirmedPaymentId,
       paidAt: Date.now(),
-    });
+    };
+    await saveRegistration(paidRegistration);
 
     logPaymentEvent("webhook_registration_paid", {
       registrationId: registration.id,
@@ -189,6 +197,12 @@ export async function POST(request: NextRequest) {
       paymentId: confirmedPaymentId,
       event,
     });
+
+    /* Same reasoning as the verify route: runs after Razorpay already has its
+       200, so a slow or unreachable Evolution Go cannot turn a webhook retry
+       storm into a repeated WhatsApp send — `notifyPaymentConfirmed` claims
+       exactly once regardless of how many times this branch runs. */
+    after(() => notifyPaymentConfirmed(paidRegistration));
 
     return Response.json({ received: true, handled: true, changed: true }, { status: 200 });
   } catch (cause) {

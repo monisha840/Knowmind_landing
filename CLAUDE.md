@@ -187,8 +187,8 @@ manipulation is off-brand as well as unethical.
 | Prettier | **Not configured** |
 | Tests | **None** — no runner, no test files |
 | Analytics | **None** |
-| Backend | **Next.js Route Handlers** — three, all payment (`src/app/api/`). No auth, no long-running process. |
-| Database | **None.** A registration's durable record is the Razorpay order's `notes`; an optional Redis mirror activates from `KV_REST_API_URL` (see `src/lib/payments/registrations.ts`) |
+| Backend | **Next.js Route Handlers** — three payment (`src/app/api/`), six admin (`src/app/api/admin/`). The admin routes are the only authenticated surface; each enforces its own session check. No long-running process. |
+| Database | **Neon Postgres** via `@neondatabase/serverless` (HTTP, no pool, server-only) — the lead list behind `/admin`. **Optional by design:** with `DATABASE_URL` unset every write is skipped with a log line and registration is unaffected. A registration's *payment* record is still the Razorpay order's `notes`; the Redis mirror from `KV_REST_API_URL` is unchanged (see `src/lib/payments/registrations.ts`) |
 | Payments | **Razorpay Standard Checkout**, over the REST API. **No `razorpay` npm package** — HTTP Basic + `node:crypto` HMAC, so nothing was added to the bundle |
 
 There is **no `tailwind.config.js`**. Tailwind v4 is configured entirely in CSS.
@@ -210,6 +210,10 @@ npm run optimize:assets    # regenerate /public brand + photo assets with sharp
 npm run optimize:video     # transcode the participant testimonials + cut posters
 npm run media:logos        # media outlets' logos out of LP contents.pptx
 npm run icons              # regenerate favicon / app icons from public/knowmind_logo.png
+npm run db:migrate         # apply src/lib/db/schema.sql to Neon. Idempotent.
+npm run admin:password     # set the /admin password. Prompts without echoing;
+                           # writes only the scrypt hash to .env.local
+npm run webhook:create -- <origin>   # create the Razorpay webhook for that origin
 npx tsc --noEmit           # TYPE CHECK — this is the type-check command
 ```
 
@@ -265,7 +269,12 @@ one without approval is a scope violation.
 │   ├── extract-media-logos.mjs # reads LP contents.pptx (a zip) → public/media
 │   ├── optimize-video.mjs     # ffmpeg → public/testimonials (video + poster).
 │   │                          # Reads VIDEO_SOURCE_DIR; sources are NOT committed
-│   └── generate-icons.mjs     # sharp → src/app icons + public/icons
+│   ├── generate-icons.mjs     # sharp → src/app icons + public/icons
+│   ├── create-webhook.mjs     # creates the Razorpay webhook; writes the secret
+│   │                          # to .env.local rather than printing it
+│   ├── db-migrate.mjs         # applies src/lib/db/schema.sql to Neon. Idempotent.
+│   └── admin-password.mjs     # prompts without echoing; writes ONLY the scrypt
+│                              # hash. The password touches no file and no log.
 ├── public/
 │   ├── brand/logo.png · logo-white.png   # flat, simplified marks
 │   ├── brand/logo-mark.png    # the real dimensional mark, from knowmind_logo.png
@@ -278,6 +287,9 @@ one without approval is a scope violation.
 │   │                          # written by optimize-assets.mjs, never by hand
 │   ├── media/ nine outlet logos (.webp) + logos.json  # extract-media-logos.mjs
 │   ├── photos/experiential-circle.webp · leadership-program.webp · experiential-activity.webp
+│   ├── journey/ seven .webp — the moving photo strip above the FAQ.
+│   │                      # optimize-assets.mjs, from the owner's "LP images"
+│   │                      # Drive folder. Sources are NOT committed
 │   ├── testimonials/gowri-shankar · sriraynu · bhoopeshdhayalan  (.mp4 + .webp)
 │   │                          # participant recordings + their poster frames,
 │   │                          # written by optimize-video.mjs, never by hand
@@ -285,11 +297,21 @@ one without approval is a scope violation.
 │   └── kaleeswaran_image.png  # SOURCE original — not for page use
 └── src/
     ├── app/
-    │   ├── api/                # the only server code — all of it payment
-    │   │   ├── register/route.ts          # POST → validate, PENDING, ₹999 order
-    │   │   └── razorpay/
-    │   │       ├── verify/route.ts        # POST → signature + read-back → PAID
-    │   │       └── webhook/route.ts       # POST → Razorpay's own confirmation
+    │   ├── admin/              # the private dashboard. Server Component gate.
+    │   │   ├── layout.tsx      # noindex metadata for everything under /admin
+    │   │   └── page.tsx        # session check BEFORE render → login or dashboard
+    │   ├── api/                # the server code
+    │   │   ├── register/route.ts          # POST → validate, PENDING, ₹699 order
+    │   │   ├── razorpay/
+    │   │   │   ├── verify/route.ts        # POST → signature + read-back → PAID
+    │   │   │   └── webhook/route.ts       # POST → Razorpay's own confirmation
+    │   │   ├── admin/          # every handler authenticates independently
+    │   │   │   ├── login/route.ts · logout/route.ts
+    │   │   │   ├── registrations/route.ts · registrations/[id]/route.ts
+    │   │   │   ├── export/route.ts        # GET → CSV of the current view
+    │   │   │   └── reconcile/route.ts     # POST → rebuild rows from Razorpay
+    │   │   └── whatsapp/
+    │   │       └── retry/route.ts         # GET, Vercel Cron only → retry sweep
     │   ├── layout.tsx          # fonts, metadata, viewport, skip-link, JSON-LD
     │   ├── page.tsx            # the ONLY page route — composes every section
     │   ├── globals.css         # design tokens (@theme), base layer, component utilities
@@ -297,6 +319,8 @@ one without approval is a scope violation.
     │   ├── manifest.ts · robots.ts · sitemap.ts
     │   └── favicon.ico · icon.png · apple-icon.png   # generated — see `npm run icons`
     ├── components/
+    │   ├── admin/              # AdminLogin · AdminDashboard · LeadDetail
+    │   │                       # Deliberately not the landing page's design system
     │   ├── Navbar.tsx · Footer.tsx · StickyCTA.tsx
     │   ├── hero/LivingPortrait.tsx    # the hero portrait's depth treatment
     │   ├── sections/          # one file per page section (17 files)
@@ -304,20 +328,28 @@ one without approval is a scope violation.
     │   │   ├── BackgroundMount.tsx · Background3D.tsx · Fallback2D.tsx
     │   │   └── GrowthObject.tsx · OrbitalField.tsx · CoreGlow.tsx
     │   └── ui/                # Accordion · AnchorLanding · CTAButton · JourneyForm
-    │                          # LazyVideo · Marquee · MethodIcons · RefundEnvelope
-    │                          # Reveal · SectionHeading · TestimonialCard
-    │                          # TumblingMark · VideoPlayer
+    │                          # LazyVideo · Marquee · MethodIcons · PhotoReel
+    │                          # RefundEnvelope · Reveal · SectionHeading
+    │                          # TestimonialCard · TumblingMark · VideoPlayer
     └── lib/
+        ├── admin/             # types.ts (client-safe) · auth.ts · rateLimit.ts
+        │                      # · format.ts.  auth.ts is the ONLY password reader
+        ├── db/                # client.ts (Neon over HTTP) · registrations.ts
+        │                      # · schema.sql.  SERVER ONLY — throws in a browser
         ├── config.ts          # program facts, anchors, money helpers
         ├── content.ts         # ALL repeatable copy as structured data
         ├── hooks.ts           # media queries, WebGL probe, count-up, pointer, scroll
         ├── schema.ts          # JSON-LD graph
         ├── validation.ts      # the six answers' rules — runs on BOTH sides
-        └── payments/
-            ├── types.ts           # the browser↔server contract (client-safe)
-            ├── razorpay.ts        # REST client + HMAC.  SERVER ONLY — throws in a browser
-            ├── registrations.ts   # the record, the amount, idempotency.  SERVER ONLY
-            └── useCheckout.ts     # "use client" — the checkout state machine
+        ├── payments/
+        │   ├── types.ts           # the browser↔server contract (client-safe)
+        │   ├── razorpay.ts        # REST client + HMAC.  SERVER ONLY — throws in a browser
+        │   ├── registrations.ts   # the record, the amount, idempotency.  SERVER ONLY
+        │   └── useCheckout.ts     # "use client" — the checkout state machine
+        └── whatsapp/          # payment-confirmation WhatsApp sends.  SERVER ONLY
+            ├── evolution.ts       # Evolution Go REST client — send/text, credentials
+            ├── message.ts         # the confirmation text + phone normalisation
+            └── notify.ts          # claim → send → record; the one trigger point
 ```
 
 **Source assets vs. served assets.** `kaleeswaran_image.png` (1.7 MB) and
@@ -332,8 +364,9 @@ hand — `generate-icons.mjs` only trims, scales and centres it.
 
 ### 3.1 Routes and anchors
 
-One route: `/`. No API routes, no middleware, no dynamic segments, no
-`error.tsx`, no `not-found.tsx`, no `loading.tsx`.
+Public route: `/1percentagebetter` (the programme; `/` 307-redirects to it).
+Private route: `/admin` (the lead dashboard — see 3.2). No middleware, no
+`error.tsx`, no `loading.tsx`. `not-found.tsx` exists.
 
 Metadata routes present: `manifest.ts`, `robots.ts` (allow all + sitemap
 pointer), `sitemap.ts` (the single URL), `opengraph-image.tsx`. All of them read
@@ -362,6 +395,7 @@ updating every reference.**
 | `#bonuses` | BonusSection | — |
 | `#why-live` | LiveOnlySection | — |
 | `#guarantee` | GuaranteeSection | — |
+| `#journey-reel` | JourneyReelSection | — the two-row photo strip, immediately above the FAQ |
 | `#faq` | FAQSection | **navLinks** |
 | `#begin` | FinalCTA | — |
 | `#register` | PricingSection | the pricing card (`PRICING_ANCHOR`) |
@@ -376,6 +410,47 @@ already exist.
 `html { scroll-padding-top: 6rem }` in `globals.css` keeps anchor targets clear
 of the fixed navbar. Do not remove it, and do not cancel it per-section. Sections that need extra clearance add
 `scroll-mt-*` (PricingSection uses `scroll-mt-24`).
+
+### 3.2 The admin surface
+
+`/admin` is the registration dashboard. It shares nothing with the landing
+page's design system and must not start doing so.
+
+| Path | What it is |
+| --- | --- |
+| `/admin` | Server Component. Checks the session **before rendering**, so an unauthenticated request receives a login form and no lead data at all. |
+| `POST /api/admin/login` | The only place a password is checked. Rate-limited, constant-time, fixed response floor. |
+| `POST /api/admin/logout` | Clears the cookie. Deliberately unauthenticated. |
+| `GET /api/admin/registrations` | One page of leads plus the stat tiles' counts. |
+| `GET /api/admin/registrations/[id]` | One lead in full. |
+| `GET /api/admin/export` | The current view as CSV. |
+| `POST /api/admin/reconcile` | Rebuilds rows from Razorpay orders. Migration and repair, never the dashboard's data path. |
+
+The rules that hold it together:
+
+- **Every `/api/admin/*` handler calls `isAuthenticatedRequest` as its first
+  statement.** Not middleware — an endpoint serving personal data must not
+  depend on something in front of it having run.
+- **Never render lead data on the unauthenticated branch**, and never put a
+  "logged in" flag in `localStorage`. The session is an HttpOnly cookie the
+  browser cannot read.
+- **The password exists only as `ADMIN_PASSWORD_HASH`.** Never in source, never
+  in a log, never in a response, never in a commit. `npm run admin:password`
+  is the only way to set it.
+- `noindex` is asserted three ways — the header in `next.config.ts`, the
+  `robots` metadata in `src/app/admin/layout.tsx`, and the `Disallow` in
+  `src/app/robots.ts`. Keep all three.
+
+**The store is not the authority on money.** `src/lib/db/registrations.ts`
+writes down what the payment routes concluded; it never concludes anything. PAID
+is terminal in the upsert *and* in a SQL CHECK, and a PAID row cannot be
+recorded without the payment id that proves it. There is no CANCELLED status —
+a closed browser is not something the server witnessed, so a stale PENDING is
+*displayed* as "Abandoned" and stored as PENDING.
+
+**Every database write is fail-open.** A missing or failing database logs and
+continues; it never fails a registration or a payment. That is why
+`/api/admin/reconcile` exists.
 
 ---
 
@@ -1245,16 +1320,25 @@ image, or client-only rendering.
 | --- | --- | --- | --- |
 | `RAZORPAY_KEY_ID` | **server** | Razorpay API key id. Reaches the browser only inside an `/api/register` response, never as build-time config. | yes |
 | `RAZORPAY_KEY_SECRET` | **server** | Razorpay API key secret. Signs order creation and verifies the Checkout signature. **Never** `NEXT_PUBLIC_`. | yes |
-| `RAZORPAY_WEBHOOK_SECRET` | **server** | Signing secret for webhook deliveries — **a different value** from the key secret; you choose it in the dashboard. Empty → the webhook rejects every delivery. | for production |
+| `RAZORPAY_WEBHOOK_SECRET` | **server** | Signing secret for webhook deliveries — **a different value** from the key secret; you choose it in the dashboard. Empty → the webhook rejects every delivery, and a payment whose browser never returns is confirmed by nothing. `npm run webhook:create -- <origin>`. The dashboard warns while it is unset. | **yes, in production** |
+| `DATABASE_URL` | **server** | Neon Postgres, the lead store behind `/admin`. Provisioned through the Vercel Marketplace, which injects it. Absent → writes are skipped, registration is unaffected, and `/admin` says so. | for `/admin` |
+| `ADMIN_PASSWORD_HASH` | **server** | scrypt hash of the admin password, from `npm run admin:password`. The password itself is never stored anywhere. | for `/admin` |
+| `ADMIN_SESSION_SECRET` | **server** | 32+ bytes signing the admin session cookie. Rotating it logs everyone out — the revocation mechanism for a design with no session table. | for `/admin` |
 | `KV_REST_API_URL` | **server** | Optional Redis mirror (Vercel KV / Upstash). Absent → the mirror is skipped and nothing else changes. | no |
 | `KV_REST_API_TOKEN` | **server** | Token for the above. | no |
 | `NEXT_PUBLIC_SITE_URL` | public | Canonical origin for canonical tags, OG URLs and JSON-LD. Defaults to `https://www.knowminduniverse.com`. | recommended |
+| `EVOLUTION_API_URL` | **server** | Evolution Go's bare origin (no `/manager` suffix). Read by `src/lib/whatsapp/evolution.ts`, which sends the payment-confirmation WhatsApp message. Absent → sending is skipped and logged, never blocking a payment. | for WhatsApp confirmations |
+| `EVOLUTION_API_KEY` | **server** | Evolution Go's per-instance token (`apikey` header on every request). **Never** `NEXT_PUBLIC_`. | for WhatsApp confirmations |
+| `EVOLUTION_INSTANCE` | **server** | The instance name, for logs and the dashboard only — not sent on the wire, since the token above is itself instance-scoped. | no |
+| `EVOLUTION_TEST_PHONE` | **server** | When set, every outgoing WhatsApp confirmation is redirected to this number instead of the lead's own. Leave empty in production; never fill it with a real customer's number. | no |
+| `CRON_SECRET` | **server** | Authenticates `GET /api/whatsapp/retry`, the Vercel Cron job that retries failed WhatsApp sends (`vercel.json`). Absent → the route refuses every request, including Vercel's own. | for the retry sweep |
 
 `NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK` is **gone**. It configured a hosted payment
 link that bypassed the registration questions entirely; do not reintroduce it.
 
-No `.env.local` exists in the working tree — copy `.env.example` to create one.
-When you add a variable, document it in `.env.example` **and** in this table.
+`.env.local` is git-ignored and holds this deployment's real values — copy
+`.env.example` to create one if it is ever missing. When you add a variable,
+document it in `.env.example` **and** in this table.
 
 ---
 
@@ -1390,7 +1474,7 @@ these by fabricating content — most need an asset or a human decision.
 | ~~No VSL recording~~ — **resolved.** Kaleeswaran to camera, 1:16, live in band 3. Built from `VSL_video.mp4` in the project root by `npm run optimize:video` (remuxed for `+faststart`, never re-encoded) | the master `VSL_video.mp4` is gitignored, deliberately: the shipped file is a `-c copy` remux of it, so the streams are identical and committing both would carry 8.9 MB twice. Nothing needs the master to rebuild — a new poster can be cut from `public/kalee/vsl.mp4` |
 | **₹699 checkout never completed end to end.** Order creation, the 69900 amount, amount-tamper rejection, forged-signature rejection and non-existent-payment rejection are all verified. The accepting path — checkout → signature pass → capture → PAID → success panel — is not. | Needs one manual browser payment with a Razorpay test card. |
 | **Razorpay is in TEST mode** (`rzp_test_…`). | Live keys, a live webhook and a re-test are an owner's decision. |
-| **No webhook configured** (`RAZORPAY_WEBHOOK_SECRET` empty). | Deliberate. The endpoint refuses every delivery, and the flow does not depend on it: `registrationFromOrder` derives PAID from `order.status === "paid"`, which Razorpay sets on capture. `scripts/create-webhook.mjs` creates it in one command; test and live webhooks are separate. |
+| **No webhook configured** (`RAZORPAY_WEBHOOK_SECRET` empty, in `.env.local` and in Vercel). | **No longer optional.** It was tolerable while `registrationFromOrder` could derive PAID from `order.status` on demand; the lead table cannot, so a payment whose browser never returns will never appear as PAID in `/admin`. `npm run webhook:create -- <origin>`; test and live webhooks are separate. |
 | **Responsive behaviour never verified in a browser.** | No browser automation in the working environment. Needs a manual pass, or Playwright as a devDependency. |
 | **`npm run lint` blocked upstream** — typescript-eslint does not support TS 7 (§2.1). | Nothing to do until upstream ships. |
 | No test infrastructure | none planned — **decision required** |
@@ -1399,6 +1483,10 @@ these by fabricating content — most need an asset or a human decision.
 | Video testimonials: the programme page's three slots are filled from the Drive asset library. `content.ts`'s `videoTestimonials` (the deck page) are still `src: null` | three more participant recordings exist in Drive, unused — see the foot of `scripts/optimize-video.mjs` |
 | **Media** logos are the outlets' own marks, at the owner's instruction — the licensing decision this row used to hold open has been made for those nine. **Client** logos are still typographic wordmarks | the deck's only copy of the eighteen client marks is one flattened grid image (`image14.png`), which cannot be cut into individual marks anyone would be entitled to ship. Still a decision, still open |
 | No analytics | **decision required** |
+| **No database provisioned.** `vercel integration ls` reports no resources; `DATABASE_URL` is unset everywhere. `/admin` runs and refuses access correctly, but lists nothing until Neon is created and `npm run db:migrate` is run. **Also blocks WhatsApp confirmations** (`src/lib/whatsapp/notify.ts`): the one-message guarantee is an atomic database claim, so without `DATABASE_URL`, sending is skipped and logged rather than risk a duplicate send. | Owner's action: Vercel dashboard → Storage → Neon → Create. Then `npm run db:migrate`, then “Sync from Razorpay” in `/admin` to import the existing orders. |
+| **Evolution Go's `number` wire format is unconfirmed.** The send-text contract (`POST /send/text`, header `apikey`, body `{ number, text }`) was read from the manager's own compiled JS, but the exact digit shape it expects for `number` was not — see the header comment in `src/lib/whatsapp/evolution.ts`. Currently sends `91` + 10 digits, no `+`, matching this codebase's existing `wa.me` links. | Needs one real send with `EVOLUTION_TEST_PHONE` set to a number the owner designates for testing, per this project's own testing rules. |
+| **`/admin` never exercised against a real database.** Login, session, forgery rejection, logout, rate limiting, CSV headers and the 401 on every endpoint are all verified; the queries themselves have only been type-checked. | Needs one pass after Neon exists. |
+| Admin dashboard not verified in a real browser (no browser automation here) | Same gap as the landing page's responsive row above. |
 | Mobile drawer has no focus trap | accessibility improvement, needs testing |
 
 ## 22 · Definition of Done

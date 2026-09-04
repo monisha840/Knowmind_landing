@@ -268,3 +268,45 @@ export function isValidWebhookSignature(
   const expected = createHmac("sha256", webhookSecret).update(rawBody).digest("hex");
   return hexEquals(expected, signature);
 }
+
+/* --------------------------------------------------------- reconciliation -- */
+
+/**
+ * List orders, newest first.
+ *
+ * Read-only, and used from exactly one place: the authenticated reconciliation
+ * route, which rebuilds registration rows from the orders that are their
+ * durable home. It is a repair and migration tool — the dashboard itself reads
+ * the database, never this.
+ *
+ * Razorpay caps `count` at 100 per page and pages with `skip`.
+ */
+export type RazorpayList<T> = { entity: "collection"; count: number; items: T[] };
+
+export function listOrders(
+  credentials: RazorpayCredentials,
+  page: { count: number; skip: number },
+): Promise<RazorpayList<RazorpayOrder>> {
+  const query = new URLSearchParams({
+    count: String(Math.min(100, Math.max(1, page.count))),
+    skip: String(Math.max(0, page.skip)),
+  });
+  return request<RazorpayList<RazorpayOrder>>(credentials, `/orders?${query.toString()}`);
+}
+
+/**
+ * The payments attempted against one order.
+ *
+ * Needed only for historical rows: an order paid before the notes carried
+ * `paid_at` still knows when its capture happened, and this is where that
+ * timestamp lives. Nothing on the live payment path calls it.
+ */
+export function fetchOrderPayments(
+  credentials: RazorpayCredentials,
+  orderId: string,
+): Promise<RazorpayList<RazorpayPayment>> {
+  return request<RazorpayList<RazorpayPayment>>(
+    credentials,
+    `/orders/${encodeURIComponent(orderId)}/payments`,
+  );
+}

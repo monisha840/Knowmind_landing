@@ -22,8 +22,10 @@
      4. The sticky bar and footer respect the safe-area insets.
      5. `:focus-visible` rings exist.
      6. Both infinite animations stop under `prefers-reduced-motion`.
-     7. `.s-title` and `.tb-tamil` scale below ~400px, so the pattern band's
-        two Tamil display lines cannot push the page sideways at 320px.
+     7. Was: `.s-title` and `.tb-tamil` scaled below ~400px so the pattern
+        band's two Tamil display lines could not push the page sideways. The
+        band is English now and both lines are fluid by construction, so the
+        deviation is retired rather than reversed.
      8. The body face is Instrument Sans, not the reference's `"Segoe UI",
         Arial` system stack — asked for, and the one departure here that is a
         preference rather than a fix. It is the project's own UI face (CLAUDE.md
@@ -179,7 +181,7 @@
     position: sticky;
     top: 0;
     z-index: 999;
-    background: #2d0060;
+    background: #25133c;
     padding: 10px 40px;
     display: flex;
     align-items: center;
@@ -233,7 +235,7 @@
     position: sticky;
     bottom: 0;
     z-index: 998;
-    background: #2d0060;
+    background: #25133c;
     border-top: 1px solid rgba(255, 179, 0, 0.25);
     padding: 10px 16px;
     /* The reference has no safe-area handling anywhere; a pinned bar over the
@@ -280,7 +282,7 @@
 
   /* -- HERO -------------------------------------------------------------- */
   .ref-page .hero {
-    background: linear-gradient(160deg, #1a0030 0%, #4b0082 60%, #6a0dad 100%);
+    background: linear-gradient(160deg, #1a0030 0%, #3a1a5c 60%, #3f1d63 100%);
     padding: 70px 40px 0;
     position: relative;
     overflow: hidden;
@@ -346,43 +348,67 @@
     animation: ref-blink 1.5s infinite;
     flex-shrink: 0;
   }
+  /* The hero's hierarchy is inverted from the reference, at the owner's
+     request: the question is the primary line and the mark answers it. So the
+     h1 takes the size the mark used to have and the mark steps down under it.
+     Both are fluid rather than fixed, because the question is a long line and a
+     flat 40px broke it across four rows on a phone.
+
+     `.h-main` keeps the amber italic 900 — the brand is in that treatment, not
+     in the point size, so subordinating it costs nothing recognisable. */
+  /* The question is the hero. Bigger, tighter and heavier than before, with
+     `text-wrap: balance` so the line breaks fall where the sense does instead
+     of leaving one orphaned word — which is most of what made it read as body
+     copy at the old 42px ceiling.
+
+     No glow, no gradient, no outline. The weight and the scale do the work;
+     the only colour on it is white, and the amber stays where it already
+     earns its place (the mark, the value line and the button). */
+  .ref-page .h-headline {
+    color: #fff;
+    font-size: clamp(30px, 1rem + 3vw, 54px);
+    font-weight: 900;
+    line-height: 1.12;
+    letter-spacing: -1.2px;
+    text-wrap: balance;
+    max-width: 15ch;
+    margin-bottom: 18px;
+  }
+  /* The supporting tagline. A hairline amber rule above it separates the two
+     without adding a decorative element that means nothing. */
   .ref-page .h-main {
-    font-size: 52px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 179, 0, 0.28);
+    font-size: clamp(21px, 0.9rem + 1.3vw, 30px);
     font-weight: 900;
     color: #ffb300;
     line-height: 1.05;
     font-style: italic;
-    letter-spacing: -1px;
+    letter-spacing: -0.5px;
     display: block;
   }
   .ref-page .h-sub {
-    font-size: 26px;
+    font-size: clamp(12px, 0.6rem + 0.5vw, 16px);
     font-weight: 400;
     color: rgba(255, 255, 255, 0.85);
     letter-spacing: 3px;
     text-transform: uppercase;
     display: block;
-    margin-top: 6px;
+    margin-top: 5px;
   }
-  .ref-page .h-tamil {
-    font-size: 21px;
+  /* Tanglish display line, then its English gloss. Roman script, so this takes
+     the page's own body face rather than a Tamil one. */
+  .ref-page .h-tanglish {
+    font-size: clamp(17px, 0.8rem + 0.8vw, 22px);
     font-weight: 700;
     color: #ffb300;
-    margin: 16px 0 5px;
-    opacity: 0.9;
+    margin: 16px 0 4px;
   }
   .ref-page .h-tamil-eng {
-    font-size: 12px;
-    color: #d8b8f5;
+    font-size: 12.5px;
+    color: #cbb2e8;
     font-style: italic;
-    margin-bottom: 20px;
-  }
-  .ref-page .h-headline {
-    color: #fff;
-    font-size: 24px;
-    font-weight: 800;
-    line-height: 1.4;
-    margin-bottom: 6px;
+    margin: 0 0 20px;
   }
   .ref-page .h-sub2 {
     color: #d8b8f5;
@@ -422,9 +448,25 @@
       0 3px 10px rgba(26, 0, 48, 0.14);
     margin-bottom: 10px;
   }
+  /* The value line, promoted from grey small print to a compact amber badge.
+     A 10% amber ground and a hairline border of the same hue — the same
+     treatment the promise band uses, so the two read as one idea rather than
+     two decorations. Amber *text* on this dark ground rather than an amber
+     fill: a solid amber block here would compete with the button directly
+     above it, which is the one thing on this screen that should be loudest.
+     No glow and no shadow. */
   .ref-page .h-cta-note {
-    color: #d8b8f5;
-    font-size: 12px;
+    display: inline-block;
+    margin-top: 14px;
+    padding: 9px 16px;
+    background: rgba(255, 179, 0, 0.1);
+    border: 1px solid rgba(255, 179, 0, 0.34);
+    border-radius: 999px;
+    color: #ffca4d;
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: 0.1px;
   }
   .ref-page .hero-right {
     display: flex;
@@ -470,7 +512,8 @@
      `.hero-inner`. */
   .ref-page .hero-photo {
     width: 100%;
-    aspect-ratio: 1200 / 811;
+    /* The owner's updated card's own ratio. */
+    aspect-ratio: 1448 / 1086;
     background: rgba(255, 255, 255, 0.04);
     border-radius: 20px 20px 0 0;
     border: 1px solid rgba(255, 179, 0, 0.15);
@@ -503,6 +546,32 @@
   }
   .ref-page .hero-photo .ph-icon {
     font-size: 52px;
+  }
+  /* The introduction video, moved into the hero. It inherits `.hero-photo`'s
+     frame contract exactly — full track width, the asymmetric top radius, and
+     no bottom border — so the stat bar still meets it flush. Only the ratio
+     differs: 832/464 is the footage's own, so the frame fits the picture
+     rather than letterboxing it.
+
+     `overflow: hidden` is what clips the video element to the rounded corners;
+     without it the poster paints square inside a rounded box. */
+  .ref-page .hero-video {
+    width: 100%;
+    aspect-ratio: 832 / 464;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 20px 20px 0 0;
+    border: 1px solid rgba(255, 179, 0, 0.15);
+    border-bottom: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .ref-page .hero-video video,
+  .ref-page .hero-video img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   .ref-page .hero-stat-bar {
     background: rgba(27, 0, 48, 0.95);
@@ -550,7 +619,9 @@
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 179, 0, 0.2);
     border-radius: 16px;
-    padding: 60px 40px;
+    /* Was 60px 40px around a labelled placeholder. The frame holds a real
+       image now, so the padding tightens to a border rather than a mat. */
+    padding: 16px 16px 20px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -583,12 +654,31 @@
     color: rgba(255, 255, 255, 0.4);
     font-size: 13px;
   }
+  /* The introduction video's frame. It carries the footage's own 960x540, so
+     the box and the picture agree and nothing letterboxes. */
+  .ref-page .vsl-video {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 960 / 540;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.35);
+  }
+  .ref-page .vsl-video video,
+  .ref-page .vsl-video img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Sits above the frame now rather than under it, so the spacing flips. */
   .ref-page .vsl-quote {
     color: #ffb300;
-    font-size: 18px;
+    font-size: clamp(17px, 0.8rem + 0.7vw, 21px);
     font-weight: 700;
     font-style: italic;
-    margin-top: 12px;
+    margin: 0 0 18px;
   }
 
   /* -- SHARED SECTION FURNITURE ------------------------------------------ */
@@ -614,7 +704,31 @@
     margin-bottom: 12px;
   }
   .ref-page .s-title span {
-    color: #4b0082;
+    color: #3a1a5c;
+  }
+  /* Band 4's heading only. The lead sets under the reference's 34px and the
+     line beneath it over — the hierarchy the owner asked for. Scoped to
+     `.pattern-title` on purpose: `.s-title` is shared with `RefSectionIntro`,
+     which every other band uses, so changing the base rule would resize the
+     whole page. Both are fluid so the larger line still fits a 320px screen. */
+  .ref-page .pattern-title {
+    margin-bottom: 16px;
+  }
+  .ref-page .pattern-title .pt-lead {
+    display: block;
+    font-size: clamp(17px, 0.75rem + 1vw, 25px);
+    font-weight: 700;
+    color: #1a0030;
+    opacity: 0.78;
+    line-height: 1.32;
+  }
+  .ref-page .pattern-title .pt-accent {
+    display: block;
+    font-size: clamp(25px, 0.95rem + 2.2vw, 41px);
+    font-weight: 900;
+    color: #3a1a5c;
+    line-height: 1.16;
+    margin-top: 7px;
   }
   .ref-page .s-sub {
     font-size: 14px;
@@ -650,7 +764,7 @@
     align-items: flex-start;
     gap: 14px;
     background: #fff;
-    border-left: 4px solid #4b0082;
+    border-left: 4px solid #3a1a5c;
     border-radius: 0 10px 10px 0;
     padding: 14px 18px;
   }
@@ -668,11 +782,11 @@
   }
   .ref-page .pf-arrow {
     text-align: center;
-    color: #4b0082;
+    color: #3a1a5c;
     font-size: 20px;
   }
   .ref-page .truth-box {
-    background: #4b0082;
+    background: #3a1a5c;
     border-radius: 16px;
     padding: 40px 32px;
     text-align: center;
@@ -683,15 +797,16 @@
     line-height: 1.9;
     margin-bottom: 18px;
   }
-  .ref-page .tb-tamil {
+  .ref-page .tb-tanglish {
     color: #ffb300;
-    font-size: 26px;
+    font-size: clamp(19px, 0.85rem + 1vw, 25px);
     font-weight: 900;
     display: block;
+    line-height: 1.3;
     margin-bottom: 6px;
   }
   .ref-page .tb-eng {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.55);
     font-size: 13px;
     font-style: italic;
     margin-bottom: 22px;
@@ -742,7 +857,7 @@
     bottom: -24px;
     left: 50%;
     transform: translateX(-50%);
-    color: #4b0082;
+    color: #3a1a5c;
     font-size: 18px;
     font-weight: 900;
   }
@@ -752,7 +867,7 @@
   .ref-page .phil-title {
     font-size: 14px;
     font-weight: 800;
-    color: #4b0082;
+    color: #3a1a5c;
     margin-bottom: 6px;
   }
   .ref-page .phil-desc {
@@ -768,7 +883,7 @@
     margin-top: 40px;
   }
   .ref-page .phil-bottom p {
-    color: #4b0082;
+    color: #3a1a5c;
     font-size: 15px;
     line-height: 1.9;
   }
@@ -812,7 +927,7 @@
     margin-bottom: 20px;
   }
   .ref-page .wk-label.w1 {
-    background: #4b0082;
+    background: #3a1a5c;
     color: #ffb300;
   }
   .ref-page .wk-label.w2 {
@@ -827,7 +942,7 @@
   }
   .ref-page .day-num {
     background: #ede7f6;
-    color: #4b0082;
+    color: #3a1a5c;
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -854,7 +969,7 @@
     line-height: 1.4;
   }
   .ref-page .journey-note {
-    background: #4b0082;
+    background: #3a1a5c;
     border-radius: 12px;
     padding: 20px 24px;
     text-align: center;
@@ -882,7 +997,7 @@
 
   /* -- HOW IT WORKS ------------------------------------------------------ */
   .ref-page .how-section {
-    background: #2d0060;
+    background: #25133c;
     padding: 72px 40px;
   }
   .ref-page .how-inner {
@@ -973,7 +1088,7 @@
     font-size: 13px;
     margin-bottom: 6px;
   }
-  .ref-page .how-miss .tamil {
+  .ref-page .how-miss .how-miss-reassurance {
     color: #ffb300;
     font-size: 19px;
     font-weight: 800;
@@ -983,6 +1098,35 @@
     font-size: 13px;
     margin-top: 6px;
     margin-bottom: 0;
+  }
+
+  /* -- MISS A DAY (band 6.5) --------------------------------------------- */
+  /* The reassurance panel above, standing on its own between the fourteen days
+     and Meet Kaleeswaran — see `MissADaySection` for why it is a band now and
+     why it carries a button. The panel itself is `.how-miss` unchanged: it was
+     drawn for a #25133c ground and this band supplies the same one, so the
+     block looks exactly as it did inside band 7 rather than being redrawn for
+     its new surroundings.
+
+     Its own padding is short at the top on purpose. The journey band above ends
+     on a call to action, and the reference's full 72px under that would open a
+     gap wide enough to read as the end of the page. */
+  .ref-page .miss-section {
+    background: #25133c;
+    padding: 8px 40px 64px;
+  }
+  .ref-page .miss-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  /* `margin-top` belongs to the panel's old life as the last thing in a stack;
+     here the band's own padding places it. */
+  .ref-page .miss-section .how-miss {
+    margin-top: 0;
+    padding: 26px 24px;
+  }
+  .ref-page .miss-cta {
+    margin-top: 18px;
   }
 
   /* -- EXPLORE ----------------------------------------------------------- */
@@ -1007,7 +1151,7 @@
     background: #f8f5ff;
     border-radius: 12px;
     padding: 22px 24px;
-    border-left: 4px solid #4b0082;
+    border-left: 4px solid #3a1a5c;
   }
   .ref-page .explore-card :is(h3, h4) {
     font-size: 15px;
@@ -1021,7 +1165,7 @@
     line-height: 1.5;
   }
   .ref-page .explore-bottom {
-    background: #4b0082;
+    background: #3a1a5c;
     border-radius: 14px;
     padding: 28px;
     text-align: center;
@@ -1050,7 +1194,7 @@
     align-items: start;
   }
   .ref-page .kalee-card {
-    background: #4b0082;
+    background: #3a1a5c;
     border-radius: 20px;
     padding: 32px 24px;
     text-align: center;
@@ -1168,7 +1312,7 @@
   .ref-page .k-approach :is(h3, h4) {
     font-size: 14px;
     font-weight: 700;
-    color: #4b0082;
+    color: #3a1a5c;
     margin-bottom: 12px;
   }
   .ref-page .k-point {
@@ -1198,7 +1342,7 @@
     text-align: center;
   }
   .ref-page .sb strong {
-    color: #4b0082;
+    color: #3a1a5c;
     font-size: 11px;
     display: block;
     margin-bottom: 3px;
@@ -1264,7 +1408,7 @@
   .ref-page .logo-pill:hover {
     filter: grayscale(0%);
     opacity: 1;
-    border-color: #4b0082;
+    border-color: #3a1a5c;
   }
   .ref-page .logo-pill span {
     font-size: 11px;
@@ -1288,15 +1432,15 @@
     right: 0;
   }
   .ref-page .media-feat-section {
-    background: #2d0060;
+    background: #25133c;
     padding: 32px 0;
   }
   .ref-page .media-feat-section .marquee-wrap-outer::before {
-    background: linear-gradient(to right, #2d0060, transparent);
+    background: linear-gradient(to right, #25133c, transparent);
     left: 0;
   }
   .ref-page .media-feat-section .marquee-wrap-outer::after {
-    background: linear-gradient(to left, #2d0060, transparent);
+    background: linear-gradient(to left, #25133c, transparent);
     right: 0;
   }
   .ref-page .media-feat-section .media-label {
@@ -1316,7 +1460,7 @@
   /* --- A pill holding a real mark ----------------------------------------
      White ground, whatever the band. Six of the nine marks were drawn for
      white and arrive with it baked in; the other three are transparent. On the
-     band's own #2D0060 that mixture reads as three logos and six white
+     band's own #25133c that mixture reads as three logos and six white
      rectangles, so every one of them gets the same white chip and the set
      looks deliberate.
 
@@ -1371,124 +1515,553 @@
     text-align: center;
     margin-bottom: 44px;
   }
-  .ref-page .test-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-    margin-bottom: 28px;
-  }
-  .ref-page .test-card {
-    background: #f8f5ff;
-    border-left: 4px solid #4b0082;
-    border-radius: 0 12px 12px 0;
-    padding: 22px;
-  }
-  .ref-page .test-stars {
-    color: #ffb300;
-    font-size: 13px;
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-  }
-  .ref-page .test-q {
-    font-size: 13px;
-    color: #444;
-    line-height: 1.8;
-    font-style: italic;
-    margin-bottom: 14px;
-  }
-  .ref-page .test-name {
-    font-size: 12px;
-    font-weight: 700;
-    color: #4b0082;
-  }
-  .ref-page .test-role {
-    font-size: 11px;
-    color: #888;
-  }
-  .ref-page .videos-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-  .ref-page .video-ph {
-    background: #1a0030;
-    border: 1px dashed rgba(255, 255, 255, 0.15);
-    border-radius: 12px;
-    padding: 32px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 8px;
-  }
-  /* The same drawn play mark as `.vsl-play`, one size down. These slots are
-     placeholders for testimonials that do not exist yet, so the mark is set in
-     the muted white the copy beneath it uses rather than in amber — it should
-     read as an empty frame, not as something to click (CLAUDE.md §9.2). */
-  .ref-page .video-ph .vplay {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(255, 255, 255, 0.25);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .ref-page .video-ph .vplay::before {
-    content: "";
-    border-style: solid;
-    border-width: 6px 0 6px 10px;
-    border-color: transparent transparent transparent rgba(255, 255, 255, 0.4);
-    margin-left: 2px;
-  }
-  .ref-page .video-ph p {
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 12px;
-    text-align: center;
-  }
-  /* --- A slot with a real recording in it ---------------------------------
-     The reference never drew this state, because it had no footage. It is
-     built to occupy the placeholder's grid cell exactly, so filling a slot
-     moves nothing around it.
+  /* -- VOICES OF THE JOURNEY (band 12, the written half) ------------------ */
+  /* Was the reference's three-up grid of six quote cards (`.test-grid`,
+     `.test-card` and their four children), which on a phone became six stacked
+     cards immediately under the participant recordings: the same argument
+     twice, in the same shape, at length. It is one featured quote now — see
+     `TestimonialQuoteFeature` — so the band carries two kinds of proof rather
+     than one repeated. The recordings above are a face on white; this is a
+     voice set in type on deep purple, which is also why it borrows nothing
+     from `.tf-*`: no thumbnails, no picker, no frame.
 
-     `max-width` rather than a bare column fill: three 9:16 frames across a
-     1120px content box would stand 644px tall and turn one band into most of
-     a screen. 300px caps them at 533px, which is the height of the six quote
-     cards below them, and `margin-inline: auto` keeps each one centred in a
-     column that is wider than it is. */
-  .ref-page .test-video {
-    max-width: 300px;
-    margin-inline: auto;
-    width: 100%;
+     Deviation from the reference, and the only one in this band. The reference
+     has the grid; the grid is what the owner asked to replace. */
+  .ref-page .voices {
+    background:
+      radial-gradient(120% 140% at 12% 0%, #34194f 0%, transparent 62%),
+      linear-gradient(160deg, #25133c 0%, #1a0030 100%);
+    border-radius: 20px;
+    padding: clamp(30px, 5vw, 52px) clamp(16px, 5vw, 64px) clamp(26px, 4vw, 40px);
+    margin-bottom: 28px;
   }
-  .ref-page .test-video-frame {
-    position: relative;
-    /* The footage's own ratio, declared rather than measured, so the row holds
-       its full height from first paint (CLAUDE.md §15 — no shift on load). */
-    aspect-ratio: 9 / 16;
-    background: #1a0030;
-    border-radius: 12px;
-    /* The player's poster and video are both absolutely positioned children;
-       this is what clips them to the rounded frame. */
-    overflow: hidden;
-  }
-  .ref-page .test-video-cap {
-    padding: 10px 2px 0;
+  .ref-page .voices-head {
     text-align: center;
+    margin-bottom: clamp(24px, 4vw, 38px);
   }
-  .ref-page .test-video-name {
+  .ref-page .voices-eyebrow {
+    color: #ffb300;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3.2px;
+    text-transform: uppercase;
+    margin: 0 0 10px;
+  }
+  .ref-page .voices-lead {
+    color: rgba(216, 184, 245, 0.8);
+    font-size: 14.5px;
+    margin: 0;
+    text-wrap: balance;
+  }
+  /* The reading measure — and the width every control lines up to, so the
+     folio, the quote, the rule and the two buttons share one column. */
+  .ref-page .voices-body {
+    max-width: 46rem;
+    margin: 0 auto;
+  }
+  .ref-page .voices-folio {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin: 0 0 14px;
+    color: rgba(216, 184, 245, 0.62);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    /* Tabular, or the folio jogs sideways between 01 and 06. */
+    font-variant-numeric: tabular-nums;
+  }
+  .ref-page .voices-folio-now {
+    color: #ffb300;
+  }
+  .ref-page .voices-folio-sep {
+    opacity: 0.55;
+  }
+  /* `pan-y` is what lets the page keep scrolling under a vertical drag while
+     the swipe handler still receives the horizontal ones. */
+  .ref-page .voices-stage {
+    touch-action: pan-y;
+  }
+  /* The whole device: one amber hairline down the side. No card, no box, no
+     shadow — that shape belongs to the recordings above. */
+  .ref-page .voices-quote {
+    margin: 0;
+    border-left: 2px solid rgba(255, 179, 0, 0.55);
+    padding-left: clamp(16px, 3vw, 30px);
+    animation: ref-voice-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  /* Going backwards, the quote arrives from the left. */
+  .ref-page .voices-quote[data-dir="-1"] {
+    animation-name: ref-voice-in-back;
+  }
+  .ref-page .voices-stars {
+    margin: 0 0 clamp(14px, 2vw, 20px);
+    color: #ffb300;
+    font-size: 12px;
+    letter-spacing: 4px;
+  }
+  .ref-page .voices-q {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: clamp(21px, 0.9rem + 2vw, 34px);
+    line-height: 1.42;
+    color: #f4edfb;
+    text-wrap: balance;
+    /* Three lines at the desktop size. The six quotes run 115–129 characters,
+       so the block only ever varies by about half a line; this absorbs that
+       instead of letting the rule and the buttons step up and down under it. */
+    min-height: calc(1.42em * 3);
+  }
+  .ref-page .voices-attr {
     display: block;
-    color: #1a0030;
+    margin-top: clamp(18px, 3vw, 26px);
+  }
+  .ref-page .voices-name {
+    display: block;
+    color: #fff;
     font-size: 14px;
     font-weight: 700;
+    letter-spacing: 0.2px;
   }
-  .ref-page .test-video-role {
+  .ref-page .voices-role {
     display: block;
-    color: #666;
-    font-size: 11px;
-    margin-top: 2px;
+    margin-top: 3px;
+    color: rgba(216, 184, 245, 0.68);
+    font-size: 12px;
   }
+  /* The progress rule. Six segments, each a real button at a 44px target with
+     its 2px hairline sitting inside it — so the indicator and the direct-access
+     control are one element, and the block needs no dots at all. */
+  .ref-page .voices-track {
+    display: flex;
+    gap: 6px;
+    margin: clamp(20px, 3vw, 30px) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ref-page .voices-track li {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .ref-page .voices-seg {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+  .ref-page .voices-rail {
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    height: 2px;
+    border-radius: 2px;
+    background: rgba(216, 184, 245, 0.35);
+    transition: height 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .ref-page .voices-seg:hover .voices-rail {
+    background: rgba(216, 184, 245, 0.6);
+  }
+  .ref-page .voices-seg[aria-current="true"] .voices-rail {
+    height: 3px;
+  }
+  /* Amber only inside the active segment, and only as far as the fill has
+     travelled. Held at zero everywhere else, so five of the six read as track. */
+  .ref-page .voices-fill {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 2px;
+    background: #ffb300;
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+  /* The rotation stopped — the visitor took over. The active segment is simply
+     full: a bar still creeping across would be promising a move that is not
+     coming. */
+  .ref-page .voices-seg[aria-current="true"] .voices-fill {
+    transform: scaleX(1);
+  }
+
+  /* ---- the timer ------------------------------------------------------- */
+  /* This animation is the carousel's clock. `TestimonialQuoteFeature` advances
+     on its `animationend` rather than on a `setInterval`, so the bar cannot
+     drift out of step with the quote, and everything that pauses the bar pauses
+     the carousel — which is what the three rules under it do. Transform only,
+     on a 2px bar: it runs on the compositor and costs no layout (CLAUDE.md
+     §15). */
+  .ref-page .voices {
+    --voices-dur: 7000ms;
+  }
+  .ref-page .voices[data-autoplay="on"] .voices-seg[aria-current="true"] .voices-fill {
+    animation: ref-voice-fill var(--voices-dur) linear both;
+  }
+  /* Reading it, or tabbing through it, holds it — and resumes where it stopped
+     rather than starting the quote over, which is the whole reason the timer is
+     the animation and not a number counting down beside it.
+
+     The selectors carry `[data-autoplay="on"]` and the full segment path so
+     they outrank the rule above. They did not, and the fill was measured
+     running straight through a hover — 0.136 to 0.638 with the pointer resting
+     on the quote — because the `animation` shorthand there re-asserts
+     `animation-play-state: running` and a shorter selector loses the cascade.
+     The featured-participant band's fill above has the same shape for the same
+     reason. */
+  .ref-page .voices[data-autoplay="on"]:hover .voices-seg[aria-current="true"] .voices-fill,
+  .ref-page .voices[data-autoplay="on"]:focus-within .voices-seg[aria-current="true"] .voices-fill,
+  .ref-page .voices[data-autoplay="on"][data-held="true"] .voices-seg[aria-current="true"] .voices-fill {
+    animation-play-state: paused;
+  }
+  /* The featured band's clock, built the same way as the Voices band's above:
+     an amber fill crossing the active name, whose `animationend` is what
+     advances the person. Same 7s, same keyframe, same pause rules — so the two
+     rotating sections on this page behave as one system rather than two.
+
+     Held while a recording is playing (`data-held` from the component, which is
+     the one state a selector cannot express) and while the band is off screen. */
+  .ref-page .tf {
+    --tf-dur: 7000ms;
+  }
+  .ref-page .tf-rail {
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    height: 2px;
+    margin-top: 5px;
+    border-radius: 2px;
+    background: rgba(58, 26, 92, 0.16);
+  }
+  .ref-page .tf-pick.is-active .tf-rail {
+    background: rgba(58, 26, 92, 0.24);
+  }
+  .ref-page .tf-fill {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 2px;
+    background: #ffb300;
+    /* Zero everywhere but the active name, so five of the six read as track. */
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+  .ref-page .tf[data-autoplay="on"] .tf-pick.is-active .tf-fill {
+    animation: ref-voice-fill var(--tf-dur) linear both;
+  }
+  /* Reading it, or tabbing through it, holds it — and resumes where it stopped
+     rather than starting the person over.
+
+     These selectors deliberately mirror the shape of the rule above, one
+     attribute longer. They have to: the `animation` shorthand there sets
+     `animation-play-state: running` as part of its own reset, so a shorter
+     pause selector loses the cascade and the fill never stops. That is not a
+     hypothetical — it was measured running straight through a hover and
+     through `data-held` before these were lengthened. */
+  .ref-page .tf[data-autoplay="on"]:hover .tf-pick.is-active .tf-fill,
+  .ref-page .tf[data-autoplay="on"]:focus-within .tf-pick.is-active .tf-fill,
+  .ref-page .tf[data-autoplay="on"][data-held="true"] .tf-pick.is-active .tf-fill {
+    animation-play-state: paused;
+  }
+
+  /* -- FEATURED PARTICIPANT (band 12) ------------------------------------ */
+  /* One recording at a time. Mobile is the base case — a single column,
+     everything stacked — and the two-column stage arrives at 900px. */
+  .ref-page .tf-head {
+    text-align: center;
+    margin-bottom: 34px;
+  }
+  .ref-page .tf-headline {
+    font-size: clamp(27px, 1rem + 2.6vw, 44px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    color: #1a0030;
+    margin: 12px 0 10px;
+    text-wrap: balance;
+  }
+  .ref-page .tf-headline span {
+    color: #3a1a5c;
+  }
+  .ref-page .tf-lead {
+    color: #6b6b6b;
+    font-size: 14.5px;
+    margin: 0;
+  }
+
+  .ref-page .tf-stage {
+    display: grid;
+    gap: 26px;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+
+  /* The frame is sized by HEIGHT, not width. The footage is 9:16, so a
+     full-width portrait frame on a phone would run past 600px tall and take
+     the whole viewport — which is the one thing this band must not do. Capping
+     the height and letting `aspect-ratio` derive the width keeps the picture
+     undistorted and the band scrollable. */
+  .ref-page .tf-media {
+    display: flex;
+    justify-content: center;
+  }
+  .ref-page .tf-frame {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    height: min(52vh, 380px);
+    max-width: 100%;
+    background: #1a0030;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 18px 44px -26px rgba(26, 0, 48, 0.55);
+  }
+  .ref-page .tf-frame video,
+  .ref-page .tf-frame img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ref-page .tf-count {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    color: #a08cc0;
+    margin: 0 0 10px;
+  }
+  .ref-page .tf-count span {
+    opacity: 0.5;
+  }
+  .ref-page .tf-name {
+    font-size: clamp(19px, 0.9rem + 1vw, 25px);
+    font-weight: 900;
+    color: #1a0030;
+    letter-spacing: -0.4px;
+    margin: 0 0 3px;
+  }
+  .ref-page .tf-role {
+    font-size: 12.5px;
+    color: #6b6b6b;
+    margin: 0 0 16px;
+  }
+  .ref-page .tf-quote {
+    font-style: italic;
+    color: #3a1a5c;
+    font-size: 15px;
+    line-height: 1.65;
+    border-left: 3px solid rgba(255, 179, 0, 0.75);
+    padding-left: 14px;
+    margin: 0 0 20px;
+  }
+
+  /* Before -> Realization -> After. The arrow is a pseudo-element on all but
+     the first item, so the sequence is drawn by the list rather than added to
+     the markup as decorative characters a screen reader would read out. */
+  .ref-page .tf-stages {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .ref-page .tf-stage-item {
+    padding: 12px 0 12px 16px;
+    border-left: 2px solid #e8e0f0;
+  }
+  .ref-page .tf-stage-item + .tf-stage-item {
+    position: relative;
+  }
+  .ref-page .tf-stage-item + .tf-stage-item::before {
+    content: "↓";
+    position: absolute;
+    left: -9px;
+    top: -7px;
+    width: 16px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1;
+    color: #b9a8d0;
+    background: #fff;
+  }
+  .ref-page .tf-after {
+    border-left-color: rgba(255, 179, 0, 0.8);
+  }
+  .ref-page .tf-stage-label {
+    display: block;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: #8a5a0a;
+    margin-bottom: 4px;
+  }
+  .ref-page .tf-stage-text {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #3d3d3d;
+    margin: 0;
+  }
+  .ref-page .tf-nostory {
+    font-size: 13px;
+    color: #8a7fa0;
+    margin: 0;
+  }
+
+  /* ---- controls ---- */
+  /* The names are the whole control. Previous/Next are gone and the band
+     advances on its own, so this no longer has to reserve a column either
+     side for arrows.
+
+     Two rows of three on a phone. Six faces across 320px gave each of them
+     about forty pixels and clipped every name to an ellipsis; three across
+     is legible, and the second row costs one line of height. */
+  .ref-page .tf-controls {
+    margin-top: 4px;
+  }
+  .ref-page .tf-picker {
+    list-style: none;
+    margin: 0 auto;
+    padding: 4px;
+    max-width: 340px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px 4px;
+    justify-items: center;
+  }
+  .ref-page .tf-pick {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: 0;
+    padding: 4px 6px;
+    font: inherit;
+    cursor: pointer;
+    opacity: 0.45;
+    transition: opacity 0.22s ease;
+  }
+  .ref-page .tf-pick:hover {
+    opacity: 0.8;
+  }
+  .ref-page .tf-pick.is-active {
+    opacity: 1;
+  }
+  .ref-page .tf-pick-face {
+    display: block;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid transparent;
+    background: #1a0030;
+    transition: border-color 0.22s ease;
+  }
+  .ref-page .tf-pick.is-active .tf-pick-face {
+    border-color: #ffb300;
+  }
+  .ref-page .tf-pick-face img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* The posters are 9:16; a square crop of the top third is the face. */
+    object-position: center 22%;
+  }
+  /* Two lines rather than one ellipsis. At three across a phone gives each
+     name about 100px, and "Gowri shankar" truncated to "Gowri sh..." is worse
+     than the same name on two lines. Only genuinely long ones — "Dr A
+     Bhoopeshdhayalan" — still clip, and they clip at the second line. */
+  .ref-page .tf-pick-name {
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: #1a0030;
+    text-align: center;
+    max-width: 11ch;
+    /* "Bhoopeshdhayalan" has no break opportunity in it, so without this the
+       word sets wider than the cell and leans into its neighbour. */
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+
+  /* ---- the change between people ---- */
+  @keyframes tf-in {
+    from {
+      opacity: 0;
+      transform: translateY(7px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .ref-page .tf-enter {
+    animation: tf-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* No story yet: the recording is the whole of the testimony, so it centres
+     with the name under it rather than sitting beside an empty column. */
+  .ref-page .tf[data-has-story="false"] .tf-detail {
+    text-align: center;
+  }
+  .ref-page .tf[data-has-story="false"] .tf-quote {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  @media (min-width: 900px) {
+    .ref-page .tf[data-has-story="true"] .tf-stage {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+      gap: 44px;
+      align-items: center;
+    }
+    /* Centred single column while the words are missing. */
+    .ref-page .tf[data-has-story="false"] .tf-stage {
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+      gap: 22px;
+    }
+    .ref-page .tf[data-has-story="false"] .tf-detail {
+      max-width: 46ch;
+    }
+    .ref-page .tf-frame {
+      height: min(58vh, 460px);
+    }
+    .ref-page .tf-head {
+      margin-bottom: 44px;
+    }
+    .ref-page .tf-picker {
+      max-width: none;
+      grid-template-columns: repeat(6, auto);
+      justify-content: center;
+      gap: 10px;
+    }
+    .ref-page .tf-pick-face {
+      width: 46px;
+      height: 46px;
+    }
+    .ref-page .tf-pick-name {
+      font-size: 11px;
+      max-width: 12ch;
+    }
+  }
+
+  /* The band is not a slideshow to somebody who asked for less movement: the
+     content swaps instantly and nothing animates (CLAUDE.md §11.1). */
+  @media (prefers-reduced-motion: reduce) {
+    .ref-page .tf-enter {
+      animation: none;
+    }
+    }
+
   .ref-page .test-cta {
     background: #ede7f6;
     border-radius: 12px;
@@ -1497,7 +2070,7 @@
     margin-top: 24px;
   }
   .ref-page .test-cta p {
-    color: #4b0082;
+    color: #3a1a5c;
     font-size: 15px;
     font-weight: 600;
   }
@@ -1514,10 +2087,21 @@
     grid-template-columns: 1fr 1fr;
     gap: 40px;
   }
+  /* The "This Journey Is For You If..." column reads green, at the owner's
+     request. Text only — the band keeps its lavender ground and the rows keep
+     their white cards, so this is a change of voice rather than a green block.
+     `.after-box` below is deliberately untouched: it is a separate purple panel
+     with its own amber heading, and recolouring it would have been the block
+     treatment that was explicitly not wanted.
+
+     #14563B and #1B6B4A are the two greens, both measured on white: 8.6:1 for
+     the heading and 5.7:1 for the body, so the small 12px copy still clears
+     AA (CLAUDE.md §13.4). Nothing neon, and the amber and purple either side
+     of it are unchanged. */
   .ref-page .for-col h3 {
     font-size: 28px;
     font-weight: 900;
-    color: #1a0030;
+    color: #14563b;
     margin-bottom: 24px;
   }
   .ref-page .for-item {
@@ -1532,17 +2116,17 @@
   .ref-page .fi-text strong {
     font-size: 14px;
     font-weight: 700;
-    color: #1a0030;
+    color: #14563b;
     display: block;
     margin-bottom: 3px;
   }
   .ref-page .fi-text p {
     font-size: 12px;
-    color: #666;
+    color: #1b6b4a;
     line-height: 1.5;
   }
   .ref-page .after-box {
-    background: #4b0082;
+    background: #3a1a5c;
     border-radius: 12px;
     padding: 24px;
     margin-top: 20px;
@@ -1599,13 +2183,13 @@
      becomes its first child and picks up the existing 14px gap for free. */
   .ref-page .for-item::before {
     content: "✓";
-    color: #4b0082;
+    color: #1b6b4a;
     font-weight: 900;
     line-height: 1.5;
     flex-shrink: 0;
   }
   .ref-page .not-note {
-    background: #2d0060;
+    background: #25133c;
     border-radius: 12px;
     padding: 24px;
     margin-top: 20px;
@@ -1621,7 +2205,7 @@
     font-size: 22px;
     font-weight: 900;
   }
-  .ref-page .not-note .tamil {
+  .ref-page .not-note .not-close {
     color: #ffb300;
     font-size: 20px;
     font-weight: 800;
@@ -1674,7 +2258,7 @@
     font-style: italic;
   }
   .ref-page .bonus-total {
-    background: #4b0082;
+    background: #3a1a5c;
     border-radius: 12px;
     padding: 24px;
     text-align: center;
@@ -1698,7 +2282,7 @@
 
   /* -- PRICE + PROMISE --------------------------------------------------- */
   .ref-page .price-section {
-    background: #2d0060;
+    background: #25133c;
     padding: 80px 40px;
   }
   .ref-page .price-center {
@@ -1727,7 +2311,7 @@
     margin-bottom: 36px;
   }
   .ref-page .price-box {
-    background: #4b0082;
+    background: #3a1a5c;
     border: 2px solid #ffb300;
     border-radius: 20px;
     padding: 48px 40px;
@@ -1858,7 +2442,7 @@
     font-size: 13px;
     line-height: 1.8;
   }
-  /* The reference sets this footnote at #555 on a #4B0082 ground — 1.6:1, and
+  /* The reference sets this footnote at #555 on a #3a1a5c ground — 1.6:1, and
      unreadable. Lifted to the band's own body colour at 60%, which keeps it
      visibly subordinate and legible (CLAUDE.md §13.4). */
   .ref-page .g-fine {
@@ -1867,6 +2451,206 @@
     font-style: italic;
     display: block;
     margin-top: 14px;
+  }
+
+  .ref-page .test-tanglish {
+    color: #ffb300;
+    font-weight: 800;
+  }
+
+  /* -- PROMISE ----------------------------------------------------------- */
+  /* The promise used to be the last block inside the price card. It is its own
+     band now, at the owner's request.
+
+     It continues the price band's #25133c rather than introducing a new ground,
+     and pads only at the bottom — `.price-section` already pays 80px there, and
+     two 80px paddings meeting would have opened 160px of empty purple between
+     the card and the promise it belongs to.
+
+     The amber treatment is a 7% wash and a hairline border, both of the brand's
+     own #FFB300. Explicitly no `box-shadow` in that hue: a glow is what would
+     have made it neon, and it is the one thing the brief ruled out by name. */
+  .ref-page .promise-section {
+    background: #25133c;
+    padding: 0 40px 80px;
+  }
+  /* A warm amber panel, dark type on it. This inverts the earlier treatment
+     (amber text on a 7% wash) at the owner's request: the promise is the last
+     reassurance before the price, and a light card on the deep purple band is
+     the strongest way to make it stop the eye without shouting.
+
+     #FFF4DC is warm amber rather than yellow — the brand's #FFB300 desaturated
+     and lifted, so it belongs to the same family as the accent. Nothing here
+     is neon: no amber glow, and the depth is a plain neutral shadow rather
+     than a coloured one. Body type is the page's own deep purple, which reads
+     at 15:1 on this ground. */
+  .ref-page .promise-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    background: #fff4dc;
+    border: 1px solid #f0c674;
+    border-radius: 16px;
+    padding: 32px 36px;
+    text-align: left;
+    box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.55);
+  }
+  .ref-page .promise-section .g-title {
+    color: #25133c;
+    font-size: clamp(17px, 0.78rem + 0.8vw, 22px);
+    font-weight: 900;
+    letter-spacing: -0.2px;
+    margin-bottom: 12px;
+  }
+  .ref-page .promise-section .g-text {
+    color: #3a2a1a;
+    font-size: 14.5px;
+    line-height: 1.8;
+    margin: 0;
+  }
+  .ref-page .promise-section .g-fine {
+    font-size: 11.5px;
+    color: #7a6647;
+    font-style: italic;
+    display: block;
+    margin: 16px 0 0;
+  }
+
+  /* -- THE JOURNEY REEL -------------------------------------------------- */
+  /* Band 15.5, between the promise and the questions. Not the reference's —
+     see JourneyReelSection for why it sits here and why the ground is the
+     page's darkest purple.
+
+     The band is budgeted, not drawn to taste: 48 + 26 + heading + two rows +
+     52. At 162px rows that lands at about 540px, inside the 450-550px the
+     brief asks for, and the rows are 336px of it. The visitor is meant to pass
+     through this band, not stop in it. */
+  .ref-page .reel-section {
+    background: #1a0030;
+    padding: 48px 0 52px;
+    /* The rows run edge to edge, so nothing inside this band may widen the
+       document. Belt to the braces `overscroll-behavior-x` already provides on
+       the rows themselves (CLAUDE.md §12). */
+    overflow: hidden;
+  }
+  .ref-page .reel-top {
+    max-width: 1000px;
+    margin: 0 auto 26px;
+    padding: 0 40px;
+    text-align: center;
+  }
+  .ref-page .reel-top .s-title {
+    color: #fff;
+    margin-bottom: 10px;
+  }
+  /* The band's only amber. `.s-title span` is #3a1a5c everywhere else on the
+     page, which is a mid purple chosen for white grounds and invisible on this
+     one. */
+  .ref-page .reel-top .s-title span {
+    color: #ffb300;
+  }
+  .ref-page .reel-top .s-sub {
+    color: #d8b8f5;
+    max-width: 32rem;
+    margin-bottom: 0;
+  }
+
+  .ref-page .reel-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* --- A row -------------------------------------------------------------
+     A real horizontal scroll container, which is what makes the strip
+     swipeable, draggable and reachable by the arrow keys without any of that
+     being written in script. `PhotoReel` drives the drift by writing
+     `scrollLeft`; everything below is what makes that safe. */
+  .ref-page .reel-row {
+    /* The one number the band's height is built on. Every photograph is this
+       tall and as wide as its own ratio makes it. */
+    --reel-h: 162px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* `globals.css` sets `html { scroll-behavior: smooth }`. Inherited here it
+       would animate every one of the 60 scroll positions a second the loop
+       writes, and the row would lag its own animation into a crawl. */
+    scroll-behavior: auto;
+    /* The rule that keeps the promise in CLAUDE.md §12: a sideways gesture
+       that runs out of row stops there instead of chaining out to the document
+       or to the browser's back-swipe. The page's scrollWidth never moves. */
+    overscroll-behavior-x: contain;
+    /* A classic scrollbar would sit under every row, eat 15px of the band's
+       budget and cancel the dissolve at both edges. The content is reachable
+       without it — it moves on its own, it answers touch, and the container is
+       focusable — so this hides the control, not the content. */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    /* Both edges dissolve into the band rather than being cut. A mask rather
+       than the marquee's two gradient overlays because the scroll container is
+       its own clip here: a mask paints on the border box, so it stays put
+       while the content moves under it, where an absolutely positioned overlay
+       would need a second wrapper to sit still in.
+
+       -webkit- first, unprefixed second: iOS Safari still wants the prefix
+       (CLAUDE.md §12.4), and a browser that supports neither shows a hard edge
+       rather than losing the photographs. */
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 60px,
+      #000 calc(100% - 60px),
+      transparent
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 60px,
+      #000 calc(100% - 60px),
+      transparent
+    );
+  }
+  .ref-page .reel-row::-webkit-scrollbar {
+    display: none;
+  }
+  .ref-page .reel-track,
+  .ref-page .reel-copy {
+    display: flex;
+    width: max-content;
+  }
+  /* --- A photograph ------------------------------------------------------
+     Sized by height only. The width is whatever the picture's own ratio makes
+     it, which is why the strip mixes 243px landscapes with 122px uprights and
+     why no face is ever cropped: `object-fit` has nothing to resolve when the
+     box already matches the image.
+
+     The trailing margin rather than a `gap` on the track is load-bearing. It
+     puts the spacing inside each copy's measured width, so one copy's width is
+     exactly the loop's period and the seam between copies is spaced like every
+     other join. A `gap` on the track would leave the seam a pixel wider than
+     the rest and put the wrap out of register by that much every lap. */
+  .ref-page .reel-item {
+    flex: none;
+    height: var(--reel-h);
+    margin-right: 14px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    /* Holds the box's colour for the moment between layout and decode. */
+    background: #25133c;
+    transition:
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .ref-page .reel-item img {
+    display: block;
+    height: 100%;
+    width: auto;
+  }
+  /* The whole of the depth effect: a 2% lift and the amber brought up in the
+     hairline. No glow, no shadow, no filter — the photograph is the thing. */
+  .ref-page .reel-item:hover {
+    transform: scale(1.02);
+    border-color: rgba(255, 179, 0, 0.5);
   }
 
   /* -- FAQ --------------------------------------------------------------- */
@@ -1886,36 +2670,340 @@
     text-align: center;
     margin-bottom: 8px;
   }
-  .ref-page .faq-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
+  /* The eight questions were a 2x2 of filled cards with every answer open. They
+     are a disclosure list now, at the owner's request. Deliberately not cards:
+     eight bordered boxes stacked in one column read as heavy, so this is
+     hairline rules and generous rhythm instead — the row itself is the only
+     furniture, and the open answer is what draws the eye.
+
+     The behaviour is `Accordion`'s; these rules only paint it. */
+  .ref-page .faq-list {
+    max-width: 780px;
+    margin: 0 auto;
+    border-top: 1px solid #e8e0f0;
   }
-  .ref-page .faq-card {
-    background: #f8f5ff;
-    border: 1px solid #e8e0f0;
-    border-radius: 12px;
-    padding: 20px 22px;
+  .ref-page .faq-item {
+    border-bottom: 1px solid #e8e0f0;
+  }
+  /* A real <button>, so it needs the control chrome stripped rather than a div
+     dressed up as one. The whole row is the target — full width and 20px of
+     vertical padding clears the 44px touch floor (CLAUDE.md §12.1). */
+  .ref-page .faq-trigger {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 2px;
+    background: none;
+    border: 0;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    color: #1a0030;
+    transition: color 0.25s ease;
+  }
+  .ref-page .faq-trigger:hover .faq-q {
+    color: #3a1a5c;
   }
   .ref-page .faq-q {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
     color: #1a0030;
-    margin-bottom: 8px;
+    line-height: 1.5;
+    transition: color 0.25s ease;
+  }
+  /* Plus that becomes a minus. Two spans and a scale — no icon font, no
+     library, and nothing to load (CLAUDE.md §14.1). */
+  .ref-page .faq-mark {
+    position: relative;
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    margin-top: 1px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #d8cce8;
+    border-radius: 50%;
+    transition: border-color 0.25s ease;
+  }
+  .ref-page .faq-trigger:hover .faq-mark,
+  .ref-page .faq-trigger[aria-expanded="true"] .faq-mark {
+    border-color: rgba(255, 179, 0, 0.85);
+  }
+  .ref-page .faq-mark-h,
+  .ref-page .faq-mark-v {
+    position: absolute;
+    background: #3a1a5c;
+  }
+  .ref-page .faq-mark-h {
+    width: 11px;
+    height: 1.5px;
+  }
+  .ref-page .faq-mark-v {
+    width: 1.5px;
+    height: 11px;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .ref-page .faq-mark-v.is-open {
+    transform: scaleY(0);
   }
   .ref-page .faq-a {
-    font-size: 13px;
+    font-size: 14px;
     color: #666;
-    line-height: 1.7;
+    line-height: 1.75;
+    padding: 0 40px 22px 2px;
+    margin: 0;
   }
-  .ref-page .faq-tamil {
-    color: #4b0082;
+
+  /* -- REGISTRATION MODAL ------------------------------------------------ */
+  /* Every call to action is a <button> now rather than an anchor, so the
+     browser's own control chrome has to come off before the reference's button
+     rules can paint it. Applied alongside the original class, so `.h-cta`,
+     `.p-cta` and the rest are untouched. */
+  .ref-page .cta-as-button {
+    font: inherit;
+    border: 0;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .ref-page .reg-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    background: rgba(12, 6, 20, 0.72);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Padding rather than centring alone: on a short screen the panel scrolls
+       inside the backdrop instead of overflowing off the top, and the safe-area
+       inset keeps it clear of a notch (CLAUDE.md §12.2). */
+    padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
+  .ref-page .reg-panel {
+    position: relative;
+    width: 100%;
+    max-width: 430px;
+    margin: auto;
+    background: #1f1030;
+    border: 1px solid rgba(255, 179, 0, 0.22);
+    border-radius: 18px;
+    padding: 30px 26px 26px;
+    box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.8);
+  }
+  .ref-page .reg-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    background: none;
+    border: 0;
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+  .ref-page .reg-close:hover:not(:disabled) {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .ref-page .reg-close:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .ref-page .reg-title {
+    color: #fff;
+    font-size: 23px;
+    font-weight: 900;
+    letter-spacing: -0.4px;
+    margin: 0 0 6px;
+  }
+  .ref-page .reg-lead {
+    color: #cbb2e8;
+    font-size: 13.5px;
+    line-height: 1.6;
+    margin: 0 0 20px;
+  }
+
+  .ref-page .reg-field {
+    margin-bottom: 15px;
+  }
+  .ref-page .reg-field label {
+    display: block;
+    color: #cbb2e8;
+    font-size: 11.5px;
     font-weight: 700;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .ref-page .reg-field input {
+    width: 100%;
+    /* 16px so iOS Safari does not zoom the page on focus (CLAUDE.md §12.4). */
+    font: inherit;
+    font-size: 16px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 10px;
+    padding: 12px 14px;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .ref-page .reg-field input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+  }
+  .ref-page .reg-field input:focus {
+    outline: none;
+    border-color: rgba(255, 179, 0, 0.7);
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .ref-page .reg-field input[aria-invalid="true"] {
+    border-color: #ff8a80;
+  }
+  .ref-page .reg-field input:disabled {
+    opacity: 0.55;
+  }
+  .ref-page .reg-error {
+    color: #ff9d94;
+    font-size: 12px;
+    margin: 6px 0 0;
+  }
+
+  .ref-page .reg-status:empty {
+    display: none;
+  }
+  .ref-page .reg-busy,
+  .ref-page .reg-fail,
+  .ref-page .reg-warn {
+    font-size: 12.5px;
+    line-height: 1.6;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 0 0 14px;
+  }
+  .ref-page .reg-busy {
+    color: #cbb2e8;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .ref-page .reg-fail {
+    color: #ffd9d5;
+    background: rgba(255, 138, 128, 0.12);
+    border: 1px solid rgba(255, 138, 128, 0.3);
+  }
+  .ref-page .reg-warn {
+    color: #ffe6b8;
+    background: rgba(255, 179, 0, 0.12);
+    border: 1px solid rgba(255, 179, 0, 0.32);
+  }
+
+  .ref-page .reg-submit {
+    width: 100%;
+    background: #ffb300;
+    color: #1a0030;
+    font: inherit;
+    font-size: 15.5px;
+    font-weight: 900;
+    border: 0;
+    border-radius: 11px;
+    padding: 15px 18px;
+    margin-top: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .ref-page .reg-submit:hover:not(:disabled) {
+    background: #ffc233;
+  }
+  .ref-page .reg-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .ref-page .reg-fine {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 11.5px;
+    text-align: center;
+    margin: 12px 0 0;
+  }
+
+  /* ---- success ---- */
+  .ref-page .reg-success {
+    text-align: center;
+  }
+  .ref-page .reg-tick {
+    display: inline-grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    color: #6ede9f;
+    margin-bottom: 14px;
+  }
+  .ref-page .reg-tick svg {
+    width: 100%;
+    height: 100%;
+  }
+  .ref-page .reg-receipt {
+    text-align: left;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 6px 14px;
+    margin: 18px 0;
+  }
+  .ref-page .reg-receipt > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  .ref-page .reg-receipt > div:last-child {
+    border-bottom: 0;
+  }
+  .ref-page .reg-receipt dt {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .ref-page .reg-receipt dd {
+    color: #fff;
+    font-size: 12.5px;
+    margin: 0;
+    text-align: right;
+    /* Razorpay ids are long and unbroken; let them wrap rather than widen the
+       panel past the viewport. */
+    word-break: break-word;
+    min-width: 0;
+  }
+  .ref-page .reg-mono {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 11.5px;
+    letter-spacing: -0.2px;
+  }
+
+  @media (max-width: 400px) {
+    .ref-page .reg-panel {
+      padding: 26px 18px 20px;
+    }
+    .ref-page .reg-receipt > div {
+      flex-direction: column;
+      gap: 2px;
+    }
+    .ref-page .reg-receipt dd {
+      text-align: left;
+    }
   }
 
   /* -- FINAL ------------------------------------------------------------- */
   .ref-page .final-section {
-    background: #4b0082;
+    background: #3a1a5c;
     padding: 80px 40px;
   }
   .ref-page .final-center {
@@ -1947,15 +3035,16 @@
     color: #c8e6c9;
     font-size: 14px;
   }
-  .ref-page .final-tamil {
+  .ref-page .final-tanglish {
     color: #ffb300;
-    font-size: 30px;
+    font-size: clamp(20px, 0.9rem + 1.3vw, 30px);
     font-weight: 900;
     display: block;
-    margin: 12px 0 4px;
+    line-height: 1.25;
+    margin: 14px 0 4px;
   }
   .ref-page .final-sub {
-    color: rgba(255, 255, 255, 0.45);
+    color: rgba(255, 255, 255, 0.5);
     font-size: 13px;
     font-style: italic;
     margin-bottom: 24px;
@@ -2058,6 +3147,43 @@
   }
 }
 
+/* The featured quote's entrance, in the direction it was asked for. It replays
+   because `TestimonialQuoteFeature` remounts the figure on each change, which
+   is cheaper than a JS timeline and cannot desynchronise from the state.
+   Cancelled outright under `prefers-reduced-motion` below. */
+@keyframes ref-voice-in {
+  from {
+    opacity: 0;
+    transform: translate3d(18px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ref-voice-in-back {
+  from {
+    opacity: 0;
+    transform: translate3d(-18px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The active segment filling with amber — and, because the component advances
+   on this animation's `animationend`, the carousel's clock. See `.voices-fill`. */
+@keyframes ref-voice-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 /* ==========================================================================
    Responsive — the reference's own two breakpoints, 1000px and 700px
    --------------------------------------------------------------------------
@@ -2112,10 +3238,10 @@
 }
 
 @media (max-width: 700px) {
-  .ref-page .test-grid,
-  .ref-page .videos-grid,
+  /* `.test-grid` used to be listed here. The written testimonials are one
+     featured quote now rather than a grid, and it collapses by construction —
+     see `.voices` and `TestimonialQuoteFeature`. */
   .ref-page .bonus-grid,
-  .ref-page .faq-grid,
   .ref-page .final-checklist {
     grid-template-columns: 1fr;
   }
@@ -2124,24 +3250,14 @@
   .ref-page .phil-grid {
     grid-template-columns: 1fr 1fr;
   }
-  .ref-page .h-main {
-    font-size: 40px;
-  }
-  /*
-   * DEVIATION 7 of 7 — see the file header.
-   *
-   * The pattern band's heading is Tamil, and `நினைக்கிறோம்…` is one word that
-   * sets 334px wide at the reference's 34px. A 320px screen offers it 280px
-   * after the gutters, so the reference overflows the page sideways there —
-   * measured at 354px against a 320px viewport.
-   *
-   * Breaking the word is not an option: splitting a Tamil grapheme cluster
-   * mid-word is worse typography than the overflow, and the project does not
-   * alter Tamil copy (CLAUDE.md §1.1). `overflow-x` on a wrapper is explicitly
-   * forbidden (§12). So the type scales instead, and only where it must —
-   * `min()` yields the reference's own 34px at every width from ~400px up, and
-   * bends only on the narrow screens that cannot hold it.
-   */
+  /* Both hero lines are fluid now (see the base rules), so the old fixed
+     40px bump here would have set the secondary mark larger than the primary
+     question on exactly the widths where the hierarchy matters most. */
+  /* Was DEVIATION 7 of 7: the pattern band's heading was Tamil, and one word
+     of it set 334px wide against a 320px screen. The band is English now and
+     the heading is two fluid lines scoped to `.pattern-title`, so the clamp
+     that existed for that one word is gone. The rule stays only as the shared
+     ceiling for every other band's `.s-title`. */
   .ref-page .s-title {
     font-size: min(34px, 8.6vw);
   }
@@ -2164,9 +3280,8 @@
    * overflow. 7.9vw holds the reference's own 30px at every width from ~380px
    * up, so 390 — the width the reference was measured at — is untouched.
    */
-  .ref-page .final-tamil {
-    font-size: min(30px, 7.9vw);
-  }
+  /* `.final-sub` is fluid now, so the old fixed clamp for the Tamil display
+     line it replaced is no longer needed. */
   /* This block used to raise `scroll-padding-top` to 7.5rem, and a second one
      below 356px to 9rem, because the bar wrapped to two and then three rows and
      stood 98px and 131px tall. It no longer wraps at all — the countdown has
@@ -2231,9 +3346,59 @@
   .ref-page .guar-box {
     padding: 22px 18px;
   }
+  .ref-page .promise-section {
+    padding: 0 20px 56px;
+  }
+  .ref-page .promise-inner {
+    padding: 22px 18px;
+  }
   .ref-page .hero::after {
     font-size: 340px;
     right: -60px;
+  }
+  /* --- The journey reel, on a phone -------------------------------------
+     The band's whole point is that it does NOT become seven stacked
+     photographs here. It stays two rows and stays short: 146px rows and a
+     10px gutter put the strip itself at 302px, which is the height the brief
+     budgets for it, and the band around it lands near 470px.
+
+     146px is also what decides how many photographs are on screen at once. A
+     landscape frame is 195px wide at that height and an upright one 110px, so
+     a 375px screen carries between two and three of them — enough that the
+     row is visibly a strip with more to come, rather than one picture at a
+     time being paged past. */
+  .ref-page .reel-section {
+    padding: 36px 0 40px;
+  }
+  .ref-page .reel-top {
+    padding: 0 20px;
+    margin-bottom: 20px;
+  }
+  .ref-page .reel-rows {
+    gap: 10px;
+  }
+  .ref-page .reel-row {
+    --reel-h: 146px;
+    /* 40px rather than 60: at 320px a 60px dissolve at each edge is 38% of the
+       screen, and the strip starts reading as a vignette instead of a row. */
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 40px,
+      #000 calc(100% - 40px),
+      transparent
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 40px,
+      #000 calc(100% - 40px),
+      transparent
+    );
+  }
+  .ref-page .reel-item {
+    margin-right: 10px;
+    border-radius: 8px;
   }
 }
 
@@ -2316,6 +3481,28 @@
     animation: none !important;
   }
 
+  /* The featured quote swaps instantly instead of sliding in. Nothing is lost:
+     the folio, the amber segment and the live region all still say which of the
+     six is on screen, so the motion was the decoration, not the message. The
+     hairline rule under it stops moving for the same reason. */
+  .ref-page .voices-quote {
+    animation: none !important;
+  }
+  .ref-page .voices-rail {
+    transition: none !important;
+  }
+
+  /* Cancelling the fill also stops the carousel, because the fill's
+     `animationend` is what advances it — so under this preference the block
+     never rotates on its own, which is the correct reading of §11.1 for content
+     that would otherwise move without being asked. The active segment falls
+     back to solid amber (see `.voices-fill`), and the six segments are still
+     there to move through by hand, so no quote becomes unreachable. */
+  .ref-page .voices-fill,
+  .ref-page .tf-fill {
+    animation: none !important;
+  }
+
   /* Stopping the marquee is not enough on its own. The track is `max-content`
      wide — 4,781px for the eighteen organisations — inside a wrapper that
      clips, so a track frozen at translateX(0) shows the first eleven pills at
@@ -2334,5 +3521,22 @@
   }
   .ref-page .marquee-track > [aria-hidden="true"] {
     display: none;
+  }
+
+  /* The journey reel stops drifting — `PhotoReel` never starts its loop under
+     this preference — and the two seam copies go with it. They exist only so
+     the loop has no visible join, exactly as the marquee's does, and leaving
+     them in place would give a visitor who is now scrolling the row by hand
+     three identical passes of the same seven photographs to get through.
+
+     What is deliberately NOT done here is hiding the band or flattening it to
+     a column. One copy of seven photographs is still about 1,430px of strip
+     inside a container that scrolls, so every photograph stays reachable by
+     swipe, drag and arrow key — the row simply waits to be asked (§11.1). */
+  .ref-page .reel-copy[aria-hidden="true"] {
+    display: none;
+  }
+  .ref-page .reel-item {
+    transition: none !important;
   }
 }

@@ -42,6 +42,40 @@ const nextConfig: NextConfig = {
    * hard to take back. The canonical URL is unaffected — it is still
    * PROGRAM_URL, built from `siteConfig.url` in `src/lib/config.ts`.
    */
+  /**
+   * Headers for the admin surface.
+   *
+   * `/admin` lists people's names, email addresses and phone numbers, so it is
+   * kept out of indexes three independent ways: this header, the `robots`
+   * metadata exported by `src/app/admin/layout.tsx`, and the `Disallow` in
+   * `src/app/robots.ts`. A crawler that ignores one usually honours another,
+   * and none of them costs anything.
+   *
+   * `/admin` and `/admin/:path*` are both listed on purpose — the parameterised
+   * pattern alone does not reliably match the bare path.
+   *
+   * These headers are defence in depth, never the access control. That is
+   * `requireAdmin` inside each route (see `src/lib/admin/auth.ts`): a header
+   * cannot refuse a request, and middleware-style gates in front of a handler
+   * have been bypassable before now.
+   */
+  async headers() {
+    const adminHeaders = [
+      { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+      { key: "Cache-Control", value: "no-store, max-age=0" },
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      // A registration id in a Referer header would leak to any outbound link.
+      { key: "Referrer-Policy", value: "no-referrer" },
+      { key: "X-Frame-Options", value: "DENY" },
+    ];
+
+    return [
+      { source: "/admin", headers: adminHeaders },
+      { source: "/admin/:path*", headers: adminHeaders },
+      { source: "/api/admin/:path*", headers: adminHeaders },
+    ];
+  },
+
   async redirects() {
     return [
       {

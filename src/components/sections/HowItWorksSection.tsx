@@ -47,9 +47,7 @@ export function HowItWorksSection() {
 
         <div className="how-miss">
           <p>{refHow.miss.question}</p>
-          <div className="tamil" lang="ta">
-            {refHow.miss.tamil}
-          </div>
+          <div className="how-miss-reassurance">{refHow.miss.reassurance}</div>
           <p className="after">{refHow.miss.after}</p>
         </div>
       </div>

@@ -16,7 +16,10 @@ import { PROGRAM_URL, programDetails, siteConfig } from "./config";
  * engine at. It used to fall back to an off-site hosted payment link, which
  * would today send someone past the form the flow depends on.
  */
-const registrationUrl = `${PROGRAM_URL}#begin-journey`;
+/* The page itself, with no fragment. Registration used to be a section with
+   its own id; it is a dialog now, so `#begin-journey` would point a crawler at
+   an anchor that no longer exists on the page. */
+const registrationUrl = PROGRAM_URL;
 
 const organization = {
   "@type": "Organization",

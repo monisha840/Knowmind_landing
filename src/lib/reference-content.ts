@@ -56,8 +56,13 @@ export const refHero = {
   tag: `${siteConfig.batch} · Live on Zoom · ${programDetails.dateLabelShort}`,
   mark: "1% Better.",
   sub: "Every Day.",
-  tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாம்.",
-  tamilEnglish: "You don't have to be perfect. You just have to begin.",
+  /* Tanglish — Tamil, written in Roman letters. Deliberately not Tamil script
+     (nothing on the page carries `lang="ta"` any more) and deliberately not an
+     English translation: the owner asked for the Tamil to be *heard*, in a
+     script a Tamil-speaking reader scans without switching alphabets.
+     The English line under it is the gloss, not a second copy of it. */
+  tanglish: "Paravaala paathukkalaam… aarambikkalaam.",
+  tanglishEnglish: "You don't have to be perfect. You just have to begin.",
   headline: "Are You Ready to Become 1% Better Every Day?",
   /** Two lines, set as two lines by a <br> in the reference. */
   subLines: [
@@ -89,7 +94,9 @@ export const refHero = {
 export const refVsl = {
   label: "Watch this first",
   placeholder: "Add VSL video here (1.5–2 minutes)",
-  quote: '"Oru Chinna Kelvi Ungalukku..."',
+  /* The corrections deck's own line, in full. It used to stop at the ellipsis;
+     the second half is the question the band is actually asking. */
+  quote: '"Oru Chinna Kelvi Ungalukku..." – Arambikalama??',
 } as const;
 
 /* -------------------------------------------------------------------------- */
@@ -98,8 +105,15 @@ export const refVsl = {
 
 export const refPattern = {
   tag: "Idhu Ungaloda Pattern-aa?",
-  titleTamil: "நாம் எல்லாரும் change ஆகணும் என்று நினைக்கிறோம்…",
-  titleTamilAccent: "ஆனால் journey ippadi dhaan போகுது.",
+  /* The lead is now the smaller line and the accent the larger one — see
+     `.s-title` / `.s-title-accent` in reference.css.
+
+     Both clauses are the corrections deck's own, spelling included. The second
+     one is not a re-spelling of what was here: it used to say the journey goes
+     like this, and the deck says it does not go the way we thought. That is the
+     band's whole argument, so it is the deck's sentence that runs. */
+  titleLead: "Namma ellarum change aaganum-nu ninaikkirom…",
+  titleAccent: "Aana namma ninacha mathiri porathu illai…",
   steps: [
     {
       title: '"Indha time kandippa consistent-aa iruppen!"',
@@ -120,7 +134,7 @@ export const refPattern = {
   ],
   truth: {
     top: ["You don't need another motivational speech.", "You don't need more information."],
-    tamil: ["பரவால பார்த்துக்கலாம்…", "ஆரம்பிக்கலாம்."],
+    tanglish: "Paravaala paathukkalaam… aarambikkalaam.",
     english: "You don't have to be perfect. You just have to begin.",
     quote: "You need Awareness + Choice + Repetition + Growth.",
     note: "Not perfection. Not pressure. Just progress.",
@@ -224,6 +238,33 @@ export const refJourney = {
 } as const;
 
 /* -------------------------------------------------------------------------- */
+/*  Band 6.5 — miss a day?                                                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The reassurance that used to close band 7, now a band of its own.
+ *
+ * The corrections deck removes "How Does the 14-Day Journey Work?" entirely
+ * (slide 5) and then says of this block, on slide 6: "We can keep this / Keep
+ * this point and have CTA buttom". It went out with the section the first time
+ * round, which is the half of that instruction that was missed. It is promoted
+ * here rather than copied, so `refHow.miss` below still reads from this one
+ * object and the two can never drift — `HowItWorksSection` stays on disk,
+ * uncomposed, and would still render the same words if it were ever composed
+ * back in (CLAUDE.md §19, §4.2).
+ *
+ * `cta` is the only new string: the deck asks for a button and does not letter
+ * it, so it takes the journey band's own wording rather than inventing a new
+ * verb for the page's CTA vocabulary (CLAUDE.md §7.2).
+ */
+export const refMissADay = {
+  question: "Miss a day?",
+  reassurance: "Paravaala paathukkalaam… aarambikkalaam.",
+  after: "Don't disappear. The next morning is another opportunity.",
+  cta: "YES, I WANT TO JOIN → ",
+} as const;
+
+/* -------------------------------------------------------------------------- */
 /*  Band 7 — how it works                                                     */
 /* -------------------------------------------------------------------------- */
 
@@ -258,11 +299,9 @@ export const refHow = {
     { label: "Time", val: programDetails.timeShort },
     { label: "Focus", val: "Psychological Growth" },
   ],
-  miss: {
-    question: "Miss a day?",
-    tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாம்.",
-    after: "Don't disappear. The next morning is another opportunity.",
-  },
+  /* Lifted out to `refMissADay` above — it is its own band now. Referenced
+     rather than restated so the two cannot disagree. */
+  miss: refMissADay,
 } as const;
 
 /* -------------------------------------------------------------------------- */
@@ -352,26 +391,62 @@ export const refKalee = {
 /*  Bands 10 and 11 — the two marquees                                        */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * The organisations, now as their own marks rather than as set type.
+ *
+ * CLAUDE.md §21 held this open for one specific reason, and it was not the
+ * licensing one: the only copy of the client marks anybody had was a single
+ * flattened grid in `LP contents.pptx` that could not be cut into individual
+ * logos. The corrections deck supplies a different picture — slide 9's clean
+ * 5 × 4 grid of twenty marks on their own cards — and the owner has asked for
+ * the logos, which is the decision that row was waiting on. So the row is
+ * closed the same way the media one was.
+ *
+ * `src` files are written by `scripts/extract-client-logos.mjs`, which measures
+ * the grid's real gutters rather than assuming an even pitch, trims each card's
+ * white and scales the mark to 96px tall. The dimensions below are each file's
+ * own, after that, and are reproduced in `public/clients/logos.json` by the same
+ * run — they let the strip reserve the exact box before anything loads. Re-run
+ * the script and paste its printed sizes back here if the deck changes.
+ *
+ * `name` is the organisation's name and is what a screen reader gets; the mark
+ * is the picture of it.
+ *
+ * ── Two things the deck's twenty changed ──────────────────────────────────
+ *
+ * `Greater Chennai Corp` is the nineteenth item and is still set as type: it
+ * was in the eighteen this replaces, the deck's grid has no mark for it, and
+ * drawing one would be fabricating a logo (CLAUDE.md §0.4). Dropping it would
+ * quietly delete a real claim, so it stays as a wordmark until a file exists.
+ *
+ * `The Federal` appears in the deck's client grid and is also in the media
+ * strip below. Both are the owner's own lists; it is carried in both rather
+ * than silently removed from one. Flagged for the owner.
+ */
 export const refCorpMarquee = {
-  label: "Organisations Kalee has trained",
+  /* Slide 9's own heading, replacing "Organisations Kalee has trained". */
+  label: "Trusted by Professionals & Organisations",
   items: [
-    "McKinsey & Co.",
-    "Siemens Gamesa",
-    "Daimler India",
-    "Bosch",
-    "Ashok Leyland",
-    "Titan Company",
-    "ITC Limited",
-    "Amara Raja",
-    "Renault Nissan",
-    "TVS Electronics",
-    "HP India",
-    "Tata Tea",
-    "Samsung",
-    "Saint Gobain",
-    "Aditya Birla",
-    "FLSmidth",
-    "TN Police Dept",
+    { name: "McKinsey & Company", src: "/clients/mckinsey-and-company.webp", width: 249, height: 96 },
+    { name: "Siemens Gamesa", src: "/clients/siemens-gamesa.webp", width: 552, height: 96 },
+    { name: "Daimler India", src: "/clients/daimler-india.webp", width: 346, height: 96 },
+    { name: "TVS", src: "/clients/tvs.webp", width: 530, height: 96 },
+    { name: "TVS Electronics", src: "/clients/tvs-electronics.webp", width: 153, height: 96 },
+    { name: "Bosch", src: "/clients/bosch.webp", width: 364, height: 96 },
+    { name: "Ashok Leyland", src: "/clients/ashok-leyland.webp", width: 223, height: 96 },
+    { name: "Titan", src: "/clients/titan.webp", width: 136, height: 96 },
+    { name: "ITC Limited", src: "/clients/itc-limited.webp", width: 86, height: 96 },
+    { name: "Amara Raja", src: "/clients/amara-raja.webp", width: 331, height: 96 },
+    { name: "Renault Nissan", src: "/clients/renault-nissan.webp", width: 300, height: 96 },
+    { name: "FLSmidth", src: "/clients/flsmidth.webp", width: 340, height: 96 },
+    { name: "Tamil Nadu Police", src: "/clients/tamil-nadu-police.webp", width: 88, height: 96 },
+    { name: "HP India", src: "/clients/hp-india.webp", width: 73, height: 96 },
+    { name: "Tata Tea", src: "/clients/tata-tea.webp", width: 208, height: 96 },
+    { name: "Samsung", src: "/clients/samsung.webp", width: 504, height: 96 },
+    { name: "Saint-Gobain", src: "/clients/saint-gobain.webp", width: 193, height: 96 },
+    { name: "Aditya Birla Group", src: "/clients/aditya-birla-group.webp", width: 104, height: 96 },
+    { name: "The Federal", src: "/clients/the-federal.webp", width: 255, height: 96 },
+    { name: "Rane", src: "/clients/rane.webp", width: 142, height: 96 },
     "Greater Chennai Corp",
   ],
 } as const;
@@ -420,13 +495,40 @@ export const refTestimonials = {
     accent: "Hear from the People Who Experienced It.",
   },
   /**
+   * The featured-video band's own copy, supplied by the owner with the
+   * redesign. Section furniture, not testimony — nothing here is attributed to
+   * a participant.
+   */
+  feature: {
+    headline: ["Real people.", "Real realizations."],
+    lead: "What changed during the journey?",
+    /** Shorter, for the single-column layout. */
+    headlineMobile: ["Real voices", "from the journey"],
+    stages: {
+      before: "Before",
+      realization: "Realization",
+      after: "After",
+    },
+    /** Announced to screen readers when the selection changes. */
+    nowShowing: "Now showing",
+    /** Shown while a person has no written story yet. */
+    watchPrompt: "Watch the recording",
+  },
+  /**
    * The reference labels three slots rather than filling them. They are now
    * filled — see `videos` — but the labels stay, because they are still what a
    * slot renders when no recording is behind it. Remove a file from `videos`
    * and its frame returns to the reference's own dashed placeholder rather
    * than collapsing (CLAUDE.md §9.2, the empty state).
    */
-  videoSlots: ["Participant Video 1", "Participant Video 2", "Participant Video 3"],
+  videoSlots: [
+    "Participant Video 1",
+    "Participant Video 2",
+    "Participant Video 3",
+    "Participant Video 4",
+    "Participant Video 5",
+    "Participant Video 6",
+  ],
   videoPlaceholder: "Add video embed here",
   /**
    * Three participant recordings from the owner's Drive asset library, encoded
@@ -449,62 +551,148 @@ export const refTestimonials = {
    * These are not the six quotes below. Six different people, no overlap of
    * evidence — nobody's words are being paired with somebody else's face.
    */
+  /**
+   * ── The story slots ──────────────────────────────────────────────────────
+   *
+   * `story` is what the featured panel renders: a short quote and the three
+   * stages, Before → Realization → After.
+   *
+   * All six are `null`, and that is deliberate. These six people have a name, a
+   * role and a recording in this repository and nothing else — no transcript,
+   * no written quote, nothing that could be summarised. The six quotes further
+   * down belong to six *different* participants, and pairing them would put one
+   * person's words under another person's face, which is the one thing the note
+   * above this list exists to prevent.
+   *
+   * So the slots wait rather than getting filled with something invented
+   * (CLAUDE.md §0.4, §1.1). `TestimonialFeature` renders the panel only for a
+   * person whose `story` is set, and the featured video, the name, the role,
+   * the selector and the navigation all work regardless. Paste real words into
+   * one of these and that person's panel appears with no other change.
+   *
+   * Shape, when you fill one in:
+   *
+   *   story: {
+   *     quote: "One line, in their words.",
+   *     before: "What they noticed before.",
+   *     realization: "What they understood.",
+   *     after: "What changed.",
+   *   },
+   */
   videos: [
     {
       src: "/testimonials/gowri-shankar.mp4",
       poster: "/testimonials/gowri-shankar.webp",
       name: "Gowri shankar",
       role: "Coprate trainer , Agency owner",
+      story: null,
     },
     {
       src: "/testimonials/sriraynu.mp4",
       poster: "/testimonials/sriraynu.webp",
       name: "Sriraynu",
       role: "Psychologist and School counsellor",
+      story: null,
     },
     {
       src: "/testimonials/bhoopeshdhayalan.mp4",
       poster: "/testimonials/bhoopeshdhayalan.webp",
       name: "Dr A Bhoopeshdhayalan",
       role: "BNYS",
+      story: null,
+    },
+    {
+      src: "/testimonials/shahul-hameed.mp4",
+      poster: "/testimonials/shahul-hameed.webp",
+      name: "Shahul Hameed",
+      role: "Behavioural and performance development trainer",
+      story: null,
+    },
+    {
+      src: "/testimonials/anandh.mp4",
+      poster: "/testimonials/anandh.webp",
+      name: "Anandh",
+      role: "Customer success  Tamilpreneur",
+      story: null,
+    },
+    {
+      src: "/testimonials/vinoth.mp4",
+      poster: "/testimonials/vinoth.webp",
+      name: "Vinoth",
+      /* This recording is audio over a static name card — there is no footage
+         of him, and his card carries no job title. The role says what the asset
+         is rather than asserting a credential it never claims, and the poster
+         is that card, so the tile reads as deliberate rather than broken
+         (CLAUDE.md §1.1, §9.2). */
+      role: "Audio testimonial",
+      story: null,
     },
   ],
   /** All six carry five stars and the same role line in the reference. */
   role: "1% Better Program – Founding Batch",
+  /**
+   * The written half's own furniture, supplied by the owner with the brief that
+   * turned the six quote cards into one featured quote. `role` above is what
+   * each quote is attributed to; these two name the block and say what it is
+   * showing. Neither asserts anything the six quotes do not already say for
+   * themselves (CLAUDE.md §1.1).
+   */
+  quotesHeading: {
+    eyebrow: "Voices of the Journey",
+    lead: "What people noticed about themselves",
+  },
+  /**
+   * The four written testimonials, from the corrections deck's slide 12.
+   *
+   * That slide replaces the six that used to be here rather than adding to
+   * them — slide 11's callout points at the old grid and says "updaded next
+   * slide". Three of the six are not in the replacement set (Anandha, Vinoth
+   * Kannan, GS) and are therefore gone; two of the survivors have edited
+   * wording; and one quote changed hands, which is why the whole set is
+   * reproduced from the deck rather than patched item by item:
+   *
+   *   · Deepa Sai's ends at "a real shift." in the deck — the old copy carried
+   *     "in me. Thank you for the clarity." after it.
+   *   · "This program helped me understand why I was losing focus…" was
+   *     attributed to Vadivelmani and is Saranyadevi's in the deck. An
+   *     attribution is not a wording preference, so it is taken as given
+   *     (CLAUDE.md §1.1) and flagged for the owner.
+   *   · Vijaya Saravanan's is rewritten, not reworded.
+   *   · Pavithra's is new.
+   *
+   * `role` is now per person. The shared "1% Better Program – Founding Batch"
+   * line the six used to share is kept as `role` above, because the recordings'
+   * captions still use it; these four carry their own professions, exactly as
+   * the deck sets them.
+   */
   quotes: [
     {
-      name: "Anandha",
-      quote:
-        '"Simple way of explanation. This is a great GPS for personal and professional life. Looking forward to reflect on upcoming days."',
-    },
-    {
       name: "Deepa Sai",
+      role: "Entrepreneur",
       quote:
-        '"The content touched things I knew but never faced honestly. Day 1 itself created a real shift in me. Thank you for the clarity."',
+        '"The content touched things I knew but never faced honestly. Day 1 itself created a real shift."',
     },
     {
-      name: "Vinoth Kannan",
+      name: "Saranyadevi",
+      role: "Accountant",
       quote:
-        '"It helped me move forward without overthinking and negative thoughts. That is what shifted in me after the program."',
-    },
-    {
-      name: "Vadivelmani",
-      quote:
-        '"This program helped me understand why I was losing focus. Now I know how to return when I drift. That alone changed everything."',
+        '"This program helped me understand why I was losing focus. Now I know how to return when I drift."',
     },
     {
       name: "Vijaya Saravanan",
+      role: "Entrepreneur",
       quote:
-        '"Goals always need to be measurable. If we feel it is increasing, for sure we will move forward everyday. Kalee made that real."',
+        '"The importance of measurable goals and daily progress became clearer. Kalee made that real."',
     },
     {
-      name: "GS",
+      name: "Pavithra",
+      role: "Psychologist",
       quote:
-        '"Get my sleep cycle fixed was my Day 1 commitment. By Day 7 I had kept it 5 times. That felt completely different from before."',
+        '"This 14-day journey helped me become more aware, compassionate, and conscious in how I respond to life. I loved that it wasn\'t about perfection - it was simply about becoming 1% better every day."',
     },
   ],
   closer: {
-    tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாமா?",
+    tanglish: "Paravaala paathukkalaam… aarambikkalaamaa?",
     english: "Your journey could be the next story.",
   },
 } as const;
@@ -563,7 +751,7 @@ export const refWho = {
   notNote: {
     top: "You don't have to be highly disciplined to begin.",
     big: "You just need a willingness to start.",
-    tamil: "பரவால பார்த்துக்கலாம்… ஆரம்பிக்கலாம்.",
+    close: "Paravaala paathukkalaam… aarambikkalaam.",
   },
 } as const;
 
@@ -638,13 +826,158 @@ export const refPrice = {
   note: `Limited registrations · Live on Zoom · ${programDetails.timeShort} · A ${siteConfig.name} Initiative`,
   noRecording: {
     strong: "Live only – no recording",
-    rest: " for the first four batches. Because transformation doesn't happen when you collect more videos. It begins when you show up.",
+    rest: ". Because transformation doesn't happen when you collect more videos. It begins when you show up.",
   },
   guarantee: {
     title: "My Promise to You",
     body: "Attend all 14 days. Do the daily reflection every night. If you feel no shift in your awareness, self-trust, or consistency – I will return every rupee. No questions asked. I am that confident in what these 14 days will do for you.",
     fine: "Refund applies to participants who attend all 14 sessions and complete all 14 night reflections.",
   },
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*  Band 15.5 — the journey reel                                              */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * One photograph in the moving strip between the price and the questions.
+ *
+ * `width` and `height` are the encoded file's own pixels *after* EXIF rotation,
+ * not the numbers `sharp.metadata()` reports for the original — see the
+ * `.rotate()` note in `scripts/optimize-assets.mjs`. They are load-bearing
+ * twice over: `next/image` needs them, and the reel sizes every picture by
+ * height and lets the width follow the ratio, so a wrong pair does not letterbox
+ * a photograph, it puts the whole row's seamless loop out of register.
+ */
+export type RefReelPhoto = {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+};
+
+/**
+ * Seven photographs from the owner's "LP images" Drive folder, encoded by
+ * `npm run optimize:assets` (which records each one's Drive file id, and why
+ * the other two in that folder are not here).
+ *
+ * ── About the alt text ───────────────────────────────────────────────────
+ *
+ * It describes the scene and does not name anybody, with one exception: the
+ * book handover, where the book in frame carries Kaleeswaran's own name and
+ * the face matches `kalee/kaleeswaran-portrait.webp`. Everywhere else the
+ * people in these photographs are participants at sessions run across several
+ * years and several organisations, and this file is not the place to decide
+ * who they are — inventing an attribution is exactly what CLAUDE.md §1.1
+ * forbids, and a wrong one would be published to a screen reader as fact.
+ *
+ * None of them is captioned on the page. The reel is a strip of moments, and
+ * the copy above it is the only claim made about them.
+ */
+const reelPhotos = {
+  cohortGroup: {
+    src: "/journey/cohort-group.webp",
+    alt: "A workshop group photographed together at the end of a session, some seated and some standing.",
+    width: 747,
+    height: 560,
+  },
+  sessionHall: {
+    src: "/journey/session-hall.webp",
+    alt: "A session in progress in a college hall, with a group of students standing on the stage.",
+    width: 747,
+    height: 560,
+  },
+  leadershipRoom: {
+    src: "/journey/leadership-room.webp",
+    alt: "A leadership development session in a workplace training room, participants standing around the tables.",
+    width: 747,
+    height: 560,
+  },
+  centreSteps: {
+    src: "/journey/centre-steps.webp",
+    alt: "Participants gathered on the steps outside a skill development centre at the close of a programme.",
+    width: 420,
+    height: 560,
+  },
+  teamCollage: {
+    src: "/journey/team-collage.webp",
+    alt: "A team gathered around a collage they assembled on the ground during a session.",
+    width: 682,
+    height: 560,
+  },
+  bookHandover: {
+    src: "/journey/book-handover.webp",
+    alt: "Kaleeswaran Kamaraj handing a copy of his book to a participant after a talk.",
+    width: 420,
+    height: 560,
+  },
+  fullHall: {
+    src: "/journey/full-hall.webp",
+    alt: "A hall of participants seated for a session, photographed from the stage.",
+    width: 840,
+    height: 560,
+  },
+} as const satisfies Record<string, RefReelPhoto>;
+
+/**
+ * The two-row moving strip.
+ *
+ * Not the reference's — this band does not exist in it. The heading and the
+ * lead are the owner's own words, supplied with the request, and they are the
+ * only copy in the band: the photographs carry it.
+ *
+ * ── Why both rows hold all seven ─────────────────────────────────────────
+ *
+ * Splitting seven pictures across two rows would give each row three or four,
+ * and a row that short repeats itself inside a single screen width. Each row
+ * runs the whole set instead, in its own order and in the opposite direction,
+ * so the two never march in step and no photograph sits directly above its own
+ * copy for more than an instant. It costs nothing to serve: the two rows and
+ * the three loop copies inside each of them all request the same seven files.
+ *
+ * The orders are chosen so the two upright photographs — `centreSteps` and
+ * `bookHandover`, the only two that are taller than they are wide — land in
+ * different places in each row, which is what keeps the strip from reading as
+ * a grid.
+ */
+export const refJourneyReel = {
+  /* Split-colour heading, the page's signature move (specification §10) —
+     except the accent is amber here rather than #3a1a5c, because the band is
+     dark and #3a1a5c on #1a0030 is unreadable. One word of amber is the whole
+     of the brand accent in this band. */
+  title: { before: "A Glimpse Into the ", accent: "Journey" },
+  lead: "Real people. Real moments. Small changes that become meaningful.",
+  rows: [
+    {
+      direction: "left",
+      /* Named for a screen reader and for anyone who tabs into the row, which
+         is a horizontal scroll container. "1 of 2" rather than "top", because
+         the two rows are one gallery split for the motion, not two galleries. */
+      label: "Photographs from the journey, row 1 of 2",
+      photos: [
+        reelPhotos.cohortGroup,
+        reelPhotos.centreSteps,
+        reelPhotos.leadershipRoom,
+        reelPhotos.bookHandover,
+        reelPhotos.fullHall,
+        reelPhotos.teamCollage,
+        reelPhotos.sessionHall,
+      ],
+    },
+    {
+      direction: "right",
+      label: "Photographs from the journey, row 2 of 2",
+      photos: [
+        reelPhotos.teamCollage,
+        reelPhotos.bookHandover,
+        reelPhotos.sessionHall,
+        reelPhotos.fullHall,
+        reelPhotos.centreSteps,
+        reelPhotos.cohortGroup,
+        reelPhotos.leadershipRoom,
+      ],
+    },
+  ],
 } as const;
 
 /* -------------------------------------------------------------------------- */
@@ -669,9 +1002,7 @@ export const refFaq = {
     },
     {
       q: "3. Do I need to attend all 14 days?",
-      a: "We strongly encourage it. But remember – progress, not perfection. ",
-      tamil: "பரவால பார்த்துக்கலாம்.",
-      aAfter: " If you miss a session, don't give up. Return the next morning.",
+      a: "We strongly encourage it. But remember – progress, not perfection. Paravaala paathukkalaam. If you miss a session, don't give up. Return the next morning.",
     },
     {
       q: "4. What language will the sessions be in?",
@@ -715,15 +1046,10 @@ export const refFinal = {
     "Keep returning.",
     "14 Days. 45 Minutes a Day.",
   ],
-  tamil: "பரவால பார்த்துக்கலாம்…",
-  /* One line in the reference, two scripts. It is kept as two fields only so
-     the Tamil clause can carry `lang="ta"` — without it this was the one Tamil
-     string of eleven on the page rendering in the platform's Tamil face while
-     the other ten rendered in Noto Sans Tamil, directly under `final-tamil`
-     where the two sit one above the other. Concatenated, the characters are
-     the reference's, unchanged (CLAUDE.md §1.1, §13.5). */
-     tamilSub: "ஆரம்பிக்கலாம்.",
-  tamilSubEnglish: " – You don't have to be perfect. You just have to begin.",
+  /* Tanglish display line with its English gloss, the same pairing the hero
+     uses. Roman script throughout, so no `lang="ta"` anywhere. */
+  tanglish: "Paravaala paathukkalaam… aarambikkalaam.",
+  tanglishEnglish: "You don't have to be perfect. You just have to begin.",
   cta: "[ YES, I WANT TO GIVE MYSELF 14 DAYS → ]",
   meta: `${inr(programDetails.price)} · Including All 3 Bonuses · Sep 14–27 · ${programDetails.timeShort} · Live on Zoom · A ${siteConfig.name} Initiative`,
   sign: `– Kalee | Counselling Psychologist | ${siteConfig.name} | ${siteConfig.tagline}`,
@@ -764,11 +1090,16 @@ export const refAssets = {
    * are read off it, not authored here (§1.1).
    */
   heroPhoto: {
-    src: "/kalee/kalee-hero-credentials.webp",
+    /* The owner's updated card, supplied as `updated_hero.png` and encoded by
+       `npm run optimize:assets` (1.3 MB PNG -> 121 kB WebP). The previous
+       `kalee-hero-credentials.webp` is still in `public/` and still referenced
+       by nothing; left on disk rather than deleted (CLAUDE.md §19). */
+    src: "/kalee/hero-updated.webp",
     alt:
       "Kaleeswaran Kamaraj, Transformations Psychologist and Leadership Trainer. " +
       "15+ years experience · 100+ organizations trained · 300+ training programs delivered · " +
-      "15+ modalities of certifications · 2,000+ hours therapy and coaching · PhD scholar.",
+      "15+ modalities of certifications · 2,000+ hours therapy and coaching · PhD scholar. " +
+      "Founder of KnowMind Universe.",
   },
   /** 150px circle with a 3px amber ring. Replaces the 📸 glyph on the card. */
   portrait: {
@@ -798,9 +1129,9 @@ export const refAssets = {
 /*      "ITC", "TN Police". Same eighteen organisations, and the reference's   */
 /*      order differs from the deck's.                                        */
 /*   3. Tamil. The deck's `tamil.itsOkayLetsSee` is                            */
-/*      "பரவால … பார்த்துக்கலாம் ஆரம்பிக்கலாம்." — the reference sets the      */
-/*      ellipsis after the second word and adds a heart: "பரவால                */
-/*      பார்த்துக்கலாம்… ஆரம்பிக்கலாம். ❤️". Transcribed as the reference has  */
+/*      The reference set this line in Tamil with a heart after it. The     */
+/*      page is English-only at the owner's request, so it is carried    */
+/*      as its English sense rather than transcribed.                    */
 /*      it, per the brief; neither was machine-translated or altered.          */
 /*   4. FAQ. Same eight subjects, the reference numbering them in the copy      */
 /*      itself and phrasing several answers more briefly.                     */
