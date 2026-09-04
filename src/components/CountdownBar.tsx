@@ -1,13 +1,22 @@
 import { Countdown } from "@/components/Countdown";
+import { OpenRegistration } from "@/components/ui/OpenRegistration";
+import { refSticky } from "@/lib/reference-content";
 
 /**
- * The countdown, pinned to the foot of the screen on its own.
+ * The countdown, pinned to the foot of the screen, now with the call to
+ * action beside it.
  *
- * It used to be the middle child of the pinned top bar, where it was the reason
- * that bar had to wrap: a wordmark, four time boxes and a button do not share
- * one line on a phone, so the bar became two rows at 390px and three at 320px
- * and its height moved with the viewport. Given its own edge it stops competing
- * for that line, and the top bar is a single row at every width again.
+ * The countdown used to be the middle child of the pinned top bar, where it
+ * was the reason that bar had to wrap: a wordmark, four time boxes and a
+ * button do not share one line on a phone, so the bar became two rows at
+ * 390px and three at 320px and its height moved with the viewport. Splitting
+ * it into its own bar fixed that.
+ *
+ * The button has now moved down to join it here, at the owner's request —
+ * the deadline and the thing that beats it read together. Two children
+ * rather than the original three, so this still holds one row down to a
+ * narrower width than the old combined bar did; `flex-wrap` is the fallback
+ * on the very narrowest phones rather than an overflow.
  *
  * ── Why `position: sticky` rather than `fixed` ────────────────────────────
  *
@@ -29,6 +38,7 @@ export function CountdownBar() {
   return (
     <div className="countdown-bar">
       <Countdown />
+      <OpenRegistration className="s-cta">{refSticky.cta}</OpenRegistration>
     </div>
   );
 }

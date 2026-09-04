@@ -39,6 +39,10 @@ export function Footer() {
             {contact.website}
           </a>
           {" · "}
+          <a href={contact.secondaryWebsiteHref} target="_blank" rel="noopener noreferrer">
+            {contact.secondaryWebsite}
+          </a>
+          {" · "}
           <a href={contact.phoneHref}>{contact.phone}</a>
           {" · "}
           <a href={contact.emailHref}>{contact.email}</a>

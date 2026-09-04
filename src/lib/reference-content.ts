@@ -809,7 +809,7 @@ export const NEXT_BATCH_PRICE = 1999;
 
 export const refPrice = {
   heading: "Your Next 1% Starts Here.",
-  sub: `${programDetails.dateLabel} · ${programDetails.timeShort} · Live on Zoom · ${programDetails.seats} participants only`,
+  sub: `${programDetails.dateLabel} · ${programDetails.timeShort} · Live on Zoom · Limited Seats`,
   label: `Join the Journey – Founding ${siteConfig.batch} Price`,
   was: `Next batch: ${inr(NEXT_BATCH_PRICE)}`,
   includes: `Includes all 3 bonuses worth ${inr(refBonusTotal)} – absolutely free`,
@@ -820,7 +820,7 @@ export const refPrice = {
     `${programDetails.timeShort} Live`,
     "Zoom",
     "Tamil + English",
-    `${programDetails.seats} seats`,
+    "Limited Seats",
   ],
   cta: "[ YES, I WANT TO GIVE MYSELF 14 DAYS → ]",
   note: `Limited registrations · Live on Zoom · ${programDetails.timeShort} · A ${siteConfig.name} Initiative`,

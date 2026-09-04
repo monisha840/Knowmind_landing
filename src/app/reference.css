@@ -243,6 +243,14 @@
     padding-bottom: max(10px, env(safe-area-inset-bottom));
     display: flex;
     justify-content: center;
+    align-items: center;
+    /* The CTA moved down from the top bar to sit beside the deadline — see
+       CountdownBar. `gap` keeps the pair together as one centred group rather
+       than spreading them to the bar's own edges; `wrap` is the fallback on
+       the narrowest phones instead of the two ever overlapping. */
+    gap: 16px;
+    flex-wrap: wrap;
+    row-gap: 8px;
     box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.4);
   }
   .ref-page .timer {
@@ -325,7 +333,7 @@
        nothing between 1000 and ~1270px moves at all; the 470px ceiling is what
        still leaves that headline its line at the widest layout the 1200px
        container ever reaches. */
-    grid-template-columns: 1fr clamp(380px, 33vw, 510px);
+    grid-template-columns: 1fr clamp(380px, 36vw, 560px);
     gap: 60px;
     align-items: flex-end;
     position: relative;
@@ -432,9 +440,9 @@
     margin-bottom: 16px;
   }
   .ref-page .hb {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    color: #fff;
+    background: rgba(255, 179, 0, 0.16);
+    border: 1px solid rgba(255, 179, 0, 0.4);
+    color: #ffca4d;
     padding: 6px 13px;
     border-radius: 20px;
     font-size: 12px;
@@ -509,19 +517,20 @@
      the plate outside the frame, leaving a torso on white. So the frame takes
      the image's own ratio instead and nothing is cropped.
 
-     `width: 100%` rather than the reference's 380px: the card and the stat bar
-     below it both fill the same fluid grid track, so they meet flush by
-     construction at every width instead of by two magic numbers that have to be
-     kept equal by hand. The track is what carries the sizing — see
-     `.hero-inner`. */
+     `width: 100%` rather than the reference's 380px: the card fills the whole
+     of its fluid grid track — see `.hero-inner`.
+
+     Full radius and a border on every edge now that the stat bar under it is
+     gone: the card used to leave its bottom open so the two would meet flush,
+     and stayed square-cornered on that edge for the same reason. On its own,
+     the card is one closed frame. */
   .ref-page .hero-photo {
     width: 100%;
     /* The owner's updated card's own ratio. */
     aspect-ratio: 1448 / 1086;
     background: rgba(255, 255, 255, 0.04);
-    border-radius: 20px 20px 0 0;
+    border-radius: 20px;
     border: 1px solid rgba(255, 179, 0, 0.15);
-    border-bottom: none;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -577,30 +586,6 @@
     height: 100%;
     object-fit: cover;
   }
-  .ref-page .hero-stat-bar {
-    background: rgba(27, 0, 48, 0.95);
-    border-top: 1px solid rgba(255, 179, 0, 0.25);
-    padding: 14px 20px;
-    display: flex;
-    justify-content: space-around;
-    /* Fills the same track as the card above it — see `.hero-photo`. */
-    width: 100%;
-    position: relative;
-  }
-  .ref-page .hstat {
-    text-align: center;
-  }
-  .ref-page .hstat .n {
-    color: #ffb300;
-    font-size: 17px;
-    font-weight: 900;
-    display: block;
-  }
-  .ref-page .hstat .l {
-    color: #d8b8f5;
-    font-size: 10px;
-  }
-
   /* -- VSL --------------------------------------------------------------- */
   .ref-page .vsl-section {
     background: #1a0030;
@@ -690,7 +675,8 @@
      `.pattern-left .s-tag` in the eighth; the values are identical. */
   .ref-page .s-tag {
     display: inline-block;
-    background: #ede7f6;
+    background: rgba(255, 179, 0, 0.22);
+    border: 1px solid rgba(255, 179, 0, 0.45);
     color: #3c3489;
     font-size: 11px;
     font-weight: 700;
@@ -767,7 +753,7 @@
     display: flex;
     align-items: flex-start;
     gap: 14px;
-    background: #fff;
+    background: rgba(255, 179, 0, 0.18);
     border-left: 4px solid #3a1a5c;
     border-radius: 0 10px 10px 0;
     padding: 14px 18px;
@@ -849,7 +835,8 @@
     gap: 16px;
   }
   .ref-page .phil-card {
-    background: #f8f5ff;
+    background: rgba(255, 179, 0, 0.18);
+    border: 1px solid rgba(255, 179, 0, 0.35);
     border-radius: 14px;
     padding: 24px 20px;
     text-align: center;
@@ -880,18 +867,19 @@
     line-height: 1.5;
   }
   .ref-page .phil-bottom {
-    background: #ede7f6;
+    background: #3a1a5c;
     border-radius: 14px;
     padding: 28px 32px;
     text-align: center;
     margin-top: 40px;
   }
   .ref-page .phil-bottom p {
-    color: #3a1a5c;
+    color: #d8b8f5;
     font-size: 15px;
     line-height: 1.9;
   }
   .ref-page .phil-bottom strong {
+    color: #ffb300;
     font-weight: 800;
   }
 
@@ -1340,7 +1328,8 @@
     margin-bottom: 16px;
   }
   .ref-page .sb {
-    background: #ede7f6;
+    background: rgba(255, 179, 0, 0.2);
+    border: 1px solid rgba(255, 179, 0, 0.4);
     border-radius: 10px;
     padding: 12px;
     text-align: center;

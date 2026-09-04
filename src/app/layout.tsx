@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   },
   description,
   applicationName: siteConfig.name,
-  authors: [{ name: "Kaleeswaran K", url: siteConfig.contact.websiteHref }],
+  authors: [{ name: "Kaleeswaran K", url: siteConfig.contact.secondaryWebsiteHref }],
   creator: "Kaleeswaran K",
   publisher: siteConfig.name,
   keywords: [

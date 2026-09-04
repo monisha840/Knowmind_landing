@@ -54,7 +54,7 @@ const person = {
     "@type": "EducationalOccupationalCredential",
     name: c,
   })),
-  url: siteConfig.contact.websiteHref,
+  url: siteConfig.contact.secondaryWebsiteHref,
 };
 
 const offer = {

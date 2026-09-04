@@ -20,13 +20,13 @@ import { Testimonials } from "@/components/sections/Testimonials";
 import { VSLSection } from "@/components/sections/VSLSection";
 
 /**
- * The programme page — the reference design, in the reference's own order.
+ * The programme page — the reference design, with the trust signal moved up.
  *
  * Eighteen bands, numbered here as the Master Reproduction Specification
- * numbers them, with two insertions that are not the reference's:
+ * numbers them, with three departures from the reference's own order:
  *
- *    1  sticky bar          10  organisations marquee
- *    2  hero                11  media marquee
+ *    1  sticky bar          10  organisations marquee (moved, see below)
+ *    2  hero                11  media marquee (moved, see below)
  *    3  VSL                 12  testimonials
  *    4  is this your        13  who joins / who it is not for
  *       pattern?            14  bonuses
@@ -35,6 +35,11 @@ import { VSLSection } from "@/components/sections/VSLSection";
  *    7  how it works        17  the close
  *    8  what you explore     —  the registration questions
  *    9  meet Kaleeswaran    18  footer
+ *
+ * Bands 10/11 (the two logo marquees, both in `MediaSection`) sat between
+ * band 9 and band 12 in the reference. Moved to directly under the hero, at
+ * the owner's explicit request: the trust signal now reads before the VSL
+ * rather than deep into the page.
  *
  * ── The insertions ─────────────────────────────────────────────────────────
  *
@@ -86,8 +91,14 @@ export default function Page() {
       <StickyBar />
 
       <main id="main">
-        {/* ---- 2 · 3 ---- */}
+        {/* ---- 2 · 10 · 11 · 3 ----
+            10/11 (the organisations and media marquees) moved up from their
+            reference position between Kaleeswaran's section and testimonials
+            to directly under the hero, at the owner's explicit request — the
+            trust signal now reads before the VSL rather than deep into the
+            page. */}
         <Hero />
+        <MediaSection />
         <VSLSection />
 
         {/* ---- 4 · 5 ---- */}
@@ -98,9 +109,8 @@ export default function Page() {
         <JourneyTimeline />
         <MissADaySection />
 
-        {/* ---- 9 · 10 · 11 ---- */}
+        {/* ---- 9 ---- */}
         <MeetKaleeswaranSection />
-        <MediaSection />
 
         {/* ---- 12 · 13 · 14 ---- */}
         <Testimonials />

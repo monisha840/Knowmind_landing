@@ -6,11 +6,17 @@ import { refAssets, refHero } from "@/lib/reference-content";
 /**
  * Band 2 — the hero.
  *
- * Two columns, `1fr 400px`, bottom-aligned, on the page's one gradient:
- * `linear-gradient(160deg, #1a0030, #4B0082 60%, #6A0DAD)`. The band carries
- * 70px of top padding and none at the bottom, so the portrait column meets the
- * fold flush; the left column's own 60px of bottom padding is what lifts the
- * copy off it.
+ * Two columns, bottom-aligned, on the page's one gradient:
+ * `linear-gradient(160deg, #1a0030, #4B0082 60%, #6A0DAD)`. Padding and the
+ * vertical rhythm through the left column are tightened from the reference's
+ * own values — DEVIATION 9 in `reference.css` — so the CTA clears the fold.
+ *
+ * The stat bar (4.9 · 30,000+ · 15+) that used to sit under the credentials
+ * card is gone, at the owner's request: the card is the whole of the right
+ * column now, sized bigger to fill the space it freed up. `refHero.stats`
+ * stays in `reference-content.ts`, unused, rather than being deleted — the
+ * same convention the project uses for anything dropped rather than never
+ * written (CLAUDE.md §19).
  *
  * The 600px ∞ glyph bleeding off the right edge at 2% white is `.hero::after`
  * in `reference.css`. It is nearly invisible, and it is what gives the band its
@@ -92,17 +98,8 @@ export function Hero() {
               src={refAssets.heroPhoto.src}
               alt={refAssets.heroPhoto.alt}
               fill
-              sizes="(min-width: 1567px) 470px, (min-width: 1267px) 30vw, (min-width: 1001px) 380px, (min-width: 540px) 420px, 92vw"
+              sizes="(min-width: 1567px) 560px, (min-width: 1267px) 36vw, (min-width: 1001px) 380px, (min-width: 540px) 420px, 92vw"
             />
-          </div>
-
-          <div className="hero-stat-bar">
-            {refHero.stats.map((stat) => (
-              <div className="hstat" key={stat.l}>
-                <span className="n">{stat.n}</span>
-                <span className="l">{stat.l}</span>
-              </div>
-            ))}
           </div>
         </div>
       </div>

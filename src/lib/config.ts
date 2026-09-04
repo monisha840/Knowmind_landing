@@ -27,12 +27,14 @@ export const siteConfig = {
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.knowminduniverse.com",
 
   contact: {
-    website: "www.kaleeswaran.com",
-    websiteHref: "https://www.kaleeswaran.com",
-    phone: "+91 9688440032",
-    phoneHref: "tel:+919688440032",
-    email: "kaleesemail@gmail.com",
-    emailHref: "mailto:kaleesemail@gmail.com",
+    website: "www.knowminduniverse.com",
+    websiteHref: "https://www.knowminduniverse.com",
+    secondaryWebsite: "www.kaleeswaran.com",
+    secondaryWebsiteHref: "https://www.kaleeswaran.com",
+    phone: "+91 9444324416",
+    phoneHref: "tel:+919444324416",
+    email: "connect@knowminduniverse.com",
+    emailHref: "mailto:connect@knowminduniverse.com",
   },
 } as const;
 

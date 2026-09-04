@@ -1,4 +1,3 @@
-import { OpenRegistration } from "@/components/ui/OpenRegistration";
 import Image from "next/image";
 
 import { refSticky } from "@/lib/reference-content";
@@ -6,15 +5,15 @@ import { refSticky } from "@/lib/reference-content";
 /**
  * Band 1 — the pinned bar.
  *
- * The reference's only chrome: a wordmark and one call to action, pinned at
- * `top: 0` with no scroll threshold and no shrink. There is no navigation on
- * the page at any width — no links, no hamburger, no drawer — so this replaces
- * `Navbar` rather than sitting beside it (specification §07).
+ * The reference's only chrome: a wordmark, pinned at `top: 0` with no scroll
+ * threshold and no shrink. There is no navigation on the page at any width —
+ * no links, no hamburger, no drawer — so this replaces `Navbar` rather than
+ * sitting beside it (specification §07).
  *
- * The countdown used to sit between the two and is now its own pinned bar at
- * the foot of the screen (`CountdownBar`). With two children instead of three
- * this bar holds one row at every width down to 320px, which is what it could
- * never do while the four time boxes were competing for the same line.
+ * The call to action lived here until the owner asked for it to sit beside
+ * the countdown instead, so both the deadline and the button that beats it
+ * are in the same place, at the foot of the screen (`CountdownBar`). This bar
+ * is the wordmark alone now.
  *
  * The KnowMind mark sits before the wordmark: `brand/logo-mark.png`, which is
  * the dimensional ribbon from `knowmind_logo.png` — the same artwork the
@@ -57,11 +56,6 @@ export function StickyBar() {
           <span>{refSticky.tagline}</span>
         </div>
       </div>
-
-      {/* Straight to the questions, not the price band. This used to stop at
-          PricingSection and make the visitor find a second button; every call
-          to action on the page now lands on the same form. */}
-      <OpenRegistration className="s-cta">{refSticky.cta}</OpenRegistration>
     </header>
   );
 }
