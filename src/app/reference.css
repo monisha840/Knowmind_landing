@@ -291,7 +291,7 @@
      from the reference's own values — not removed, just closer together. */
   .ref-page .hero {
     background: linear-gradient(160deg, #1a0030 0%, #3a1a5c 60%, #3f1d63 100%);
-    padding: 44px 40px 0;
+    padding: 32px 40px 0;
     position: relative;
     overflow: hidden;
   }
@@ -331,7 +331,7 @@
     position: relative;
   }
   .ref-page .hero-left {
-    padding-bottom: 40px;
+    padding-bottom: 24px;
   }
   .ref-page .h-tag {
     display: inline-flex;
@@ -346,7 +346,7 @@
     text-transform: uppercase;
     padding: 6px 14px;
     border-radius: 20px;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
   }
   .ref-page .h-dot {
     width: 6px;
@@ -385,7 +385,7 @@
   /* The supporting tagline. A hairline amber rule above it separates the two
      without adding a decorative element that means nothing. */
   .ref-page .h-main {
-    padding-top: 16px;
+    padding-top: 12px;
     border-top: 1px solid rgba(255, 179, 0, 0.28);
     font-size: clamp(21px, 0.9rem + 1.3vw, 30px);
     font-weight: 900;
@@ -410,26 +410,26 @@
     font-size: clamp(17px, 0.8rem + 0.8vw, 22px);
     font-weight: 700;
     color: #ffb300;
-    margin: 10px 0 3px;
+    margin: 8px 0 2px;
   }
   .ref-page .h-tamil-eng {
     font-size: 12.5px;
     color: #cbb2e8;
     font-style: italic;
-    margin: 0 0 14px;
+    margin: 0 0 10px;
   }
   .ref-page .h-sub2 {
     color: #d8b8f5;
     font-size: 14px;
-    line-height: 1.8;
-    margin-bottom: 18px;
-    max-width: 440px;
+    line-height: 1.6;
+    margin-bottom: 14px;
+    max-width: 480px;
   }
   .ref-page .h-badges {
     display: flex;
     flex-wrap: wrap;
     gap: 7px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
   .ref-page .hb {
     background: rgba(255, 255, 255, 0.1);
@@ -444,7 +444,7 @@
     color: #1a0030;
     font-size: 19px;
     font-weight: 900;
-    padding: 20px 48px;
+    padding: 17px 48px;
     border-radius: 12px;
     display: inline-block;
     /* Was `0 4px 24px rgba(255,179,0,0.4)` — a 24px amber halo that made the
@@ -465,7 +465,7 @@
      No glow and no shadow. */
   .ref-page .h-cta-note {
     display: inline-block;
-    margin-top: 14px;
+    margin-top: 10px;
     padding: 9px 16px;
     background: rgba(255, 179, 0, 0.1);
     border: 1px solid rgba(255, 179, 0, 0.34);

@@ -67,7 +67,7 @@ export const refHero = {
   /** Two lines, set as two lines by a <br> in the reference. */
   subLines: [
     "14 Days. One Small Commitment. One Better Relationship with Yourself.",
-    "Let's Understand Yourself Better. Let's Notice Your Patterns. Let's Change, One Small Step at a Time.",
+    "Notice your patterns. Change, one small step at a time.",
   ],
   badges: [
     "5:30 AM Live",
