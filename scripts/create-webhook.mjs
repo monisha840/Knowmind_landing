@@ -112,10 +112,15 @@ if (existing?.items?.some((w) => w.url === WEBHOOK_URL)) {
 // Chosen here, never guessed: 32 URL-safe characters from the system CSPRNG.
 const secret = randomBytes(24).toString("base64url");
 
+/* Razorpay's webhook API takes `events` as a map of name -> true, not an
+   array — sending an array gets silently coerced to numeric keys ("0", "1",
+   "2"), which Razorpay then rejects as invalid event names. */
+const eventsPayload = Object.fromEntries(EVENTS.map((event) => [event, true]));
+
 const response = await fetch("https://api.razorpay.com/v1/webhooks", {
   method: "POST",
   headers,
-  body: JSON.stringify({ url: WEBHOOK_URL, secret, events: EVENTS }),
+  body: JSON.stringify({ url: WEBHOOK_URL, secret, events: eventsPayload }),
 });
 
 const body = await response.json().catch(() => null);
