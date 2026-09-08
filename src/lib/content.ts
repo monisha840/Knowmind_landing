@@ -517,6 +517,19 @@ export const kalee = {
   ],
   founderOf: "OOKKAM Foundation",
   founderRole: "Founder and Director",
+  /**
+   * The sign-off block, exactly as it appears on the owner's own wordmark
+   * asset. Deliberately NOT derived from `name` / `roles` above: the page
+   * introduces him as "Kaleeswaran K, Counselling Psychologist", while the
+   * wordmark he signs correspondence with uses his full name and a different,
+   * shorter role line. Both are correct in their own place — reproduced here
+   * verbatim rather than reconciled, per CLAUDE.md §1.1.
+   */
+  signature: {
+    name: "Kaleeswaran Kamaraj",
+    title: "Transformations Psychologist & Leadership Trainer",
+    founder: "Founder - KnowMind Universe",
+  },
   /** The question his work circles, exactly as the deck asks it. */
   quote: "Why do we know what to do… but still struggle to do it consistently?",
   quoteFollowUp:

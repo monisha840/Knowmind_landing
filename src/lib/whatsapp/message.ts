@@ -9,6 +9,7 @@
  */
 
 import { inr, programDetails, siteConfig } from "@/lib/config";
+import { kalee } from "@/lib/content";
 import { INDIAN_MOBILE, localMobileDigits } from "@/lib/validation";
 
 /**
@@ -68,6 +69,10 @@ export function paymentConfirmationMessage(
     "",
     "More details about the session will be shared with you here.",
     "",
-    "— Kalee",
+    // WhatsApp renders *asterisks* as bold. Only the name is emphasised, so the
+    // block reads as a signature rather than as three competing headings.
+    `*${kalee.signature.name}*`,
+    kalee.signature.title,
+    kalee.signature.founder,
   ].join("\n");
 }
