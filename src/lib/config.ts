@@ -39,10 +39,10 @@ export const siteConfig = {
 } as const;
 
 export const programDetails = {
-  startDate: "2026-09-14",
-  endDate: "2026-09-27",
-  dateLabel: "September 14–27, 2026",
-  dateLabelShort: "Sep 14–27, 2026",
+  startDate: "2026-09-21",
+  endDate: "2026-10-04",
+  dateLabel: "September 21 – October 4, 2026",
+  dateLabelShort: "Sep 21 – Oct 4, 2026",
   timeLabel: "5:30 AM – 6:15 AM",
   timeShort: "5:30 AM",
   durationMinutes: 45,

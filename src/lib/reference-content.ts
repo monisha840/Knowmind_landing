@@ -43,7 +43,7 @@ export const refSticky = {
   tagline: siteConfig.tagline,
   closesIn: "Closes in",
   /** The instant the countdown runs to — the first session, in IST. */
-  deadline: "2026-09-14T05:30:00+05:30",
+  deadline: `${programDetails.startDate}T05:30:00+05:30`,
   closed: "Closing",
   cta: `Join – ${inr(programDetails.price)}`,
 } as const;
@@ -1057,7 +1057,7 @@ export const refFinal = {
   tanglish: "Paravaala paathukkalaam… aarambikkalaam.",
   tanglishEnglish: "You don't have to be perfect. You just have to begin.",
   cta: "[ YES, I WANT TO GIVE MYSELF 14 DAYS → ]",
-  meta: `${inr(programDetails.price)} · Including All 3 Bonuses · Sep 14–27 · ${programDetails.timeShort} · Live on Zoom · A ${siteConfig.name} Initiative`,
+  meta: `${inr(programDetails.price)} · Including All 3 Bonuses · ${programDetails.dateLabelShort} · ${programDetails.timeShort} · Live on Zoom · A ${siteConfig.name} Initiative`,
   sign: `– Kalee | Counselling Psychologist | ${siteConfig.name} | ${siteConfig.tagline}`,
 } as const;
 
