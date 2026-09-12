@@ -13,7 +13,7 @@
  *
  * Both payment routes call this through Next's `after()`, so the WhatsApp
  * attempt runs after the HTTP response is already on its way back — a slow or
- * unreachable Evolution Go can never add latency to a payment confirmation,
+ * unreachable WhatsApp provider can never add latency to a payment confirmation,
  * and (the more important half) can never turn a real payment into an error
  * response. See CLAUDE.md's payment-must-not-depend-on-WhatsApp requirement.
  *
@@ -23,7 +23,7 @@
  * `claimWhatsappSend` is an atomic, database-enforced compare-and-swap (see
  * its comment in `lib/db/registrations.ts`). Every caller — the verify route,
  * the webhook, the retry sweep — goes through it first, and only the one that
- * wins the claim proceeds to an actual `fetch` against Evolution Go. Losing
+ * wins the claim proceeds to an actual `fetch` against the configured provider. Losing
  * the claim is not an error; it is this function correctly declining to send
  * a second message.
  */
@@ -35,14 +35,14 @@ import {
   markWhatsappFailed,
   markWhatsappSent,
 } from "@/lib/db/registrations";
+import { toWhatsappDestination } from "@/lib/whatsapp/message";
 import {
-  EvolutionApiError,
-  evolutionCredentials,
-  evolutionTestPhone,
+  resolveWhatsappSender,
   sanitizeWhatsappError,
-  sendWhatsappText,
-} from "@/lib/whatsapp/evolution";
-import { paymentConfirmationMessage, toWhatsappDestination } from "@/lib/whatsapp/message";
+  whatsappErrorCode,
+  whatsappErrorStatus,
+  whatsappTestPhone,
+} from "@/lib/whatsapp/provider";
 
 if (typeof window !== "undefined") {
   throw new Error(
@@ -89,14 +89,21 @@ async function attempt(target: Confirmable): Promise<void> {
     return;
   }
 
-  const credentials = evolutionCredentials();
-  if (!credentials) {
-    logWhatsappEvent("credentials_missing", { registrationId: target.id });
-    await markWhatsappFailed(target.id, "Evolution Go is not configured on this deployment.");
+  // Which provider, and is it actually configured. `resolveWhatsappSender`
+  // owns that decision entirely (see lib/whatsapp/provider.ts) — this module
+  // deliberately cannot tell WASI and Evolution Go apart.
+  const resolved = resolveWhatsappSender();
+  if (!resolved.ok) {
+    logWhatsappEvent("provider_unavailable", {
+      registrationId: target.id,
+      reason: resolved.reason,
+    });
+    await markWhatsappFailed(target.id, resolved.reason);
     return;
   }
+  const { sender } = resolved;
 
-  const testPhone = evolutionTestPhone();
+  const testPhone = whatsappTestPhone();
   let destination: string | null;
   let redirectedToTestPhone = false;
 
@@ -106,7 +113,10 @@ async function attempt(target: Confirmable): Promise<void> {
       // that would be exactly the accidental real send test mode exists to
       // prevent.
       logWhatsappEvent("test_phone_malformed", { registrationId: target.id });
-      await markWhatsappFailed(target.id, "EVOLUTION_TEST_PHONE is set but not a plain digit string.");
+      await markWhatsappFailed(
+        target.id,
+        "The WhatsApp test-phone override is set but is not a plain digit string.",
+      );
       return;
     }
     destination = testPhone;
@@ -121,18 +131,30 @@ async function attempt(target: Confirmable): Promise<void> {
     return;
   }
 
-  const text = paymentConfirmationMessage(target.id, target.name, target.amountPaise);
-
   try {
-    const { messageId } = await sendWhatsappText(credentials, destination, text);
+    const { messageId } = await sender.send(destination, {
+      registrationId: target.id,
+      name: target.name,
+      amountPaise: target.amountPaise,
+    });
     await markWhatsappSent(target.id, messageId);
-    logWhatsappEvent("sent", { registrationId: target.id, messageId, redirectedToTestPhone });
+    // `personalised` is logged because it is not cosmetic: a WASI send carries
+    // a fixed approved template, so this line must not imply the lead's name
+    // and amount went with it when they did not.
+    logWhatsappEvent("sent", {
+      registrationId: target.id,
+      provider: sender.provider,
+      personalised: sender.personalised,
+      messageId,
+      redirectedToTestPhone,
+    });
   } catch (cause) {
-    const isProvider = cause instanceof EvolutionApiError;
     const sanitized = sanitizeWhatsappError(cause);
     logWhatsappEvent("send_failed", {
       registrationId: target.id,
-      providerStatus: isProvider ? cause.status : null,
+      provider: sender.provider,
+      providerStatus: whatsappErrorStatus(cause),
+      providerCode: whatsappErrorCode(cause),
       redirectedToTestPhone,
       reason: sanitized,
     });

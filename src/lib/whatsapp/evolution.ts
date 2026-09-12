@@ -159,15 +159,7 @@ export async function sendWhatsappText(
   return { messageId: extractMessageId(raw) };
 }
 
-/**
- * Strip anything that could be a header, a token, or a full payload before an
- * Evolution Go error reaches a log line or `whatsapp_error` — the same
- * discipline `lib/payments/registrations.ts`'s `logPaymentEvent` applies to
- * Razorpay errors. The API key itself is never in scope for this function: it
- * never appears in a response body or a caught error, only in the request
- * header this module sends and nowhere else reads.
- */
-export function sanitizeWhatsappError(cause: unknown): string {
-  const message = cause instanceof Error ? cause.message : String(cause);
-  return message.length > 200 ? `${message.slice(0, 200)}…` : message;
-}
+/* `sanitizeWhatsappError` used to live here. It moved to
+ * `lib/whatsapp/provider.ts` when WASI became the second provider: the
+ * redaction rule is identical for both, and two copies of a security-relevant
+ * helper is exactly how one of them quietly stops matching the other. */

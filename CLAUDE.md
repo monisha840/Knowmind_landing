@@ -347,8 +347,15 @@ one without approval is a scope violation.
         │   ├── registrations.ts   # the record, the amount, idempotency.  SERVER ONLY
         │   └── useCheckout.ts     # "use client" — the checkout state machine
         └── whatsapp/          # payment-confirmation WhatsApp sends.  SERVER ONLY
+            ├── provider.ts        # WHICH provider sends, and the single shape both
+            │                      # speak. WASI by default; WHATSAPP_PROVIDER=evolution
+            │                      # reverts. Also owns error redaction for both.
+            ├── wasi.ts            # WASI "Hub API" client. An official Meta WABA
+            │                      # account, so it sends an APPROVED TEMPLATE and
+            │                      # never free text — read its header before editing
             ├── evolution.ts       # Evolution Go REST client — send/text, credentials
-            ├── message.ts         # the confirmation text + phone normalisation
+            ├── message.ts         # the confirmation text + phone normalisation.
+            │                      # Only the Evolution path renders it (see provider.ts)
             └── notify.ts          # claim → send → record; the one trigger point
 ```
 
@@ -1331,6 +1338,12 @@ image, or client-only rendering.
 | `EVOLUTION_API_KEY` | **server** | Evolution Go's per-instance token (`apikey` header on every request). **Never** `NEXT_PUBLIC_`. | for WhatsApp confirmations |
 | `EVOLUTION_INSTANCE` | **server** | The instance name, for logs and the dashboard only — not sent on the wire, since the token above is itself instance-scoped. | no |
 | `EVOLUTION_TEST_PHONE` | **server** | When set, every outgoing WhatsApp confirmation is redirected to this number instead of the lead's own. Leave empty in production; never fill it with a real customer's number. | no |
+| `WHATSAPP_PROVIDER` | **server** | Which provider actually sends: `wasi` (default) or `evolution`. An unrecognised value is refused outright rather than falling back, so a typo surfaces as recorded failures the retry sweep re-attempts, not as messages sent by the wrong provider. | no |
+| `WASI_API_BASE_URL` | **server** | WASI's origin (`https://wasi.sirahagents.com`). Read by `src/lib/whatsapp/wasi.ts`. | for WhatsApp confirmations |
+| `WASI_API_KEY` | **server** | WASI Hub API key, sent as `Authorization: Bearer`. **Never** `NEXT_PUBLIC_`. | for WhatsApp confirmations |
+| `WASI_CLIENT_ID` | **server** | Required in every send body. Read it once from `GET /api/v1/account`; it is not looked up per send, so a WhatsApp outage cannot add a second failure mode to the payment path. | for WhatsApp confirmations |
+| `WASI_TEMPLATE_NAME` | **server** | The approved template to send. Defaults to `confirmtion_message` — the account's own registered name, misspelling included, since Meta matches that exact string. **The default declares no variables**, so the confirmation carries no name, amount or registration id. | no |
+| `WHATSAPP_TEST_PHONE` | **server** | Provider-neutral replacement for `EVOLUTION_TEST_PHONE`; redirects every outgoing confirmation whichever provider is selected. Wins when both are set. Leave empty in production. | no |
 | `CRON_SECRET` | **server** | Authenticates `GET /api/whatsapp/retry`, the Vercel Cron job that retries failed WhatsApp sends (`vercel.json`). Absent → the route refuses every request, including Vercel's own. | for the retry sweep |
 
 `NEXT_PUBLIC_RAZORPAY_PAYMENT_LINK` is **gone**. It configured a hosted payment
@@ -1483,8 +1496,11 @@ these by fabricating content — most need an asset or a human decision.
 | Video testimonials: the programme page's three slots are filled from the Drive asset library. `content.ts`'s `videoTestimonials` (the deck page) are still `src: null` | three more participant recordings exist in Drive, unused — see the foot of `scripts/optimize-video.mjs` |
 | **Media** logos are the outlets' own marks, at the owner's instruction — the licensing decision this row used to hold open has been made for those nine. **Client** logos are still typographic wordmarks | the deck's only copy of the eighteen client marks is one flattened grid image (`image14.png`), which cannot be cut into individual marks anyone would be entitled to ship. Still a decision, still open |
 | No analytics | **decision required** |
-| **No database provisioned.** `vercel integration ls` reports no resources; `DATABASE_URL` is unset everywhere. `/admin` runs and refuses access correctly, but lists nothing until Neon is created and `npm run db:migrate` is run. **Also blocks WhatsApp confirmations** (`src/lib/whatsapp/notify.ts`): the one-message guarantee is an atomic database claim, so without `DATABASE_URL`, sending is skipped and logged rather than risk a duplicate send. | Owner's action: Vercel dashboard → Storage → Neon → Create. Then `npm run db:migrate`, then “Sync from Razorpay” in `/admin` to import the existing orders. |
-| **Evolution Go's `number` wire format is unconfirmed.** The send-text contract (`POST /send/text`, header `apikey`, body `{ number, text }`) was read from the manager's own compiled JS, but the exact digit shape it expects for `number` was not — see the header comment in `src/lib/whatsapp/evolution.ts`. Currently sends `91` + 10 digits, no `+`, matching this codebase's existing `wa.me` links. | Needs one real send with `EVOLUTION_TEST_PHONE` set to a number the owner designates for testing, per this project's own testing rules. |
+| ~~**No database provisioned**~~ — **resolved.** `DATABASE_URL` is set, Neon answers, and `schema.sql` is applied (all six `whatsapp_*` columns exist on `registrations`). It no longer blocks WhatsApp confirmations. | `/admin` has still never been exercised against it — see the row below. |
+| ~~**Evolution Go's `number` wire format is unconfirmed**~~ — **resolved.** `91` + 10 digits, no `+`, confirmed by real sends that were received. Evolution Go is no longer the default sender (see the WASI rows below), but the format is the same for both. | Nothing to do. |
+| **The WASI confirmation is not personalised.** WASI is an official Meta WABA account, so a business-initiated message must be a pre-approved template, and the only approved template (`confirmtion_message`) declares no variables. A lead therefore receives fixed text with **no name, no amount paid and no registration id** — all three of which the Evolution Go path sent. Measured, not assumed: a free-text send is refused with `session_window_closed`. | Owner's action: create a template with `{{1}}`-style placeholders, get it approved by Meta, then point `WASI_TEMPLATE_NAME` at it. `sendWasiTemplate` then needs a body-params argument. |
+| **A WASI 2xx means accepted, not delivered.** Meta reports a rejected send asynchronously. `sendWasiTemplate` catches the synchronous case (`status: "failed"`), but a number that fails later is recorded as SENT. Verified: a send to an invalid number returned 2xx. | WASI exposes a delivery webhook (`/api/client-webhook`); nothing in this project consumes it yet. |
+| **The WASI path has never run inside a real payment.** The client module itself is verified — `wasiCredentials()` and `sendWasiTemplate()` were run against the live deployment and delivered a real template, returning a `wamid`. What is untested is `notify.ts` calling it on a genuine PAID transition. | Same blocker as the checkout row above: needs one real payment. |
 | **`/admin` never exercised against a real database.** Login, session, forgery rejection, logout, rate limiting, CSV headers and the 401 on every endpoint are all verified; the queries themselves have only been type-checked. | Needs one pass after Neon exists. |
 | Admin dashboard not verified in a real browser (no browser automation here) | Same gap as the landing page's responsive row above. |
 | Mobile drawer has no focus trap | accessibility improvement, needs testing |
