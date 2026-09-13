@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Instrument_Sans, Instrument_Serif, Noto_Sans_Tamil } from "next/font/google";
 
+import { MetaPixel } from "@/components/MetaPixel";
 import { PROGRAM_PATH, PROGRAM_URL, programDetails, siteConfig } from "@/lib/config";
 import { jsonLd } from "@/lib/schema";
 import "./globals.css";
@@ -147,6 +148,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           // Static, build-time JSON from our own module — no user input involved.
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+
+        {/*
+          Last in the body, and loaded at `afterInteractive`, so the one
+          third-party script on this page can never sit in front of the content
+          or the LCP image. See components/MetaPixel.tsx for why it is shaped
+          this way, and why it is absent from `npm run dev`.
+        */}
+        <MetaPixel />
       </body>
     </html>
   );

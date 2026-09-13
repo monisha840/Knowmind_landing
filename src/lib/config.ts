@@ -38,6 +38,24 @@ export const siteConfig = {
   },
 } as const;
 
+/**
+ * Third-party analytics.
+ *
+ * This page carried no third-party script at all until the owner approved the
+ * Meta Pixel (CLAUDE.md §21's "No analytics - decision required"). It remains
+ * the *only* one: §15.1's "one tool" rule exists because a landing page whose
+ * whole purpose is fast first paint cannot absorb a stack of tag managers.
+ *
+ * A pixel id is public by construction - it ships in the client bundle and is
+ * readable by anyone viewing source - so it lives here as a plain fact rather
+ * than in an environment variable. Digits only, which is also what lets
+ * `MetaPixel` interpolate it into an inline script without an escaping
+ * question (see that component's comment).
+ */
+export const analytics = {
+  metaPixelId: "2182489935981571",
+} as const;
+
 export const programDetails = {
   startDate: "2026-09-21",
   endDate: "2026-10-04",
