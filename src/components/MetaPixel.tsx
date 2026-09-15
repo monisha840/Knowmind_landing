@@ -15,17 +15,46 @@
  *     4G (§15: LCP < 2.5s), and an analytics beacon is never worth a share of
  *     that. `afterInteractive` runs it once hydration is done, so a PageView
  *     lands a fraction of a second later and LCP is untouched.
- *   - **A failure here must never break the page.** It cannot: the snippet is
- *     self-contained, `next/script` isolates its execution, and nothing in
- *     this codebase calls `fbq` — so there is no site code to throw when the
- *     script is blocked by an ad blocker, a corporate proxy, or Meta being
- *     down. That is why no `fbq` wrapper or queue helper exists here; adding
- *     one would create the exact coupling §15.1 forbids.
- *   - **PageView only.** §15.1 permits conversion-meaningful events, and the
- *     obvious next one is a purchase event on the PAID transition. It is
- *     deliberately not here: that would have to fire from the payment routes
- *     with an order value attached, and §15.1 bans personal data in event
- *     payloads. It needs its own decision, not a drive-by addition.
+ *   - **A failure here must never break the page.** The snippet is
+ *     self-contained and `next/script` isolates its execution. The site calls
+ *     `fbq` from exactly one place — `trackConversion` in lib/analytics.ts —
+ *     and that function no-ops when `fbq` is missing and swallows anything it
+ *     throws. So an ad blocker, a corporate proxy or Meta being down removes
+ *     the tracking and leaves checkout exactly as it was. Never call `fbq`
+ *     directly from a component; go through that function.
+ *   - **This file sends PageView; conversions live elsewhere.** `Lead`,
+ *     `InitiateCheckout` and `Purchase` are fired from the checkout state
+ *     machine (lib/payments/useCheckout.ts) via lib/analytics.ts, because only
+ *     that code knows when the server has actually accepted a registration or
+ *     verified a payment. Their payloads carry a value and a currency and
+ *     nothing else — §15.1's no-personal-data rule, enforced by type.
+ *
+ * ---------------------------------------------------------------------------
+ * Why autoConfig is off
+ * ---------------------------------------------------------------------------
+ * Meta's pixel ships with "automatic configuration" on, and one of the things
+ * it switches on is Automatic Advanced Matching: it reads the registration
+ * form's email and phone inputs, SHA-256 hashes them, and attaches them to
+ * every later event as `udff[em]`, `udff[ph]` and `audff[em]`. Measured in a
+ * real browser against this page with beacons captured and blocked: 5 beacons
+ * carried the hashed email or phone as deployed, 0 with the line above.
+ *
+ * A hash of an email address is still the email address for this purpose —
+ * matching it back to a person is the entire point of sending it — so this is
+ * exactly what CLAUDE.md §15.1 forbids, and it would silently make
+ * lib/analytics.ts's "no personal data reaches Meta" guarantee false. It also
+ * removes the automatic `SubscribedButtonClick` events, which only duplicated
+ * the explicit conversions with scraped button text.
+ *
+ * What it does not remove, verified in the same run: PageView, Lead,
+ * InitiateCheckout and Purchase all still fire with value and currency. Ad
+ * attribution for somebody who clicked an ad still works through Meta's click
+ * id (`fbclid`, stored as the `_fbc` cookie), which needs no email at all.
+ *
+ * **The toggle in Events Manager no longer does anything for this page** —
+ * this line overrides it. If advanced matching is ever wanted, it is a
+ * deliberate change with a consent step (§15.1's consent bullet), not a
+ * dashboard switch.
  *
  * ---------------------------------------------------------------------------
  * Why it does not run in development
@@ -59,7 +88,9 @@ export function MetaPixel() {
     <>
       <Script id="meta-pixel" strategy="afterInteractive">
         {/*
-          Meta's snippet, verbatim apart from the id being interpolated. The id
+          Meta's snippet, verbatim apart from the id being interpolated and the
+          one `autoConfig` line before `init` (see "Why autoConfig is off" in
+          the header — it must stay ahead of `init` to take effect). The id
           is a build-time constant from our own module and is digits only
           (`analytics.metaPixelId` in lib/config.ts), so there is no user input
           anywhere near this string and nothing to escape — the same reasoning
@@ -75,6 +106,7 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
+fbq('set', 'autoConfig', false, '${id}');
 fbq('init', '${id}');
 fbq('track', 'PageView');`}
       </Script>

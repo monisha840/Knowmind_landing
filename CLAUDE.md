@@ -186,7 +186,7 @@ manipulation is off-brand as well as unethical.
 | ESLint | **Not configured** (no config file anywhere) |
 | Prettier | **Not configured** |
 | Tests | **None** — no runner, no test files |
-| Analytics | **Meta Pixel** (`2182489935981571`), and nothing else — `src/components/MetaPixel.tsx`, loaded at `afterInteractive`. Absent from `npm run dev` by design. |
+| Analytics | **Meta Pixel** (`2182489935981571`), and nothing else — `src/components/MetaPixel.tsx` (PageView, `afterInteractive`, `autoConfig` off) and `src/lib/analytics.ts` (`Lead` / `InitiateCheckout` / `Purchase`). Absent from `npm run dev` by design. |
 | Backend | **Next.js Route Handlers** — three payment (`src/app/api/`), six admin (`src/app/api/admin/`). The admin routes are the only authenticated surface; each enforces its own session check. No long-running process. |
 | Database | **Neon Postgres** via `@neondatabase/serverless` (HTTP, no pool, server-only) — the lead list behind `/admin`. **Optional by design:** with `DATABASE_URL` unset every write is skipped with a log line and registration is unaffected. A registration's *payment* record is still the Razorpay order's `notes`; the Redis mirror from `KV_REST_API_URL` is unchanged (see `src/lib/payments/registrations.ts`) |
 | Payments | **Razorpay Standard Checkout**, over the REST API. **No `razorpay` npm package** — HTTP Basic + `node:crypto` HMAC, so nothing was added to the bundle |
@@ -336,6 +336,8 @@ one without approval is a scope violation.
         │                      # · format.ts.  auth.ts is the ONLY password reader
         ├── db/                # client.ts (Neon over HTTP) · registrations.ts
         │                      # · schema.sql.  SERVER ONLY — throws in a browser
+        ├── analytics.ts       # Meta conversion events. The ONLY caller of `fbq`;
+        │                      # its param type is closed so no PII can be passed
         ├── config.ts          # program facts, anchors, money helpers
         ├── content.ts         # ALL repeatable copy as structured data
         ├── hooks.ts           # media queries, WebGL probe, count-up, pointer, scroll
@@ -1238,11 +1240,21 @@ added later:
 - Track conversion-meaningful events only: CTA click, checkout start, FAQ
   open, video play, section reach. Not every mouse movement. The hook for
   checkout state is **`data-payment-phase`** on `JourneyForm`'s pay button
-  (§7.1) — `data-payment-configured` no longer exists. **Today only
-  `PageView` fires**; a purchase event on the PAID transition would have to
-  carry an order value out of the payment routes, which needs its own decision
-  under the no-personal-data rule below.
+  (§7.1) — `data-payment-configured` no longer exists. Four events fire,
+  and only these: `PageView` (`MetaPixel.tsx`), then `Lead` when
+  `/api/register` returns an order, `InitiateCheckout` as Razorpay opens, and
+  `Purchase` only when `/api/razorpay/verify` returns 200 — all from
+  `useCheckout` via `trackConversion` in `src/lib/analytics.ts`, once per
+  registration. Their payload is `value` + `currency` + `content_name`.
+  **Never call `fbq` anywhere else**, and never fire `Purchase` from Razorpay's
+  browser `handler` (§8: that is a claim, not a payment).
 - No personal data, no email addresses, no phone numbers in event payloads.
+  **Hashed counts.** Meta's default *Automatic Advanced Matching* reads form
+  inputs and sends SHA-256 email/phone as `udff[em]` / `udff[ph]` — measured on
+  this page before it was switched off. `MetaPixel.tsx` sets
+  `fbq('set', 'autoConfig', false, id)` ahead of `init` for exactly this
+  reason; do not remove it, and do not rely on the Events Manager toggle, which
+  this line overrides.
 - One tool. Do not stack three tag managers on a single landing page.
 - **No consent surface exists, and that is an open decision, not an oversight.**
   The pixel sets cookies and fires on load for every visitor. India's DPDP Act
@@ -1513,7 +1525,7 @@ these by fabricating content — most need an asset or a human decision.
 | No rate limit on `/api/register` | an abandoned-order nuisance, not a money risk. Needs the Redis mirror or a platform rule. |
 | Video testimonials: the programme page's three slots are filled from the Drive asset library. `content.ts`'s `videoTestimonials` (the deck page) are still `src: null` | three more participant recordings exist in Drive, unused — see the foot of `scripts/optimize-video.mjs` |
 | **Media** logos are the outlets' own marks, at the owner's instruction — the licensing decision this row used to hold open has been made for those nine. **Client** logos are still typographic wordmarks | the deck's only copy of the eighteen client marks is one flattened grid image (`image14.png`), which cannot be cut into individual marks anyone would be entitled to ship. Still a decision, still open |
-| ~~No analytics~~ — **resolved.** Meta Pixel added at the owner's instruction, `afterInteractive`, PageView only. Verified present in a production build and on the live domain. | Open sub-decision: no purchase/Lead event fires on PAID. Also no cookie-consent surface — see the consent bullet in §15.1. |
+| ~~No analytics~~ — **resolved.** Meta Pixel with `Lead` / `InitiateCheckout` / `Purchase`, verified end to end in a real browser (checkout and verify mocked, beacons captured and blocked): each fires once per registration, carries ₹699 INR, and 0 beacons contain raw or hashed personal data. | Owner actions in Meta, outside this repo: verify `kaleeswaran.com` in Business Manager; confirm events in Events Manager. Not built: server-side Conversions API (a `Purchase` whose browser never returns — the webhook path — is not reported to Meta). Still no cookie-consent surface — see §15.1. |
 | ~~**No database provisioned**~~ — **resolved.** `DATABASE_URL` is set, Neon answers, and `schema.sql` is applied (all six `whatsapp_*` columns exist on `registrations`). It no longer blocks WhatsApp confirmations. | `/admin` has still never been exercised against it — see the row below. |
 | ~~**Evolution Go's `number` wire format is unconfirmed**~~ — **resolved.** `91` + 10 digits, no `+`, confirmed by real sends that were received. Evolution Go is no longer the default sender (see the WASI rows below), but the format is the same for both. | Nothing to do. |
 | **The WASI confirmation is not personalised.** WASI is an official Meta WABA account, so a business-initiated message must be a pre-approved template, and the only approved template (`confirmtion_message`) declares no variables. A lead therefore receives fixed text with **no name, no amount paid and no registration id** — all three of which the Evolution Go path sent. Measured, not assumed: a free-text send is refused with `session_window_closed`. | Owner's action: create a template with `{{1}}`-style placeholders, get it approved by Meta, then point `WASI_TEMPLATE_NAME` at it. `sendWasiTemplate` then needs a body-params argument. |

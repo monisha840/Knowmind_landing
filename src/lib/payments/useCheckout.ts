@@ -25,6 +25,7 @@ import type {
   CreateOrderResponse,
   VerifyResponse,
 } from "@/lib/payments/types";
+import { trackConversion } from "@/lib/analytics";
 import { programDetails, siteConfig } from "@/lib/config";
 import { journeyForm } from "@/lib/content";
 import type { AnswerKey, Answers } from "@/lib/validation";
@@ -346,6 +347,16 @@ export function useCheckout(): UseCheckout {
           return;
         }
 
+        /* A real registration now exists server-side, so this is a real lead —
+           tracked here, after the server's answer, and not on the button press.
+           Fires before the `alive` check on purpose: somebody who closes the
+           page at this instant is still a lead the server has recorded. */
+        trackConversion(
+          "Lead",
+          { value: order.amount / 100, currency: order.currency },
+          order.registrationId,
+        );
+
         if (!alive.current) return;
 
         const Checkout = window.Razorpay;
@@ -408,16 +419,23 @@ export function useCheckout(): UseCheckout {
               if (!alive.current) return;
 
               if (verified.ok) {
-                settle({
-                  kind: "paid",
-                  receipt: {
-                    registrationId: verified.body.registrationId,
-                    razorpayPaymentId: result.razorpay_payment_id,
-                    razorpayOrderId: result.razorpay_order_id,
-                    amountPaise: programDetails.price * 100,
-                    confirmedAt: new Date().toISOString(),
-                  },
-                });
+                const receipt: PaidReceipt = {
+                  registrationId: verified.body.registrationId,
+                  razorpayPaymentId: result.razorpay_payment_id,
+                  razorpayOrderId: result.razorpay_order_id,
+                  amountPaise: programDetails.price * 100,
+                  confirmedAt: new Date().toISOString(),
+                };
+                settle({ kind: "paid", receipt });
+                /* Purchase is reported from here and nowhere else: the server
+                   verified it. `handler` firing above is only Razorpay's claim,
+                   and a Purchase sent from that would count money the server
+                   could still refuse (CLAUDE.md §8). */
+                trackConversion(
+                  "Purchase",
+                  { value: receipt.amountPaise / 100, currency: order.currency },
+                  receipt.registrationId,
+                );
                 return;
               }
 
@@ -443,6 +461,11 @@ export function useCheckout(): UseCheckout {
 
         instance.current = checkout;
         setPhase({ kind: "open" });
+        trackConversion(
+          "InitiateCheckout",
+          { value: order.amount / 100, currency: order.currency },
+          order.registrationId,
+        );
         checkout.open();
       })();
     },
