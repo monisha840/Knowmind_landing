@@ -118,7 +118,7 @@ A **single-page marketing landing page** for one live program.
 | Program | 1% Better. Every Day. | `siteConfig.program` |
 | Subtitle | 14-Day Live Psychological Growth Journey | `siteConfig.programSubtitle` |
 | Batch | Batch 2 | `siteConfig.batch` |
-| Dates | September 14–27, 2026 | `programDetails.dateLabel` |
+| Dates | September 28 – October 11, 2026 | `programDetails.startDate` / `endDate` / `dateLabel` / `dateLabelShort` — the only four hardcoded date values. Everything else (hero, sticky bar, countdown deadline, success panel, metadata, OG image, manifest, JSON-LD) derives from them. |
 | Time | 5:30 AM – 6:15 AM (45 min) | `programDetails.timeLabel` |
 | Platform | Live on Zoom | `programDetails.platform` |
 | Language | Tamil + English (natural Tanglish) | `programDetails.language` |

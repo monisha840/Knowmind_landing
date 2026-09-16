@@ -57,10 +57,10 @@ export const analytics = {
 } as const;
 
 export const programDetails = {
-  startDate: "2026-09-21",
-  endDate: "2026-10-04",
-  dateLabel: "September 21 – October 4, 2026",
-  dateLabelShort: "Sep 21 – Oct 4, 2026",
+  startDate: "2026-09-28",
+  endDate: "2026-10-11",
+  dateLabel: "September 28 – October 11, 2026",
+  dateLabelShort: "Sep 28 – Oct 11, 2026",
   timeLabel: "5:30 AM – 6:15 AM",
   timeShort: "5:30 AM",
   durationMinutes: 45,
