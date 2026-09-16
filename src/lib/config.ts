@@ -80,7 +80,7 @@ export const programDetails = {
    * checkout collects another is the failure this arrangement exists to make
    * impossible (CLAUDE.md §7.5, §8).
    */
-  price: 699,
+  price: 1,
   currency: "INR",
   currencySymbol: "₹",
 } as const;
