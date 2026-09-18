@@ -476,7 +476,7 @@ export const refCorpMarquee = {
  * the picture of it.
  */
 export const refMediaMarquee = {
-  label: "Featured in Tamil Nadu's leading media",
+  label: "Featured",
   items: [
     { name: "Sun News", src: "/media/sun-news.webp", width: 132, height: 96 },
     { name: "Thanthi TV", src: "/media/thanthi-tv.webp", width: 86, height: 96 },
