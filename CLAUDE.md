@@ -285,7 +285,8 @@ one without approval is a scope violation.
 │   ├── kalee/hero-growth.webp · hero-growth-rim.png   # the hero portrait and
 │   │                          # the gold rim matte DERIVED from it — both are
 │   │                          # written by optimize-assets.mjs, never by hand
-│   ├── media/ nine outlet logos (.webp) + logos.json  # extract-media-logos.mjs
+│   ├── media/ ten logos (.webp) + logos.json  # nine from extract-media-logos.mjs;
+│   │                          # tedx.webp is owner-supplied and NOT rebuilt by it
 │   ├── photos/experiential-circle.webp · leadership-program.webp · experiential-activity.webp
 │   ├── journey/ seven .webp — the moving photo strip above the FAQ.
 │   │                      # optimize-assets.mjs, from the owner's "LP images"

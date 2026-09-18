@@ -478,6 +478,17 @@ export const refCorpMarquee = {
 export const refMediaMarquee = {
   label: "Featured",
   items: [
+    /* TEDx is the one mark here the deck never carried. The owner supplied it
+       directly (`tedx_logo.jpeg` at the repository root) and it went through the
+       same trim -> flatten -> 96px -> webp pipeline as the rest, so it sits on
+       the strip identically rather than looking pasted on.
+
+       `npm run media:logos` rebuilds the other nine from the deck and writes
+       `public/media/logos.json` from what it found — it cannot know about this
+       one, so it will neither produce `tedx.webp` nor list it. Keep this entry
+       when re-running that script, and do not "fix" logos.json by hand: nothing
+       reads it at runtime, it is only that script's record of its own output. */
+    { name: "TEDx", src: "/media/tedx.webp", width: 328, height: 96 },
     { name: "Sun News", src: "/media/sun-news.webp", width: 132, height: 96 },
     { name: "Thanthi TV", src: "/media/thanthi-tv.webp", width: 86, height: 96 },
     { name: "Vijay TV", src: "/media/vijay-tv.webp", width: 72, height: 96 },
